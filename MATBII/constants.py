@@ -1,0 +1,16 @@
+
+def rgb(*colour):
+    return "#%02x%02x%02x" % colour 
+
+BACKGROUND_COLOUR = 'lightgray'
+OUTLINE_WIDTH = 2
+OUTLINE_COLOUR = 'black'
+
+#system monitor
+SYSTEM_MONITOR_HEIGHT = 500
+SYSTEM_MONITOR_WIDTH = 400
+
+SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR = '#add9e6'
+SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR_FILL = '#4882b2'
+SYSTEM_MONITOR_SCALE_POSITIONS = [0,1,2,3] #this can be random...
+  
