@@ -54,7 +54,7 @@ class Scale(EventCallback, tk.Canvas):
     def click_callback(self, *args):
         #move the state towards the middle...?
         self.slide(self.__state - NUM_SCALE_SPLIT // 2 + 1)
-        self.source()
+        self.source('click')
 
 class WarningLight(EventCallback, tk.Canvas):
 
@@ -73,17 +73,17 @@ class WarningLight(EventCallback, tk.Canvas):
 
     def click_callback(self, *args):
         self.sink(None)
-        self.source() #notify global
+        self.source('click') #notify global
 
     def sink(self, _):
         self.__state = int(not bool(self.__state))
         self.configure(bg=self.__state_colours[self.__state])
 
 
-class SystemMonitor(tk.Frame):
+class SystemMonitorWidget(tk.Frame):
 
     def __init__(self, parent, width=480, height=640):
-        super(SystemMonitor, self).__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR) 
+        super(SystemMonitorWidget, self).__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR) 
         self.top_frame = tk.Frame(self, bg=BACKGROUND_COLOUR)
         self.top_frame.pack(side=tk.TOP, anchor=tk.N, fill='x', pady=20, padx=X_SCALE*10)
 
@@ -108,7 +108,3 @@ class SystemMonitor(tk.Frame):
             scale.grid(row=0, column=i, padx=X_SCALE*30)
             scale.slide(-SYSTEM_MONITOR_SCALE_POSITIONS[i])
             self.scales.append(scale)
-        
-    
-
-

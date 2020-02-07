@@ -5,7 +5,6 @@ EVENT_SOURCES = {}
 
 GLOBAL_EVENT_CALLBACK = lambda *args: print(*args)
 
-
 class EventCallback:
 
     def __init__(self, *args, **kwargs):
