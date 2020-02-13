@@ -8,10 +8,10 @@ Created on Sun Jun  2 21:22:31 2019
 
 import setuptools
 
-setuptools.setup(name='MATHBII',
+setuptools.setup(name='ICU',
       version='0.0.1',
       description='',
-      url='https://github.com/dicelab-rhul/MATB-II',
+      url='https://github.com/dicelab-rhul/ICU',
       author='Benedict Wilkins',
       author_email='benrjw@googlemail.co.uk',
       license='',
