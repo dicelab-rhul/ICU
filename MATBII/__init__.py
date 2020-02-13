@@ -11,9 +11,9 @@ from . import panel
 from . import system_monitor
 from . import main_panel
 from . import tracking
-from . import fuel
+from . import fuel_monitor
 
-__all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel')
+__all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
 
 global finish
 
@@ -74,27 +74,28 @@ root.protocol("WM_DELETE_WINDOW", quit)
 main = main_panel.MainPanel(root)
 
 system_monitor_widget = system_monitor.SystemMonitorWidget(main.top, width=constants.SYSTEM_MONITOR_WIDTH, 
-                                                     height=constants.SYSTEM_MONITOR_HEIGHT)
+                                                                     height=constants.SYSTEM_MONITOR_HEIGHT)
 
 system_monitor_widget.pack(side='left')
 
 tracking_widget = tracking.TrackingWidget(main.top, size=400)
 tracking_widget.pack(side='left')
 
-resource_management_widget = fuel.FuelWidget(main.bottom, width=500, height=200)
-resource_management_widget.pack(side='left')
+fuel_monitor_widget = fuel_monitor.FuelWidget(main.bottom, width=constants.FUEL_MONITOR_WIDTH, 
+                                                          height=constants.FUEL_MONITOR_HEIGHT)
+fuel_monitor_widget.pack(side='left')
 
 main.pack()
 
 event_scheduler = TKSchedular()
-#event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
-#event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=500)
-#event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
+event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
+event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=500)
+event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
 
 if constants.JOYSTICK:
     print("TODO are we using a joystick!?")
 else:
-    #there is a delay, it needs an press/release handler to work smoothly...
+    #there is a delay, it needs an press/release handler to work smoothly and to handle simultanneous presses...
     root.bind("<Left>",     lambda *args: tracking_widget.left_callback(*args))
     root.bind("<Right>",    lambda *args: tracking_widget.right_callback(*args))
     root.bind("<Up>",       lambda *args: tracking_widget.up_callback(*args))
