@@ -1,5 +1,8 @@
 import time
 
+global finish
+finish = False
+
 EVENT_SINKS = {}
 EVENT_SOURCES = {}
 
@@ -23,7 +26,6 @@ class EventCallback:
     def sink(self, event):
         pass
 
-
 EVENT_NAME = 0
 def next_name():
     global EVENT_NAME
@@ -39,3 +41,40 @@ class Event:
     def __str__(self):
         return "{0}{1}".format(self.name, str(self.args))
 
+class TKSchedular: #might be better to detach events from the GUI? quick and dirt for now...
+
+    def __init__(self, tk_root):
+        self.tk_root = tk_root
+
+    def schedule(self, generator, sleep=1000, repeat=True):
+        if repeat:
+            self.after(sleep, self.gen_repeat, generator, sleep)
+        else:
+            self.after(sleep, self.gen, generator)
+
+    def gen(self, e):
+        try:
+            e = next(generator)
+            EVENT_SINKS[e.args[0]].sink(e)
+            GLOBAL_EVENT_CALLBACK(e)
+        except StopIteration:
+            pass
+
+    def gen_repeat(self, generator, sleep):
+        try:
+            e = next(generator)
+            self.after(sleep, self.gen_repeat, generator, sleep)
+            EVENT_SINKS[e.args[0]].sink(e)
+            GLOBAL_EVENT_CALLBACK(e)
+        except StopIteration:
+            pass
+        
+    def after(self, sleep, fun, *args):
+        self.tk_root.after(sleep, fun, *args)
+
+global event_scheduler
+event_scheduler = None
+
+def tk_event_schedular(root):
+    global event_scheduler
+    event_scheduler = TKSchedular(root)

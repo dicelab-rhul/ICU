@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import tkinter as tk
-from threading import Thread 
-
-
 
 from . import constants
 from . import event
@@ -14,10 +11,6 @@ from . import tracking
 from . import fuel_monitor
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
-
-global finish
-
-finish = False
 
 class Sleep:
 
@@ -35,32 +28,6 @@ class Sleep:
     def __t(self):
         return int(round(time.time() * 1000))
 
-class TKSchedular:
-
-    def __init__(self):
-        pass
-
-    def schedule(self, generator, sleep=1000, repeat=True):
-        if repeat:
-            self.after(sleep, self.gen_repeat, generator, sleep)
-        else:
-            self.after(sleep, self.gen, generator)
-
-    def gen(self, e):
-        e = next(generator)
-        event.EVENT_SINKS[e.args[0]].sink(e)
-        event.GLOBAL_EVENT_CALLBACK(e)
-
-    def gen_repeat(self, generator, sleep):
-        e = next(generator)
-        self.after(sleep, self.gen_repeat, generator, sleep)
-        event.EVENT_SINKS[e.args[0]].sink(e)
-        event.GLOBAL_EVENT_CALLBACK(e)
-
-    def after(self, sleep, fun, *args):
-        global finish
-        if not finish:
-            root.after(sleep, fun, *args)
 
 def quit():
     global finish
@@ -70,6 +37,9 @@ def quit():
 root = tk.Tk()
 root.title("MATB-II")
 root.protocol("WM_DELETE_WINDOW", quit)
+root.geometry('%dx%d+%d+%d' % (1000, 1000, 1000, 500))
+
+event.tk_event_schedular(root) #initial global event schedular
 
 main = main_panel.MainPanel(root)
 
@@ -82,15 +52,14 @@ tracking_widget = tracking.TrackingWidget(main.top, size=400)
 tracking_widget.pack(side='left')
 
 fuel_monitor_widget = fuel_monitor.FuelWidget(main.bottom, width=constants.FUEL_MONITOR_WIDTH, 
-                                                          height=constants.FUEL_MONITOR_HEIGHT)
+                                                           height=constants.FUEL_MONITOR_HEIGHT)
 fuel_monitor_widget.pack(side='left')
 
 main.pack()
 
-event_scheduler = TKSchedular()
-event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
-event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=500)
-event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
+#event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
+#event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=500)
+#event.event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
 
 if constants.JOYSTICK:
     print("TODO are we using a joystick!?")

@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 from . import panel
 from .constants import BACKGROUND_COLOUR, OUTLINE_WIDTH, OUTLINE_COLOUR, SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR_FILL
-from .constants import SYSTEM_MONITOR_SCALE_POSITIONS
+from .constants import SYSTEM_MONITOR_SCALE_POSITIONS, COLOUR_GREEN, COLOUR_RED
 
 from .event import Event, EventCallback, EVENT_SINKS
 
@@ -58,7 +58,7 @@ class Scale(EventCallback, tk.Canvas):
 
 class WarningLight(EventCallback, tk.Canvas):
 
-    def __init__(self, parent, name, width, height, state=0, on_colour='green', off_colour='red'):
+    def __init__(self, parent, name, width, height, state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED):
         self.__state_colours = [off_colour, on_colour]
         super(EventCallback, self).__init__()
         super(WarningLight, self).__init__(parent, bg=self.__state_colours[state], width=width, height=height,
@@ -79,7 +79,6 @@ class WarningLight(EventCallback, tk.Canvas):
         self.__state = int(not bool(self.__state))
         self.configure(bg=self.__state_colours[self.__state])
 
-
 class SystemMonitorWidget(tk.Frame):
 
     def __init__(self, parent, width=480, height=640):
@@ -88,11 +87,11 @@ class SystemMonitorWidget(tk.Frame):
         self.top_frame.pack(side=tk.TOP, anchor=tk.N, fill='x', pady=20, padx=X_SCALE*10)
 
         self.warning_light_left = WarningLight(self.top_frame, name=str(0), width=X_SCALE * width/2, height=height * Y_SCALE,
-                                                on_colour='green', off_colour=BACKGROUND_COLOUR, state=1)
+                                                on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, state=1)
         self.warning_light_left.pack(side=tk.LEFT, padx=X_SCALE*20)
 
         self.warning_light_right = WarningLight(self.top_frame, name=str(1), width=X_SCALE * width/2,  height=height * Y_SCALE,
-                                                on_colour='red', off_colour=BACKGROUND_COLOUR, state=0)
+                                                on_colour=COLOUR_RED, off_colour=BACKGROUND_COLOUR, state=0)
         self.warning_light_right.pack(side=tk.RIGHT, padx=X_SCALE*20)
 
         self.bottom_frame = tk.Frame(self, bg=BACKGROUND_COLOUR)
