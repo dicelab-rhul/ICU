@@ -2,14 +2,11 @@ import tkinter as tk
 import random
 
 from .constants import BACKGROUND_COLOUR, FUEL_TANK_LINE_THICKNESS, FUEL_TANK_LINE_COLOUR, COLOUR_GREEN, COLOUR_RED
-from .constants import PUMP_HEIGHT, PUMP_WIDTH, OUTLINE_COLOUR, OUTLINE_WIDTH
+from .constants import PUMP_HEIGHT, PUMP_WIDTH, OUTLINE_COLOUR, OUTLINE_WIDTH, PUMP_EVENT_RATE, PUMP_FLOW_RATE, PUMP_FAIL_SCHEDULE
 
 from . import event
 
 from .event import Event, EventCallback, EVENT_SINKS
-
-
-
 
 from pprint import pprint
 
@@ -72,26 +69,45 @@ class FuelTankInfinite(FuelTank):
 
 class PumpEventGenerator:
 
-    def __init__(self, pump, flow=100, event_rate=1):
+    def __init__(self, pump, flow_rate=100, event_rate=1):
+        '''
+            Event Generator for pumps.
+            Arguments:
+                pump: that is transfering fuel between two tanks.
+                flow: fuel transfer per second. 
+                event_rate: number of events per second;
+        '''
         super(PumpEventGenerator, self).__init__()
         self.pump = pump
-        self.flow = flow
+        self.flow_rate = flow_rate
         self.event_rate = event_rate
         self.on = False
+        self.pump_name = '{0}:{1}'.format(Pump.__name__, self.pump.name)
+        event.event_scheduler.schedule(self.fail(), sleep=PUMP_FAIL_SCHEDULE, repeat=True)
+
 
     def start(self):
         self.on = True
-        event.event_scheduler.schedule(self(), sleep=int(1000/self.event_rate), repeat=True)
+        event.event_scheduler.schedule(self.transfer(), sleep=int(1000/self.event_rate), repeat=True)
 
     def stop(self):
         self.on = False
 
-    def __call__(self):
+    def fail(self):
+        while True:
+            if self.pump._Pump__state == 2:
+                yield Event(self.pump_name, 'repair')
+            else:
+                self.stop()
+                yield Event(self.pump_name, 'fail')
+
+
+    def transfer(self):
         while self.on:
-            flow = self.flow
+            flow = self.flow_rate / self.event_rate
             if self.pump.tank1.fuel == 0 or self.pump.tank2.fuel == self.pump.tank2.capacity:
                 flow = 0
-            yield Event('{0}:{1}'.format(Pump.__name__, self.pump.name), 'pump', flow)
+            yield Event(self.pump_name, 'transfer', flow)
 
 class Pump(EventCallback, tk.Frame):
 
@@ -120,14 +136,13 @@ class Pump(EventCallback, tk.Frame):
 
         self.label.bind("<Button-1>", self.click_callback)
 
-        self.generator = PumpEventGenerator(self, flow=10, event_rate=10) #transfer 10 fuel every 0.1 seconds
+        self.generator = PumpEventGenerator(self, flow_rate=PUMP_FLOW_RATE[self.name], event_rate=PUMP_EVENT_RATE) #transfer 10 fuel every 1 seconds
 
     def click_callback(self, *args):
         if self.__state == 2: #fail (nothing happens)
             #GLOBAL CALLBACK?
             pass
         else: #otherise flip the state on/off
-            print(self.__state)
             self.__state = abs(self.__state - 1)
             self.label.config(bg=Pump.COLOURS[self.__state])
             (self.generator.start, self.generator.stop)[self.__state]()
@@ -135,9 +150,15 @@ class Pump(EventCallback, tk.Frame):
         self.source('click') #notify global
 
     def sink(self, event):
-        assert event.args[1] == 'pump' #sanity check...
-        self.tank1.update(-event.args[2])
-        self.tank2.update(event.args[2])
+        if len(event.args) == 3:
+            self.tank1.update(-event.args[2])
+            self.tank2.update(event.args[2])
+        elif len(event.args) == 2:    
+            if event.args[1] == 'fail':
+                self.__state = 2
+            elif event.args[1] == 'repair':
+                self.__state = 1
+            self.label.config(bg=Pump.COLOURS[self.__state])
 
 class Wing:
     
@@ -203,8 +224,6 @@ class FuelWidget(tk.Canvas):
                                 med_tank_name="F", big_tank_name="B")
         
         self.wing_right.move(width/2, 0)
-
-        pprint(self.tanks)
 
         (ax, ay) = self.tanks['A'].center
         (aw, ah) = self.tanks['A'].size

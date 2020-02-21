@@ -12,6 +12,10 @@ from . import fuel_monitor
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
 
+
+
+event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: print("callback: ", *args))
+
 class Sleep:
 
     def __init__(self, wait):
@@ -57,9 +61,10 @@ fuel_monitor_widget.pack(side='left')
 
 main.pack()
 
-#event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
-#event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=500)
-#event.event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
+event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
+event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
+event.event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=1000, repeat=True)
+
 
 if constants.JOYSTICK:
     print("TODO are we using a joystick!?")

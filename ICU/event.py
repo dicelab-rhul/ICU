@@ -6,7 +6,19 @@ finish = False
 EVENT_SINKS = {}
 EVENT_SOURCES = {}
 
-GLOBAL_EVENT_CALLBACK = lambda *args: print(*args)
+class GlobalEventCallback:
+
+    def __init__(self):
+        self.callbacks = []
+
+    def add_event_callback(self, callback):
+        self.callbacks.append(callback)
+
+    def __call__(self, *args):
+        for callback in self.callbacks:
+            callback(*args)
+    
+GLOBAL_EVENT_CALLBACK = GlobalEventCallback()
 
 class EventCallback:
 
@@ -23,7 +35,7 @@ class EventCallback:
     def source(self, *args):
         GLOBAL_EVENT_CALLBACK(Event(self.__name, *args))
 
-    def sink(self, event):
+    def sink(self, event): #override this method
         pass
 
 EVENT_NAME = 0
@@ -41,16 +53,30 @@ class Event:
     def __str__(self):
         return "{0}{1}".format(self.name, str(self.args))
 
+def sleep_repeat_int(sleep):
+    while True:
+        yield sleep
+
+def sleep_repeat_list(sleep):
+    while True:
+        for i in sleep:
+            yield i
+
 class TKSchedular: #might be better to detach events from the GUI? quick and dirt for now...
 
     def __init__(self, tk_root):
         self.tk_root = tk_root
 
     def schedule(self, generator, sleep=1000, repeat=True):
+        if isinstance(sleep, int):
+            sleep = sleep_repeat_int(sleep)
+        elif isinstance(sleep, (list,tuple)):
+            sleep = sleep_repeat_list(sleep)
+
         if repeat:
-            self.after(sleep, self.gen_repeat, generator, sleep)
+            self.after(next(sleep), self.gen_repeat, generator, sleep)
         else:
-            self.after(sleep, self.gen, generator)
+            self.after(next(sleep), self.gen, generator)
 
     def gen(self, e):
         try:
@@ -63,7 +89,7 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
     def gen_repeat(self, generator, sleep):
         try:
             e = next(generator)
-            self.after(sleep, self.gen_repeat, generator, sleep)
+            self.after(next(sleep), self.gen_repeat, generator, sleep)
             EVENT_SINKS[e.args[0]].sink(e)
             GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
