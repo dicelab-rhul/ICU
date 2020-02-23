@@ -7,14 +7,41 @@ from .event import Event, EventCallback, EVENT_SINKS
 
 # TODO keys are mutually exclusive, they should be able to be pressed them simultaneously.
 
+def get_tracking_widget_handle(): #get the name of the tracking widget for use in event callback
+    return [s for s in EVENT_SINKS.keys() if TrackingWidget.__name__ in s][0]
+
 def TrackingEventGenerator():
-    scales = [s for s in EVENT_SINKS.keys() if TrackingWidget.__name__ in s]
+    trackingwidget = get_tracking_widget_handle()
     step = 10
 
     while True:
         dy = random.randint(-step, step)
         dx = random.randint(-step, step)
-        yield Event(scales[0], dx, dy)
+        yield Event(trackingwidget, dx, dy)
+
+
+def KeyEventGenerator(keyhandler):
+    trackingwidget = get_tracking_widget_handle()
+    dx = 0
+    dy = 0
+
+    while True:
+        if keyhandler.isPressed('Left'):
+            dx -= TRACKING_TARGET_SPEED
+        if keyhandler.isPressed('Right'):
+            dx += TRACKING_TARGET_SPEED
+        if keyhandler.isPressed('Up'):
+            dy -= TRACKING_TARGET_SPEED
+        if keyhandler.isPressed('Down'):
+            dy += TRACKING_TARGET_SPEED
+        
+        if dx != 0 or dy != 0:
+            yield Event(trackingwidget, dx, dy)
+            dx = 0
+            dy = 0
+        else:
+            yield None
+    
 
 class Target:
 
@@ -100,20 +127,11 @@ class TrackingWidget(EventCallback, tk.Canvas):
         self.create_rectangle(edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline=TRACKING_LINE_COLOUR, width=line_thickness)
 
     def sink(self, event):
+        print(event)
         self.target.move(event.args[1], event.args[2])
 
-    def left_callback(self, *args):
-        self.target.move(-TRACKING_TARGET_SPEED, 0)
-        self.source("left", -TRACKING_TARGET_SPEED, 0)
+    def move_callback(self, dx, dy):
+        self.target.move(dx,dy)
+        self.source("move", dx, dy)
 
-    def right_callback(self, *args):
-        self.target.move(TRACKING_TARGET_SPEED, 0)
-        self.source("right", TRACKING_TARGET_SPEED, 0)
 
-    def up_callback(self, *args):
-        self.target.move(0, -TRACKING_TARGET_SPEED)
-        self.source("up", 0, -TRACKING_TARGET_SPEED)
-
-    def down_callback(self, *args):
-        self.target.move(0, TRACKING_TARGET_SPEED)
-        self.source("down", 0, TRACKING_TARGET_SPEED)

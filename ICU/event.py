@@ -81,8 +81,9 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
     def gen(self, e):
         try:
             e = next(generator)
-            EVENT_SINKS[e.args[0]].sink(e)
-            GLOBAL_EVENT_CALLBACK(e)
+            if e is not None:
+                EVENT_SINKS[e.args[0]].sink(e)
+                GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
             pass
 
@@ -90,8 +91,9 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
         try:
             e = next(generator)
             self.after(next(sleep), self.gen_repeat, generator, sleep)
-            EVENT_SINKS[e.args[0]].sink(e)
-            GLOBAL_EVENT_CALLBACK(e)
+            if e is not None:
+                EVENT_SINKS[e.args[0]].sink(e)
+                GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
             pass
         

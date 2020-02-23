@@ -30,7 +30,7 @@ SYSTEM_MONITOR_SCALE_POSITIONS = [0,1,2,3] #this can be random...
 TRACKING_LINE_COLOUR = '#268fea'
 
 #No. pixels to move when a target move event is triggered
-TRACKING_TARGET_SPEED = 4
+TRACKING_TARGET_SPEED = 2
 
 
 #---------- FUEL MONITOR ----------

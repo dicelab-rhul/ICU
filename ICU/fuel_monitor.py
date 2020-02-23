@@ -212,7 +212,7 @@ class Wing:
 class FuelWidget(tk.Canvas):
 
     def __init__(self, parent, width, height):
-        super(FuelWidget, self).__init__(parent, width=width, height=height, bg='white')
+        super(FuelWidget, self).__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR)
 
         self.tanks = {}
         self.pumps = {}
