@@ -18,7 +18,7 @@ __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'track
 
 os.system('xset r off') #problem with key press/release otherwise
 
-event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: print("callback: ", *args))
+event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: None)#print("callback: ", *args))
 
 def quit():
     global finish
@@ -69,16 +69,42 @@ main.pack()
 #event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
 #event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=100, repeat=True)
 
+class WarningBoxHandler(event.EventCallback):
 
+    def __init__(self):
+        super(WarningBoxHandler).__init__()
+        self.register('warning')
+    
+    def sink(self, event):
+        root.update_idletasks()
+        #print("screen", root.winfo_x(), root.winfo_y())
+        print("coord ", event.args[1], event.args[2])
+        x,y = event.args[1], event.args[2]
 
+        widget = root.winfo_containing(x + root.winfo_x(), y + root.winfo_y())
+        if isinstance(widget, tk.Canvas):
+            print(widget)
+            x = x - widget.winfo_x()
+            y = y - widget.winfo_y()
+            widget.create_rectangle(x,y,x+5,y+5,fill='red')
+ 
+def warning_box_generator():
+    import random
+    while True:
+        yield event.Event('WarningBoxHandler:warning', random.randint(0, root.winfo_width()), random.randint(0, root.winfo_height()))
 
+wb = WarningBoxHandler()
+#event.event_scheduler.schedule(warning_box_generator(), sleep=1000, repeat=True)
+
+for widget in root.winfo_children():
+    print(widget)
 
 
 if constants.JOYSTICK:
     raise NotImplementedError("TODO are we using a joystick!?")
 else:
     global_key_handler = keyhandler.KeyHandler(root)
-    event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
+    #event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
 
 
     #there is a delay, it needs an press/release handler to work smoothly and to handle simultanneous presses...

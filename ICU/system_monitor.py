@@ -48,7 +48,6 @@ class Scale(EventCallback, tk.Canvas):
             self.move(self.block, 0, self.inc * -y)
 
     def sink(self, event):
-        #event(name, y)
         self.slide(event.args[1])
 
     def click_callback(self, *args):
