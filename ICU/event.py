@@ -3,7 +3,7 @@ import time
 global finish
 finish = False
 
-EVENT_SINKS = {}
+EVENT_SINKS = {None:lambda *args, **kwargs: None}
 EVENT_SOURCES = {}
 
 class GlobalEventCallback:

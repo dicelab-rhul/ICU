@@ -11,6 +11,7 @@ from . import main_panel
 from . import tracking
 from . import fuel_monitor
 from . import keyhandler
+from . import eyetracking
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
 
@@ -67,8 +68,17 @@ event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), slee
 event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
 event.event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
 
+
+# ================= EYE TRACKING ================= 
+if constants.EYETRACKING:
+    if eyetracking.start():
+        eyetracking.run()
+    else:
+        print("Failed to start eye tracker: ")
+        print(eyetracking.__EYETRACKING_EXCEPTION)
+
 if constants.JOYSTICK:
-    print("TODO are we using a joystick!?")
+    raise NotImplementedError("TODO are we using a joystick!?")
 else:
     global_key_handler = keyhandler.KeyHandler(root)
     event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)

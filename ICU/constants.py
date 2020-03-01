@@ -6,6 +6,7 @@ def rgb(*colour):
 # GENERAL
 
 JOYSTICK = False #are we using a joystick?
+EYETRACKING = True #are we using eyetracking?
 
 COLOUR_GREEN = '#90c73e'
 COLOUR_RED = '#f2644d'
