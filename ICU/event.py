@@ -3,7 +3,7 @@ import time
 global finish
 finish = False
 
-EVENT_SINKS = {None:lambda *args, **kwargs: None}
+EVENT_SINKS = {}
 EVENT_SOURCES = {}
 
 class GlobalEventCallback:
@@ -68,6 +68,9 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
         self.tk_root = tk_root
 
     def schedule(self, generator, sleep=1000, repeat=True):
+        if isinstance(sleep, float):
+            sleep = int(sleep)
+
         if isinstance(sleep, int):
             sleep = sleep_repeat_int(sleep)
         elif isinstance(sleep, (list,tuple)):
@@ -82,7 +85,8 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
         try:
             e = next(generator)
             if e is not None:
-                EVENT_SINKS[e.args[0]].sink(e)
+                if e.args[0] is not None:
+                    EVENT_SINKS[e.args[0]].sink(e)
                 GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
             pass
@@ -92,7 +96,8 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             e = next(generator)
             self.after(next(sleep), self.gen_repeat, generator, sleep)
             if e is not None:
-                EVENT_SINKS[e.args[0]].sink(e)
+                if e.args[0] in EVENT_SINKS:
+                    EVENT_SINKS[e.args[0]].sink(e)
                 GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
             pass

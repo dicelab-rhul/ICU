@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import tkinter as tk
 import os
+import atexit
 
 from . import constants
 from . import event
@@ -64,18 +65,14 @@ fuel_monitor_widget.pack(side='left')
 
 main.pack()
 
-event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
-event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
-event.event_scheduler.schedule(tracking.TrackingEventGenerator(),sleep=100, repeat=True)
+#event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
+#event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
+#event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=100, repeat=True)
 
 
-# ================= EYE TRACKING ================= 
-if constants.EYETRACKING:
-    if eyetracking.start():
-        eyetracking.run()
-    else:
-        print("Failed to start eye tracker: ")
-        print(eyetracking.__EYETRACKING_EXCEPTION)
+
+
+
 
 if constants.JOYSTICK:
     raise NotImplementedError("TODO are we using a joystick!?")
@@ -94,7 +91,25 @@ else:
     #TODO record the target position at a given time interval, generate an event
 
 
+# ================= EYE TRACKING ================= 
+
+eyetracker = None
+if constants.EYETRACKING:
+    eyetracker = eyetracking.eyetracker(sample_rate=1, stub=True)
+    eyetracker.start()
+
+#ensure the program exits properly
+def exit_handler():
+    os.system('xset r on') #back to how it was before?
+atexit.register(exit_handler) 
 
 root.mainloop()
 
-os.system('xset r on') #back to how it was before?
+if eyetracker is not None:
+    eyetracker.close()
+
+
+
+
+
+
