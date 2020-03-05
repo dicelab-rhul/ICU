@@ -24,7 +24,6 @@ def TrackingEventGenerator():
         dx = random.randint(-step, step)
         yield Event(trackingwidget, EVENT_NAME_MOVE, dx, dy)
 
-
 def KeyEventGenerator(keyhandler):
     trackingwidget = get_tracking_widget_handle()
     dx = 0
@@ -47,7 +46,6 @@ def KeyEventGenerator(keyhandler):
         else:
             yield None
     
-
 class Target:
 
     def __init__(self, canvas, radius, inner_radius, line_thickness=3):

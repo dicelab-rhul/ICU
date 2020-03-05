@@ -78,7 +78,7 @@ def highlight_event_generator():
         name = random.choice(list(component.all_components().keys()))
         yield event.Event(name, 'highlight', 1)
 
-event.event_scheduler.schedule(highlight_event_generator(), sleep=1000, repeat=True)
+#event.event_scheduler.schedule(highlight_event_generator(), sleep=1000, repeat=True)
 
 print("ALL COMPONENTS: ")
 pprint(component.all_components())
@@ -89,7 +89,7 @@ if constants.JOYSTICK:
     raise NotImplementedError("TODO are we using a joystick!?")
 else:
     global_key_handler = keyhandler.KeyHandler(root)
-    event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
+    #event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
 
 
     #there is a delay, it needs an press/release handler to work smoothly and to handle simultanneous presses...

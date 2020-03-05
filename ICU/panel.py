@@ -1,5 +1,6 @@
 import tkinter as tk
 
+#TODO remove - unused?
 class Panel(tk.Frame):
 
     def __init__(self, parent, width=200, height=200):
