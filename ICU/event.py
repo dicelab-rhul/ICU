@@ -27,7 +27,6 @@ class EventCallback:
 
     def register(self, name):
         self.__name = "{0}:{1}".format(type(self).__name__, name)
-
         EVENT_SINKS[self.__name] = self
         EVENT_SOURCES[self.__name] = self
         print("INFO: registered event callback: {0}".format(self.__name))

@@ -13,7 +13,6 @@ class KeyHandler:
         root.bind_all('<KeyRelease>', self.release)
 
     def press(self, event):
-        print(event)
         self.keys[event.keysym] = True
 
     def release(self, event):
@@ -21,6 +20,5 @@ class KeyHandler:
         self.keys[event.keysym] = False
 
     def isPressed(self, key):
-        #print(key, self.keys[key])
         return self.keys[key]
 

@@ -25,3 +25,6 @@ class MainPanel(tk.Frame):
     @property
     def bottom(self):
         return self.bottom_frame
+
+    def highlight(self):
+        print("TODO highlight main panel?")

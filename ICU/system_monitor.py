@@ -47,6 +47,9 @@ class Scale(EventCallback, tk.Canvas):
             self.__state -= y
             self.move(self.block, 0, self.inc * -y)
 
+    def highlight(self):
+        print("TODO highlight scale")
+
     def sink(self, event):
         self.slide(event.args[1])
 
@@ -77,6 +80,9 @@ class WarningLight(EventCallback, tk.Canvas):
     def sink(self, _):
         self.__state = int(not bool(self.__state))
         self.configure(bg=self.__state_colours[self.__state])
+
+    def highlight(self):
+        print("TODO highlight warning light")
 
 class SystemMonitorWidget(tk.Frame):
 

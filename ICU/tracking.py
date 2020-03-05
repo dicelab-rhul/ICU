@@ -2,10 +2,15 @@ import tkinter as tk
 import random
 
 from .constants import TRACKING_LINE_COLOUR, TRACKING_TARGET_SPEED, BACKGROUND_COLOUR
+from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
 from .event import Event, EventCallback, EVENT_SINKS
+from .component import Component
 
 # TODO keys are mutually exclusive, they should be able to be pressed them simultaneously.
+
+EVENT_NAME_MOVE = 'move'
+EVENT_NAME_HIGHLIGHT = "highlight"
 
 def get_tracking_widget_handle(): #get the name of the tracking widget for use in event callback
     return [s for s in EVENT_SINKS.keys() if TrackingWidget.__name__ in s][0]
@@ -17,7 +22,7 @@ def TrackingEventGenerator():
     while True:
         dy = random.randint(-step, step)
         dx = random.randint(-step, step)
-        yield Event(trackingwidget, dx, dy)
+        yield Event(trackingwidget, EVENT_NAME_MOVE, dx, dy)
 
 
 def KeyEventGenerator(keyhandler):
@@ -36,7 +41,7 @@ def KeyEventGenerator(keyhandler):
             dy += TRACKING_TARGET_SPEED
         
         if dx != 0 or dy != 0:
-            yield Event(trackingwidget, dx, dy)
+            yield Event(trackingwidget, EVENT_NAME_MOVE, dx, dy)
             dx = 0
             dy = 0
         else:
@@ -69,14 +74,15 @@ class Target:
         self.px += dx
         self.py += dy
 
-class TrackingWidget(EventCallback, tk.Canvas):
+class TrackingWidget(EventCallback, Component, tk.Canvas):
 
     def __init__(self, parent, size, **kwargs):
-        super(EventCallback, self).__init__()
         super(TrackingWidget, self).__init__(parent, width=size, height=size, bg=BACKGROUND_COLOUR, **kwargs)
 
-        self.register(str(0)) #there is only one!
-
+        name = str(0)
+        EventCallback.register(self, name)
+        Component.register(self, name)    
+    
         #draw the tracking pattern
         line_size = size/16
         line_thickness = 3
@@ -126,12 +132,22 @@ class TrackingWidget(EventCallback, tk.Canvas):
         #middle rectangle
         self.create_rectangle(edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline=TRACKING_LINE_COLOUR, width=line_thickness)
 
-    def sink(self, event):
-        print(event)
-        self.target.move(event.args[1], event.args[2])
+        edge = WARNING_OUTLINE_WIDTH // 2 + 1  
+        self.highlight_rect = self.create_rectangle(edge, edge,
+                                            size - edge, size - edge,
+                                            outline=WARNING_OUTLINE_COLOUR, width=WARNING_OUTLINE_WIDTH)
+        self.highlight(0) #hide highlight
 
-    def move_callback(self, dx, dy):
-        self.target.move(dx,dy)
-        self.source("move", dx, dy)
+    def highlight(self, state):
+        self.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
+
+    def sink(self, event):
+        if event.args[1] == EVENT_NAME_MOVE:
+            self.target.move(event.args[2], event.args[3])
+        elif event.args[1] == EVENT_NAME_HIGHLIGHT:
+            self.highlight(event.args[2])
+
+       
+
 
 
