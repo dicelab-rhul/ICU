@@ -21,7 +21,7 @@ __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'track
 
 os.system('xset r off') #problem with key press/release otherwise
 
-event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: print("callback: ", *args))
+event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: None) #print("callback: ", *args))
 
 def quit():
     global finish

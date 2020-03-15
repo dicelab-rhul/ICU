@@ -43,38 +43,27 @@ def WarningLightEventGenerator():
         r = random.randint(0, len(warning_lights)-1)
         yield Event(warning_lights[r], EVENT_NAME_SWITCH)
         
-class Scale(EventCallback, Component):
+class ScaleComponent(EventCallback, Component, CanvasWidget):
 
-    def __init__(self, parent, name, height, width, **kwargs):
-        super(Scale, self).__init__()
-
-        self.canvas = parent   
-        self.width = width
-        self.height = height     
+    def __init__(self, canvas, name, width=1., height=1., **kwargs):
+        super(ScaleComponent, self).__init__(canvas, width, height, background_colour=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, 
+                                             outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR) 
         
         EventCallback.register(self, name)
         Component.register(self, name)
-
-        self.inc = height / NUM_SCALE_SPLIT
-
-        self.background = self.canvas.create_rectangle(0,0,width,height,fill=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, width=OUTLINE_WIDTH)
         
-        self.block = self.canvas.create_rectangle(0,0,width, self.inc*3, fill=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR_FILL, width=OUTLINE_WIDTH)
-
+        
+        block =  BoxComponent(canvas, outline_colour=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR_FILL, outline_thickness=OUTLINE_WIDTH)
+        self.components['block'] = block
+       
         self.lines = []
 
-        for i in range(1, NUM_SCALE_SPLIT):
-            self.lines.append(self.canvas.create_line(0, self.inc*i,width,self.inc*i, width=OUTLINE_WIDTH))
+        #for i in range(1, NUM_SCALE_SPLIT):
+        #    self.lines.append(self.canvas.create_line(0, self.inc*i,width,self.inc*i, width=OUTLINE_WIDTH))
 
-        self.__state = 0
+        #self.__state = 0
 
-        self.canvas.tag_bind(self.block, "<Button-1>", self.click_callback)
-
-    def move(self, dx, dy):
-        self.canvas.move(self.background, dx, dy)
-        self.canvas.move(self.block, dx, dy)
-        for line in self.lines:
-            self.canvas.move(line, dx, dy)
+        #self.canvas.tag_bind(self.block, "<Button-1>", self.click_callback)
     
     def slide(self, y):
         if 0 <= self.__state - y <= NUM_SCALE_SPLIT-3: 
@@ -96,14 +85,14 @@ class Scale(EventCallback, Component):
         self.source(EVENT_NAME_CLICK)
 
 
-class WarningLight(EventCallback, Component, BoxComponent):
+class WarningLightComponent(EventCallback, Component, BoxComponent):
 
-    def __init__(self, canvas, name, width, height, state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED):
+    def __init__(self, canvas, name, width=1., height=1., state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED):
         self.__state_colours = [off_colour, on_colour]
         self.__state = state
         colour = self.__state_colours[self.__state]
 
-        super(WarningLight, self).__init__(canvas, width, height, colour=colour, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR)
+        super(WarningLightComponent, self).__init__(canvas, width, height, colour=colour, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR)
         
         EventCallback.register(self, name)
         Component.register(self, name)
@@ -134,16 +123,16 @@ class SystemMonitorWidget(tk.Canvas):
 
     @property
     def content_width(self):
-        return self.width - 2 * PADDING
+        return self.width
     
     @property
     def content_height(self):
-        return self.height - 2 * PADDING
+        return self.height
 
     def __init__(self, parent, width=480, height=640):
         super(SystemMonitorWidget, self).__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR) 
-
-        self.width = width
+       
+        self.width = width 
         self.height = height
 
         wl_content_height = self.content_height / 6
@@ -153,47 +142,65 @@ class SystemMonitorWidget(tk.Canvas):
         wl_height = wl_content_height
 
         #warning_lights = {'left':, 'right'}
+        #     
+        self.c = CanvasWidget(self, self.content_width, self.content_height, padding=PADDING)
+
+        print(self.content_height)
+        print(self.c.content_width, self.c.content_height)
+
+
+        self.c.debug()
 
         #warning lights
-        wlr = WarningLight(self, name=str(0), width=wl_width, height=wl_height,
+        wlr = WarningLightComponent(self, name=str(0), width=self.content_width/3,
                             on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, state=1)
-        wll = WarningLight(self, name=str(1), width=wl_width,  height=wl_height,
+        wll = WarningLightComponent(self, name=str(1), width=self.content_width/3,
                             on_colour=COLOUR_RED,   off_colour=BACKGROUND_COLOUR, state=0)
         warning_components = {'warning_left':wll, 'warning_right':wlr}
-
-        self.warning_light_widget = CanvasWidget(self, self.content_width, self.content_height / 6, components=warning_components)
-        self.warning_light_widget.move(PADDING, PADDING)
-
-        self.warning_light_widget.anchor('warning_left', 'E')
-        self.warning_light_widget.anchor('warning_right', 'W')
-
-        self.scale_widget = CanvasWidget(self, self.content_width, self.content_width - self.warning_light_widget.height - PADDING)
-        self.scale_widget.move(PADDING, self.warning_light_widget.height + 2 * PADDING)
         
-        
+        scale_prop = 0.2
 
+        #warning light widget
+        self.warning_light_widget = CanvasWidget(self, components=warning_components)
+        self.c.components['warning_light_widget'] = self.warning_light_widget
+        self.c.layout_manager.fill('warning_light_widget', 'X')
+        self.c.layout_manager.split('warning_light_widget', 'Y', scale_prop)
 
-       
+        #scale widget
+        self.scale_widget = CanvasWidget(self, padding=PADDING, inner_sep=self.content_width/(len(SYSTEM_MONITOR_SCALE_POSITIONS)*3))
+        self.c.components['scale_widget'] = self.scale_widget
+        self.c.layout_manager.fill('scale_widget', 'X')
+        self.c.layout_manager.split('scale_widget', 'Y', 1-scale_prop)
 
+        #place warning lights
+        self.warning_light_widget.layout_manager.anchor('warning_left', 'E')
+        self.warning_light_widget.layout_manager.fill('warning_left', 'Y')
+        self.warning_light_widget.layout_manager.anchor('warning_right', 'W')
+        self.warning_light_widget.layout_manager.fill('warning_right', 'Y')
 
-                                        
+        #print("c_dim    :", self.c.content_width, self.c.content_height)
+        #print("scale_dim:", self.scale_widget.content_width, self.scale_widget.content_height)
+        #print("warn_dim :", self.warning_light_widget.content_width, self.warning_light_widget.content_height)
 
-
-    '''
+     
         self.scales = []
-
-        scale_width =  (self.content_width / 1.8) / len(SYSTEM_MONITOR_SCALE_POSITIONS)
-        scale_height = height
 
         inc = self.content_width / len(SYSTEM_MONITOR_SCALE_POSITIONS)
 
         for i in range(len(SYSTEM_MONITOR_SCALE_POSITIONS)):
-            #scale_frame = tk.Frame(self.bottom_frame, bg='gray', width=scale_width, height=scale_height)
-            scale = Scale(self, name=str(i), bg=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, width=scale_width, height=scale_height)
+            scale = ScaleComponent(self, name=str(i))
+            self.scale_widget.components[str(i)] = scale
+
+            self.scale_widget.layout_manager.fill(str(i), 'Y')
+
+            self.scale_widget.layout_manager.split(str(i), 'X')
+
             
-            #scale.move(PADDING + scale.width/2 + i * inc, )
 
+            #scale.slide(-SYSTEM_MONITOR_SCALE_POSITIONS[i])
+            #self.scales.append(scale)
+        for c in self.scale_widget.components.values():
+            print(c.x, c.width)
 
-            scale.slide(-SYSTEM_MONITOR_SCALE_POSITIONS[i])
-            self.scales.append(scale)
-    '''
+        self.scale_widget.debug()
+        self.warning_light_widget.debug()
