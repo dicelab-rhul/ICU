@@ -136,17 +136,19 @@ class SystemMonitorWidget(tk.Canvas):
         self.c.debug()
 
         #warning lights
-        wlr = WarningLightComponent(self, name=str(0), width=1/3,
-                            on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, state=1)
-        wll = WarningLightComponent(self, name=str(1), width=1/3,
-                            on_colour=COLOUR_RED,   off_colour=BACKGROUND_COLOUR, state=0)
-        warning_components = {'warning_left':wll, 'warning_right':wlr}
-        
+    
         scale_prop = 0.2
 
         #warning light widget
-        self.warning_light_widget = CanvasWidget(self, components=warning_components)
+        self.warning_light_widget = CanvasWidget(self)
         self.c.components['warning_light_widget'] = self.warning_light_widget
+      
+
+        self.warning_light_widget.components['warning_right'] = WarningLightComponent(self, name=str(0), width=1/3,
+                            on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, state=1)
+        self.warning_light_widget.components['warning_left'] = WarningLightComponent(self, name=str(1), width=1/3,
+                            on_colour=COLOUR_RED,   off_colour=BACKGROUND_COLOUR, state=0)
+
         self.c.layout_manager.fill('warning_light_widget', 'X')
         self.c.layout_manager.split('warning_light_widget', 'Y', scale_prop)
 

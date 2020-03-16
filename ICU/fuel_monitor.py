@@ -68,7 +68,7 @@ def highlight_rect(canvas, rect):
 class FuelTank(EventCallback, Component, CanvasWidget):
 
     def __init__(self, canvas, x, y, width, height, capacity, fuel, name):
-        super(FuelTank, self).__init__(canvas, x=x, y=y, width=width, height=height)
+        super(FuelTank, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=BACKGROUND_COLOUR)
 
         EventCallback.register(self, name)
         Component.register(self, name)
@@ -77,7 +77,7 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         self.fuel = fuel
 
         fh = (self.fuel / self.capacity) * height
-        self.components['fuel'] = BoxComponent(canvas, x=x, y=y+fh, width=width, height=height-fh, colour=COLOUR_GREEN, outline_thickness=0)
+        self.components['fuel'] = BoxComponent(canvas, x=x, y=y+height-fh, width=width, height=fh, colour=COLOUR_GREEN, outline_thickness=0)
         self.components['outline'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, outline_thickness=FUEL_TANK_LINE_THICKNESS, outline_colour=FUEL_TANK_LINE_COLOUR)
        
     def sink(self, event):
@@ -87,13 +87,13 @@ class FuelTank(EventCallback, Component, CanvasWidget):
             raise ValueError("{0} received invalid event: {1}".format(self.name, event)) #???
 
     def update(self, dfuel):
-        #TODO
-        '''
         self.fuel = min(max(self.fuel + dfuel, 0), self.capacity)
-        fuel_y1 = self.rect[3] - (self.fuel / self.capacity) * (self.rect[3] - self.rect[1]) 
-        rect = (self.rect[0], fuel_y1, self.rect[2], self.rect[3])
-        self.canvas.coords(self.canvas_fuel, *rect) #this should be synchronised
-        '''
+        
+        fh = (self.fuel / self.capacity) * self.height
+        self.components['fuel'].y = self.y + self.height - fh
+        self.components['fuel'].height = fh
+
+
         
     def highlight(self, state):
         self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
@@ -106,58 +106,57 @@ class FuelTankInfinite(FuelTank):
     def update(self, dfuel):
         pass
 
-class Pump(EventCallback, Component):
+class Pump(EventCallback, Component, CanvasWidget):
 
     ON_COLOUR = COLOUR_GREEN
     OFF_COLOUR = BACKGROUND_COLOUR
     FAIL_COLOUR = COLOUR_RED
     COLOURS = [ON_COLOUR, OFF_COLOUR, FAIL_COLOUR]
 
-    def __init__(self, parent, rect, tank1, tank2, text, initial_state=1):
+    def __init__(self, canvas, x, y, width, height, tank1, tank2, text, initial_state=1):
+        self.__state = initial_state
+        
+        super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[self.__state], outline_thickness=OUTLINE_WIDTH)
+
         name = "{0}{1}".format(tank1.name.split(':')[1], tank2.name.split(':')[1])
-
-        super(Pump, self).__init__()
-
         EventCallback.register(self, name)
         Component.register(self, name)
 
-        parent.pumps[self.name] = self
-        
+        #parent.pumps[self.name] = self
         self.__state = initial_state
         self.tank1 = tank1
         self.tank2 = tank2
 
-        self.canvas = parent
+        self.bind("<Button-1>", self.click_callback) #bind mouse events
+        self.front()
 
-        self.rect = (min(rect[0], rect[2]), min(rect[1], rect[3]), max(rect[0], rect[2]), max(rect[1], rect[3]))
-
-        self.highlight_rect = highlight_rect(self.canvas, self.rect)
-        self.highlight_state = 0
-        self.highlight(0) #hide highlight
-
-        self.box = self.canvas.create_rectangle(*self.rect, fill=Pump.COLOURS[initial_state], 
-                                                outline=FUEL_TANK_LINE_COLOUR, width=FUEL_TANK_LINE_THICKNESS)
-
-        self.canvas.tag_bind(self.box, "<Button-1>", self.click_callback) #bind mouse events
         self.generator = PumpEventGenerator(self, flow_rate=PUMP_FLOW_RATE[self.name.split(":")[1]], event_rate=PUMP_EVENT_RATE)
-       
+ 
     @property
     def name(self):
         return self._Component__name
+
+    @property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, value):
+        self.__state = value
+        self.background_colour = Pump.COLOURS[value]
 
     def highlight(self, state):
         self.highlight_state = state
         self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
 
     def click_callback(self, *args):
-        if self.__state == 2: #fail (nothing happens)
-            #GLOBAL CALLBACK?
-            pass
-        else: #otherise flip the state on/off
-            self.__state = abs(self.__state - 1)
-            self.canvas.itemconfig(self.box, fill=Pump.COLOURS[self.__state])
-            (self.generator.start, self.generator.stop)[self.__state]()
-        print(self.__state)
+        print('click')
+        if self.state == 2: #the pump has failed
+            self.source('click') #notify global
+            return
+
+        self.state = abs(self.__state - 1)
+        (self.generator.start, self.generator.stop)[self.state]()
         self.source('click') #notify global
 
     def sink(self, event):
@@ -165,11 +164,9 @@ class Pump(EventCallback, Component):
             self.tank1.update(-event.args[2])
             self.tank2.update(event.args[2])
         elif event.args[1] == EVENT_NAME_FAIL:
-            self.__state = 2
-            self.canvas.itemconfig(self.box, fill=Pump.COLOURS[self.__state])
+            self.state = 2
         elif event.args[1] == EVENT_NAME_REPAIR:
-            self.__state = 1
-            self.canvas.itemconfig(self.box, fill=Pump.COLOURS[self.__state])
+            self.state = 1
         elif event.args[1] == EVENT_NAME_HIGHLIGHT:
             self.highlight(event.args[2])
 
@@ -177,7 +174,7 @@ class Pump(EventCallback, Component):
 def pump_rect(x,y):
     pw2 = PUMP_WIDTH/2
     ph2 = PUMP_HEIGHT/2
-    return (x - pw2, y - ph2, x + pw2, y + ph2)
+    return (x - pw2, y - ph2, pw2*2, ph2*2)
 
 class Wing(CanvasWidget):
     
@@ -194,28 +191,27 @@ class Wing(CanvasWidget):
         ftw_large = ftw_small * 2
 
         fth = height / 3
-        margin = 0.05
-        
-        self.components['tank1'] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, 1000, 500, small_tank_name)
+        margin = 0.05 #using padding here is a bit too tricky, maybe update TODO
+
+        self.components['tank1'] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, 1000, 100, small_tank_name)
         self.components['tank2'] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, 2000, 1000, med_tank_name)
         self.components['tank3'] = FuelTank(canvas, 2 * fts - ftw_large/2, margin, ftw_large, fth, 3000, 1000, big_tank_name)
 
-
-        '''
+        self.components['link'] = BoxComponent(canvas, fts, margin + fth/2, 2 * fts, height-2*margin - fth, outline_thickness=OUTLINE_WIDTH)
+        
         #create pumps
         cx = (fts + ftw_small/2)
         ex = (3 * fts - ftw_med/2)
         ecx = (cx + ex) / 2
         ecy = height - margin - fth / 2
 
+        pw = width / 16
+        ph = height / 20
 
-        self.line_rect = parent.create_rectangle(fts, fth, 3 * fts , ecy, width=OUTLINE_WIDTH) #connects pumps to tanks
-        parent.tag_lower(self.line_rect)
-
-        self.pump21 = Pump(parent, pump_rect(ecx, ecy), self.tank2, self.tank1, "<")
-        self.pump13 = Pump(parent, pump_rect(fts, height - margin - fth - PUMP_HEIGHT), self.tank1, self.tank3, '^')
-        self.pump23 = Pump(parent, pump_rect(3 * fts, height - margin - fth - PUMP_HEIGHT), self.tank2, self.tank3, '^')
-        '''
+        self.components['pump21'] = Pump(canvas, ecx - pw/2, ecy - ph/2, pw, ph, self.components['tank2'], self.components['tank1'], "<")
+        self.components['pump13'] = Pump(canvas, fts - pw/2, height/2 - ph/2, pw, ph, self.components['tank1'], self.components['tank3'], '^')
+        self.components['pump23'] = Pump(canvas, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components['tank2'], self.components['tank3'], '^')
+        self.components['link'].back()
    
 class FuelWidget(tk.Canvas):
 
@@ -227,7 +223,7 @@ class FuelWidget(tk.Canvas):
 
         canvas = self #TODO
 
-        c = CanvasWidget(canvas,width=width, height=height)
+        c = CanvasWidget(canvas,width=width, height=height, outline_thickness=0)
 
         self.wing_left = Wing(self, small_tank_name="C",
                                 med_tank_name="E", big_tank_name="A")
@@ -243,8 +239,10 @@ class FuelWidget(tk.Canvas):
         c.layout_manager.split('wl', 'X', .5)
         c.layout_manager.split('wr', 'X', .5)
 
-        c.debug()
-        self.wing_left.debug()
+        #c.debug()
+        #self.wing_left.debug()
+
+        #self.wing_left.components['tank1'].debug()
 
         
         '''

@@ -16,6 +16,10 @@ class Component(ABC):
     def highlight(self, *args, **kwargs):
         pass
 
+    @property
+    def name(self):
+        return self.__name
+
 def all_components():
     return Component.__components__
 
@@ -142,10 +146,10 @@ class SimpleLayoutManager:
      
 class BaseComponent:
 
-    def __init__(self, canvas, width=0., height=0., padding=0.):
+    def __init__(self, canvas, x=0., y=0., width=0., height=0., padding=0.):
         self.canvas = canvas
-        self.__x = 0
-        self.__y = 0
+        self.__x = x
+        self.__y = y
         self.__width = width
         self.__height = height
         self.__padding = __validate_padding__(padding)
@@ -230,6 +234,8 @@ class BaseComponent:
     def resize(self, dw, dh):
         pass
 
+#TODO bind doesnt seem to work for some reason...?
+
 class SimpleComponent(BaseComponent):
 
     def __init__(self, canvas, component, padding=0.):
@@ -254,6 +260,12 @@ class SimpleComponent(BaseComponent):
     def bind(self, event, callback):
         self.canvas.tag_bind(self.component, event, callback)
 
+    def front(self):
+        self.canvas.tag_raise(self.component)
+
+    def back(self):
+        self.canvas.tag_lower(self.component)
+
 class LineComponent(SimpleComponent):
 
     def __init__(self, canvas, x1,y1,x2,y2, colour='black', thickness=None):
@@ -263,12 +275,8 @@ class LineComponent(SimpleComponent):
 class BoxComponent(SimpleComponent):
 
     def __init__(self, canvas, x=0., y=0., width=1., height=1., colour=None, outline_colour=None, outline_thickness=None):
-        rect = canvas.create_rectangle(x, y, x+width, y+height, width=outline_thickness)
+        rect = canvas.create_rectangle(x, y, x+width, y+height, width=outline_thickness, fill=colour, outline=outline_colour)
         super(BoxComponent, self).__init__(canvas, rect)
-
-        self.colour = colour
-        self.outline_colour = outline_colour
-        self.outline_thickness = outline_thickness
 
     @property
     def colour(self):
@@ -284,7 +292,10 @@ class BoxComponent(SimpleComponent):
 
     @outline_thickness.setter
     def outline_thickness(self, value):
-        self.canvas.itemconfigure(self.component, width=value)
+        if value == 0:
+            self.outline_colour = "" #?? for some reason it crashes otherwise... TODO 
+        else:
+            self.canvas.itemconfigure(self.component, width=value)
 
     @property
     def outline_colour(self):
@@ -296,27 +307,34 @@ class BoxComponent(SimpleComponent):
 
 class CanvasWidget(BaseComponent):
 
-    def __init__(self, canvas, x=0,y=0, width=1., height=1., components={}, layout_manager=None, background_colour=None, outline_colour=None, outline_thickness=None, 
+    def __init__(self, canvas, x=0,y=0, width=1., height=1., components={}, layout_manager=None, background_colour=None, outline_colour="black", outline_thickness=0, 
                 padding=0., inner_sep=0., inner_sep_x=0., inner_sep_y=0.):
+
         width = max(max([c.width for c in components.values()], default=0), width)
         height = max(max([c.height for c in components.values()], default=0), height)
-        super(CanvasWidget, self).__init__(canvas, width=width, height=height, padding=padding)
+        super(CanvasWidget, self).__init__(canvas, x=x, y=y, width=width, height=height, padding=padding)
 
         if layout_manager is None:
             self.layout_manager = SimpleLayoutManager(self, inner_sep=inner_sep, inner_sep_x=inner_sep_x, inner_sep_y=inner_sep_y)
 
         self.components = dict(**components)
         
-        self.components['background'] = SimpleComponent(self.canvas, self.canvas.create_rectangle(x, y, x+width, y+height, width=0))
-        
-        self.background_colour = background_colour
-        self.outline_colour = outline_colour
-        self.outline_thickness = outline_thickness
-
-        self.canvas.tag_lower(self.components['background'].component)
-    
+        self.components['background'] = BoxComponent(self.canvas, x=x,y=y,width=width,height=height, colour=background_colour,
+                                                         outline_colour=outline_colour, outline_thickness=outline_thickness)
         self.__debug = None
     
+    def front(self):
+        #TODO does not preserve ordering...
+        for c in self.components.values():
+            self.canvas.tag_raise(c)
+
+    def back(self):
+        #TODO does not preserve ordering...
+        for c in self.components.values():
+            self.canvas.tag_lower(c)
+
+    def bind(self, event, callback):
+        self.components['background'].bind(event, callback)
   
     @property
     def background(self):
@@ -324,28 +342,28 @@ class CanvasWidget(BaseComponent):
 
     @property
     def background_colour(self):
-        return self.canvas.itemcget(self.background.component, "fill")
+        return self.background.colour
 
     @background_colour.setter
     def background_colour(self, value):
-        self.canvas.itemconfigure(self.background.component, fill=value)
+        self.background.colour = value
 
     @property
     def outline_thickness(self):
-        return self.canvas.itemcget(self.background.component, "width") 
+        return self.background.outline_thickness
 
     @outline_thickness.setter
     def outline_thickness(self, value):
-        self.canvas.itemconfigure(self.background.component, width=value)
+        self.background.outline_thickness = value
 
     @property
     def outline_colour(self):
-        return self.canvas.itemcget(self.background.component, "outline") 
+        return self.background.outline_colour
 
     @outline_colour.setter
     def outline_colour(self, value):
-        self.canvas.itemconfigure(self.background.component, outline=value)
-
+        self.background.outline_colour = value
+        
     def move(self, dx, dy):
         for component in self.components:
             c = self.components[component]

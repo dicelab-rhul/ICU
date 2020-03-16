@@ -118,7 +118,8 @@ class TrackingWidget(EventCallback, Component, tk.Canvas):
         add(M14=LineComponent(canvas, -edge + 7*size/8, size/2 + line_size/2, -edge + 7*size/8, size/2 - line_size/2, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
         #middle rectangle
-        add(B=BoxComponent(canvas, edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline_colour=TRACKING_LINE_COLOUR, outline_thickness=line_thickness))
+        #TODO
+        #add(B=BoxComponent(canvas, edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline_colour=TRACKING_LINE_COLOUR, outline_thickness=line_thickness))
 
         #self.c.size = (size-200, size-50) #test resize
 
