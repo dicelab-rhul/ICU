@@ -29,7 +29,7 @@ class EventCallback:
         self.__name = "{0}:{1}".format(type(self).__name__, name)
         EVENT_SINKS[self.__name] = self
         EVENT_SOURCES[self.__name] = self
-        print("INFO: registered event callback: {0}".format(self.__name))
+        #print("INFO: registered event callback: {0}".format(self.__name))
 
     def source(self, *args):
         GLOBAL_EVENT_CALLBACK(Event(self.__name, *args))

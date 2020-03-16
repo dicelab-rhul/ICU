@@ -7,7 +7,7 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 from .event import Event, EventCallback, EVENT_SINKS
 from .component import Component
 
-# TODO keys are mutually exclusive, they should be able to be pressed them simultaneously.
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
 
 EVENT_NAME_MOVE = 'move'
 EVENT_NAME_HIGHLIGHT = "highlight"
@@ -46,95 +46,90 @@ def KeyEventGenerator(keyhandler):
         else:
             yield None
     
-class Target:
+class Target(CanvasWidget):
 
     def __init__(self, canvas, radius, inner_radius, line_thickness=3):
-        self.canvas = canvas
-        size = canvas.winfo_width()
-        
-        self.circle = canvas.create_oval(size/2-radius,size/2-radius,size/2+radius,size/2+radius, outline=TRACKING_LINE_COLOUR, width=line_thickness*2)
-        self.dot = canvas.create_oval(size/2-inner_radius,size/2-inner_radius,size/2+inner_radius,size/2+inner_radius, fill=TRACKING_LINE_COLOUR, width=0)
-        self.px = size/2
-        self.py = size/2
-
-    def move_to(self, x, y):
-        dx = x - self.px
-        dy = y - self.py
-        self.canvas.move(self.circle, dx, dy)
-        self.canvas.move(self.dot, dx, dy)
-        self.px = x
-        self.py = y
-
-    def move(self, dx, dy):
-        #if 0 <= self.px + dx <= self.canvas.winfo_width() and 0 <= self.py + dy <= self.canvas.winfo_height():
-        self.canvas.move(self.circle, dx, dy)
-        self.canvas.move(self.dot, dx, dy)
-        self.px += dx
-        self.py += dy
+        circle = SimpleComponent(canvas, canvas.create_oval(0,0,radius*2,radius*2, outline=TRACKING_LINE_COLOUR, width=line_thickness*2))
+        dot = SimpleComponent(canvas, canvas.create_oval(radius-inner_radius*2, radius-inner_radius*2, radius+inner_radius*2, radius+inner_radius*2, fill=TRACKING_LINE_COLOUR, width=0))
+        super(Target, self).__init__(canvas, components={'circle':circle, 'dot':dot})
 
 class TrackingWidget(EventCallback, Component, tk.Canvas):
 
-    def __init__(self, parent, size, **kwargs):
-        super(TrackingWidget, self).__init__(parent, width=size, height=size, bg=BACKGROUND_COLOUR, **kwargs)
+    def __init__(self, canvas, size, **kwargs):
+        super(TrackingWidget, self).__init__(canvas, width=size, height=size, bg=BACKGROUND_COLOUR, **kwargs)
 
+        canvas = self #TODO remove
         name = str(0)
         EventCallback.register(self, name)
         Component.register(self, name)    
-    
+        
+        self.c = CanvasWidget(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR)
+
         #draw the tracking pattern
         line_size = size/16
         line_thickness = 3
         edge = line_thickness // 2 + 1
 
-        self.target = Target(self, size/12, 6)
-        self.target.move_to(size/2, size/2)
+        ts = size/12
+        def add(**kwargs): #add components
+            for k,v in kwargs.items():
+                self.c.components[k] = v
 
+        target = Target(canvas, ts, ts/10)
+        target.position = (size/2 - ts, size/2 - ts)
+
+        add(target=target)
         #four corners
         #NW
-        self.create_line(0, edge, line_size, edge, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(edge, 0, edge, line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(NW1=LineComponent(canvas, 0, edge, line_size, edge, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(NW2=LineComponent(canvas, edge, 0, edge, line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
         #SW
-        self.create_line(0, size-edge, line_size, size-edge, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(edge, size, edge, size-line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(SW1=LineComponent(canvas, 0, size-edge, line_size, size-edge, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(SW2=LineComponent(canvas, edge, size, edge, size-line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
         #SE
-        self.create_line(size, size-edge, size-line_size, size-edge, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(size-edge, size, size-edge, size-line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(SE1=LineComponent(canvas, size, size-edge, size-line_size, size-edge, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(SE2=LineComponent(canvas, size-edge, size, size-edge, size-line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
         #NE
-        self.create_line(size, edge, size-line_size, edge, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(size-edge, 0, size-edge, line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(NE1=LineComponent(canvas, size, edge, size-line_size, edge, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))   
+        add(NE2=LineComponent(canvas, size-edge, 0, size-edge, line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
         #main middle lines
-        self.create_line(size/2, 0, size/2, size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(0, size/2, size, size/2, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M1=LineComponent(canvas, size/2, 0, size/2, size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M2=LineComponent(canvas, 0, size/2, size, size/2, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
         #middle lines
-        self.create_line(size/2 - line_size, edge, size/2 + line_size, edge, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(size/2 - line_size, size-edge, size/2 + line_size, size-edge, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M3=LineComponent(canvas, size/2 - line_size, edge, size/2 + line_size, edge, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M4=LineComponent(canvas, size/2 - line_size, size-edge, size/2 + line_size, size-edge, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
-        self.create_line(edge, size/2-line_size, edge, size/2+line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(size-edge, size/2-line_size, size-edge, size/2+line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M5=LineComponent(canvas, edge, size/2-line_size, edge, size/2+line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M6=LineComponent(canvas, size-edge, size/2-line_size, size-edge, size/2+line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
         #middle lines.... middle ;)
-        self.create_line(size/2 - line_size/2, edge + size/8, size/2 + line_size/2, edge + size/8, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(size/2 - line_size, edge + 2*size/8, size/2 + line_size, edge + 2*size/8, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M7=LineComponent(canvas, size/2 - line_size/2, edge + size/8, size/2 + line_size/2, edge + size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M8=LineComponent(canvas, size/2 - line_size, edge + 2*size/8, size/2 + line_size, edge + 2*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
-        self.create_line(size/2 - line_size, -edge + 6*size/8, size/2 + line_size, -edge + 6*size/8, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(size/2 - line_size/2, -edge + 7*size/8, size/2 + line_size/2, -edge + 7*size/8, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M9=LineComponent(canvas, size/2 - line_size, -edge + 6*size/8, size/2 + line_size, -edge + 6*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M10=LineComponent(canvas, size/2 - line_size/2, -edge + 7*size/8, size/2 + line_size/2, -edge + 7*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
-        self.create_line(edge + size/8, size/2 + line_size/2, edge + size/8, size/2 - line_size/2, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(edge + 2*size/8, size/2 + line_size, edge + 2*size/8, size/2 - line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M11=LineComponent(canvas, edge + size/8, size/2 + line_size/2, edge + size/8, size/2 - line_size/2, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M12=LineComponent(canvas, edge + 2*size/8, size/2 + line_size, edge + 2*size/8, size/2 - line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
         
-        self.create_line(-edge + 6*size/8, size/2 + line_size, -edge + 6*size/8, size/2 - line_size, fill=TRACKING_LINE_COLOUR, width=line_thickness)
-        self.create_line(-edge + 7*size/8, size/2 + line_size/2, -edge + 7*size/8, size/2 - line_size/2, fill=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(M13=LineComponent(canvas, -edge + 6*size/8, size/2 + line_size, -edge + 6*size/8, size/2 - line_size, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
+        add(M14=LineComponent(canvas, -edge + 7*size/8, size/2 + line_size/2, -edge + 7*size/8, size/2 - line_size/2, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
         #middle rectangle
-        self.create_rectangle(edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline=TRACKING_LINE_COLOUR, width=line_thickness)
+        add(B=BoxComponent(canvas, edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline_colour=TRACKING_LINE_COLOUR, outline_thickness=line_thickness))
 
+        #self.c.size = (size-200, size-50) #test resize
+
+        #TODO highlight
+        '''
         edge = WARNING_OUTLINE_WIDTH // 2 + 1  
         self.highlight_rect = self.create_rectangle(edge, edge,
                                             size - edge, size - edge,
                                             outline=WARNING_OUTLINE_COLOUR, width=WARNING_OUTLINE_WIDTH)
         self.highlight(0) #hide highlight
+        '''
 
     def highlight(self, state):
         self.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
