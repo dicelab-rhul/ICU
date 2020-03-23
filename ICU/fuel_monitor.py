@@ -193,12 +193,12 @@ class Wing(CanvasWidget):
         fth = height / 3
         margin = 0.05 #using padding here is a bit too tricky, maybe update TODO
 
+        self.components['link'] = BoxComponent(canvas, fts, margin + fth/2, 2 * fts, height-2*margin - fth, outline_thickness=OUTLINE_WIDTH)
+        
         self.components['tank1'] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, 1000, 100, small_tank_name)
         self.components['tank2'] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, 2000, 1000, med_tank_name)
         self.components['tank3'] = FuelTank(canvas, 2 * fts - ftw_large/2, margin, ftw_large, fth, 3000, 1000, big_tank_name)
 
-        self.components['link'] = BoxComponent(canvas, fts, margin + fth/2, 2 * fts, height-2*margin - fth, outline_thickness=OUTLINE_WIDTH)
-        
         #create pumps
         cx = (fts + ftw_small/2)
         ex = (3 * fts - ftw_med/2)
@@ -211,39 +211,36 @@ class Wing(CanvasWidget):
         self.components['pump21'] = Pump(canvas, ecx - pw/2, ecy - ph/2, pw, ph, self.components['tank2'], self.components['tank1'], "<")
         self.components['pump13'] = Pump(canvas, fts - pw/2, height/2 - ph/2, pw, ph, self.components['tank1'], self.components['tank3'], '^')
         self.components['pump23'] = Pump(canvas, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components['tank2'], self.components['tank3'], '^')
-        self.components['link'].back()
+        #self.components['link'].back()
    
-class FuelWidget(tk.Canvas):
+class FuelWidget(CanvasWidget):
 
     def __init__(self, canvas, width, height):
-        super(FuelWidget, self).__init__(canvas, width=width, height=height, bg=BACKGROUND_COLOUR)
+        super(FuelWidget, self).__init__(canvas, width=width, height=height, background_colour=BACKGROUND_COLOUR)
 
         self.tanks = {}
         self.pumps = {}
 
-        canvas = self #TODO
+        #c = CanvasWidget(canvas, width=width, height=height, outline_thickness=0)
 
-        c = CanvasWidget(canvas,width=width, height=height, outline_thickness=0)
-
-        self.wing_left = Wing(self, small_tank_name="C",
+        self.wing_left = Wing(canvas, small_tank_name="C",
                                 med_tank_name="E", big_tank_name="A")
-        self.wing_right = Wing(self, small_tank_name="D",
+        self.wing_right = Wing(canvas, small_tank_name="D",
                                med_tank_name="F", big_tank_name="B")
         
 
-        c.components['wl'] = self.wing_left
-        c.components['wr'] = self.wing_right
+        self.components['wl'] = self.wing_left
+        self.components['wr'] = self.wing_right
 
-        c.layout_manager.fill('wl', 'Y')
-        c.layout_manager.fill('wr', 'Y')
-        c.layout_manager.split('wl', 'X', .5)
-        c.layout_manager.split('wr', 'X', .5)
+        self.layout_manager.fill('wl', 'Y')
+        self.layout_manager.fill('wr', 'Y')
+        self.layout_manager.split('wl', 'X', .5)
+        self.layout_manager.split('wr', 'X', .5)
 
         #c.debug()
         #self.wing_left.debug()
 
         #self.wing_left.components['tank1'].debug()
-
         
         '''
         self.wing_right.move(width/2, 0)

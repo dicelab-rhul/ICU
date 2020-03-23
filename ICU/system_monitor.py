@@ -115,48 +115,32 @@ class WarningLightComponent(EventCallback, Component, BoxComponent):
     def highlight(self, state):
         self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
 
-class SystemMonitorWidget(tk.Canvas):
+class SystemMonitorWidget(CanvasWidget):
 
-    @property
-    def content_width(self):
-        return self.width
-    
-    @property
-    def content_height(self):
-        return self.height
-
-    def __init__(self, parent, width=480, height=640):
-        super(SystemMonitorWidget, self).__init__(parent, width=width, height=height, bg=BACKGROUND_COLOUR) 
-       
-        self.width = width 
-        self.height = height
-   
-        self.c = CanvasWidget(self, width=self.content_width, height=self.content_height, padding=PADDING)
-
-        self.c.debug()
+    def __init__(self, canvas, width=480, height=640):
+        super(SystemMonitorWidget, self).__init__(canvas, width=width, height=height, background_colour=BACKGROUND_COLOUR, padding=PADDING) 
 
         #warning lights
-    
         scale_prop = 0.2
 
         #warning light widget
-        self.warning_light_widget = CanvasWidget(self)
-        self.c.components['warning_light_widget'] = self.warning_light_widget
+        self.warning_light_widget = CanvasWidget(canvas)
+        self.components['warning_light_widget'] = self.warning_light_widget
       
 
-        self.warning_light_widget.components['warning_right'] = WarningLightComponent(self, name=str(0), width=1/3,
+        self.warning_light_widget.components['warning_right'] = WarningLightComponent(canvas, name=str(0), width=1/3,
                             on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, state=1)
-        self.warning_light_widget.components['warning_left'] = WarningLightComponent(self, name=str(1), width=1/3,
+        self.warning_light_widget.components['warning_left'] = WarningLightComponent(canvas, name=str(1), width=1/3,
                             on_colour=COLOUR_RED,   off_colour=BACKGROUND_COLOUR, state=0)
 
-        self.c.layout_manager.fill('warning_light_widget', 'X')
-        self.c.layout_manager.split('warning_light_widget', 'Y', scale_prop)
+        self.layout_manager.fill('warning_light_widget', 'X')
+        self.layout_manager.split('warning_light_widget', 'Y', scale_prop)
 
         #scale widget
-        self.scale_widget = CanvasWidget(self, padding=PADDING, inner_sep=self.content_width/(len(SYSTEM_MONITOR_SCALE_POSITIONS)*3))
-        self.c.components['scale_widget'] = self.scale_widget
-        self.c.layout_manager.fill('scale_widget', 'X')
-        self.c.layout_manager.split('scale_widget', 'Y', 1-scale_prop)
+        self.scale_widget = CanvasWidget(canvas, padding=PADDING, inner_sep=self.content_width/(len(SYSTEM_MONITOR_SCALE_POSITIONS)*3))
+        self.components['scale_widget'] = self.scale_widget
+        self.layout_manager.fill('scale_widget', 'X')
+        self.layout_manager.split('scale_widget', 'Y', 1-scale_prop)
 
         #place warning lights
         self.warning_light_widget.layout_manager.anchor('warning_left', 'E')
@@ -165,7 +149,7 @@ class SystemMonitorWidget(tk.Canvas):
         self.warning_light_widget.layout_manager.fill('warning_right', 'Y')
         
         for i in range(len(SYSTEM_MONITOR_SCALE_POSITIONS)):
-            scale = ScaleComponent(self, name=str(i))
+            scale = ScaleComponent(canvas, name=str(i))
             scale.slide(SYSTEM_MONITOR_SCALE_POSITIONS[i])
             self.scale_widget.components[str(i)] = scale
 
@@ -173,5 +157,5 @@ class SystemMonitorWidget(tk.Canvas):
             self.scale_widget.layout_manager.split(str(i), 'X')
 
         
-        self.scale_widget.debug()
-        self.warning_light_widget.debug()
+        #self.scale_widget.debug()
+        #self.warning_light_widget.debug()

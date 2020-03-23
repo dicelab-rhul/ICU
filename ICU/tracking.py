@@ -53,18 +53,15 @@ class Target(CanvasWidget):
         dot = SimpleComponent(canvas, canvas.create_oval(radius-inner_radius*2, radius-inner_radius*2, radius+inner_radius*2, radius+inner_radius*2, fill=TRACKING_LINE_COLOUR, width=0))
         super(Target, self).__init__(canvas, components={'circle':circle, 'dot':dot})
 
-class TrackingWidget(EventCallback, Component, tk.Canvas):
+class TrackingWidget(EventCallback, Component, CanvasWidget):
 
     def __init__(self, canvas, size, **kwargs):
-        super(TrackingWidget, self).__init__(canvas, width=size, height=size, bg=BACKGROUND_COLOUR, **kwargs)
+        super(TrackingWidget, self).__init__(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR, **kwargs)
 
-        canvas = self #TODO remove
         name = str(0)
         EventCallback.register(self, name)
         Component.register(self, name)    
-        
-        self.c = CanvasWidget(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR)
-
+    
         #draw the tracking pattern
         line_size = size/16
         line_thickness = 3
@@ -73,7 +70,7 @@ class TrackingWidget(EventCallback, Component, tk.Canvas):
         ts = size/12
         def add(**kwargs): #add components
             for k,v in kwargs.items():
-                self.c.components[k] = v
+                self.components[k] = v
 
         target = Target(canvas, ts, ts/10)
         target.position = (size/2 - ts, size/2 - ts)

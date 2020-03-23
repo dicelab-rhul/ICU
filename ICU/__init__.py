@@ -19,7 +19,8 @@ from . import component
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
 
-if __name__ == "__main__":
+def run():
+    print("RUN!")
     os.system('xset r off') #problem with key press/release otherwise
 
     event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: None) #print("callback: ", *args))
@@ -49,23 +50,33 @@ if __name__ == "__main__":
 
     root.title("MATB-II")
     root.protocol("WM_DELETE_WINDOW", quit)
-    root.geometry('%dx%d+%d+%d' % (1000, 1000, 1000, 500))
+    root.geometry('%dx%d+%d+%d' % (1000, 1000, 500, 0))
+
+   
+
+
 
     event.tk_event_schedular(root) #initial global event schedular
+  
+    main = main_panel.MainPanel(root, width=500, height=500)
+    root.bind("<Configure>", main.resize) #for resizing the window
 
-    main = main_panel.MainPanel(root)
+    system_monitor_widget = system_monitor.SystemMonitorWidget(main, width=constants.SYSTEM_MONITOR_WIDTH, height=constants.SYSTEM_MONITOR_HEIGHT)
+    main.top_frame.components['system_monitor'] = system_monitor_widget
+    main.top_frame.layout_manager.fill('system_monitor', 'Y')
+    main.top_frame.layout_manager.split('system_monitor', 'X')
 
-    system_monitor_widget = system_monitor.SystemMonitorWidget(main.top, width=constants.SYSTEM_MONITOR_WIDTH, 
-                                                                        height=constants.SYSTEM_MONITOR_HEIGHT)
 
-    system_monitor_widget.pack(side='left')
+    tracking_widget = tracking.TrackingWidget(main, size=400)
+    main.top_frame.components['tracking'] = tracking_widget
+    main.top_frame.layout_manager.fill('tracking', 'Y')
+    main.top_frame.layout_manager.split('tracking', 'X')
 
-    tracking_widget = tracking.TrackingWidget(main.top, size=400)
-    tracking_widget.pack(side='left')
 
-    fuel_monitor_widget = fuel_monitor.FuelWidget(main.bottom, width=constants.FUEL_MONITOR_WIDTH, 
-                                                            height=constants.FUEL_MONITOR_HEIGHT)
-    fuel_monitor_widget.pack(side='left')
+    fuel_monitor_widget = fuel_monitor.FuelWidget(main, width=constants.FUEL_MONITOR_WIDTH, height=constants.FUEL_MONITOR_HEIGHT)
+    main.bottom_frame.components['fuel_monitor'] = fuel_monitor_widget
+    main.bottom_frame.layout_manager.fill('fuel_monitor', 'X')
+    main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
 
     main.pack()
 
