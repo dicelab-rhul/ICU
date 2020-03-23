@@ -11,7 +11,7 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
 from .event import Event, EventCallback, EVENT_SINKS
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, Highlight
 
 EVENT_NAME_CLICK = 'click'
 EVENT_NAME_SLIDE = 'slide'
@@ -62,6 +62,8 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
         for i in range(1, NUM_SCALE_SPLIT):
             line = LineComponent(self.canvas, 0, i * 1/NUM_SCALE_SPLIT, 1, i * 1/NUM_SCALE_SPLIT, thickness=OUTLINE_WIDTH)
             self.components['line-' + str(i)] = line
+
+        self.highlight = Highlight(canvas, self)
     
     def slide(self, y):
         inc = self.content_height / NUM_SCALE_SPLIT
@@ -95,8 +97,7 @@ class WarningLightComponent(EventCallback, Component, BoxComponent):
 
         self.bind("<Button-1>", self.click_callback)
 
-        #self.highlight_rect = highlight_rect(self.canvas, (0,0,self.width,self.height))
-        #self.highlight(1)
+        self.highlight = Highlight(canvas, self)
 
     def update(self):
         self.__state = int(not bool(self.__state))
@@ -111,9 +112,6 @@ class WarningLightComponent(EventCallback, Component, BoxComponent):
             self.update()
         elif event.args[1] == EVENT_NAME_HIGHTLIGHT:
             self.highlight(event.args[2])
-
-    def highlight(self, state):
-        self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
 
 class SystemMonitorWidget(CanvasWidget):
 
@@ -156,6 +154,8 @@ class SystemMonitorWidget(CanvasWidget):
             self.scale_widget.layout_manager.fill(str(i), 'Y')
             self.scale_widget.layout_manager.split(str(i), 'X')
 
+        
+        self.highlight = Highlight(canvas, self)
         
         #self.scale_widget.debug()
         #self.warning_light_widget.debug()

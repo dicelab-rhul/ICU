@@ -1,7 +1,64 @@
 import time
+import copy
+from types import SimpleNamespace
 
 global finish
 finish = False
+
+
+# create unique event ids (ids do not reflect time)
+EVENT_NAME = 0
+def next_name():
+    global EVENT_NAME
+    EVENT_NAME += 1
+    return str(EVENT_NAME)
+
+def new_event_class(name, *labels): #see list of event types below
+    cls = type(name, (Event,), {})
+    cls.labels = SimpleNamespace(**{l:l for l in labels})
+    return cls
+
+class Event:
+
+    def __init__(self, label, data, timestamp=None):
+        super(Event, self).__init__()
+        cls = self.__class__
+        if label not in cls.labels.__dict__:
+            raise ValueError("label '{0}' for event type '{1}' must be one of: {2}".format(label, cls.__name__, list(cls.labels.__dict__.keys())))
+        self.name = next_name()
+        self.label = label
+        self.data = data
+
+        if timestamp is None:
+            self.timestamp = time.time()
+
+    def __str__(self):
+        return "{0} - {1}".format(self.name, self.to_dict())
+
+    def to_dict(self):
+        return copy.deepcopy(self.__dict__)
+
+# ================================================= #
+# ================= EVENT SHEMA =================== #
+# ================================================= #
+
+click_event = new_event_class('click_event', )
+
+
+warning_light_event = new_event_class('warning_light_event', 'click', 'flip')
+scale_event = new_event_class('scale_event', 'move')
+track_event = new_event_class('track_event', 'move')
+pump_event = new_event_class('pump_event', 'click', 'transfer', 'fail', 'repair')
+highlight_event = new_event_class('highlight_event', 'flip')
+
+
+
+
+# ================================================= #
+# ================================================= #
+# ================================================= #
+
+
 
 EVENT_SINKS = {}
 EVENT_SOURCES = {}
@@ -37,20 +94,17 @@ class EventCallback:
     def sink(self, event): #override this method
         pass
 
-EVENT_NAME = 0
-def next_name():
-    global EVENT_NAME
-    EVENT_NAME += 1
-    return str(EVENT_NAME)
 
-class Event:
 
-    def __init__(self, *args):
-        self.name = next_name()
-        self.args = args
 
-    def __str__(self):
-        return "{0}{1}".format(self.name, str(self.args))
+
+
+
+
+
+
+
+
 
 def sleep_repeat_int(sleep):
     while True:

@@ -52,10 +52,6 @@ def run():
     root.protocol("WM_DELETE_WINDOW", quit)
     root.geometry('%dx%d+%d+%d' % (1000, 1000, 500, 0))
 
-   
-
-
-
     event.tk_event_schedular(root) #initial global event schedular
   
     main = main_panel.MainPanel(root, width=500, height=500)
@@ -84,6 +80,7 @@ def run():
     #event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
     #event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=100, repeat=True)
 
+    #This is just for testing
     def highlight_event_generator():
         import random
         while True:

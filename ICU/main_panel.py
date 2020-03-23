@@ -9,9 +9,9 @@ class MainPanel(tk.Canvas):
 
     def __init__(self, parent, width, height):
         super(MainPanel, self).__init__(parent, width=width, 
-                    height=height, bg='red')
+                    height=height, bg='blue')
         #create banners
-        self.__main = CanvasWidget(self, x=2, y=2, width=width, height=height)
+        self.__main = CanvasWidget(self, x=10, y=10, width=width-20, height=width-20)
 
         self.top_frame = CanvasWidget(self)
         self.bottom_frame = CanvasWidget(self)
@@ -25,10 +25,10 @@ class MainPanel(tk.Canvas):
         self.__main.layout_manager.fill('bottom', 'X')
 
     def resize(self, event):
-        print(event.width, event.height)
+        #print(event.width, event.height)
         if self.winfo_width() != event.width or self.winfo_height() != event.height:
             self.config(width=event.width, height=event.height)
-            self.__main.size = (event.width-5, event.height-5)
+            self.__main.size = (event.width-20, event.height-20)
             self.pack()
 
     @property
@@ -38,6 +38,3 @@ class MainPanel(tk.Canvas):
     @property
     def bottom(self):
         return self.bottom_frame
-
-    def highlight(self):
-        print("TODO highlight main panel?")

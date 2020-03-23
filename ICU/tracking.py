@@ -7,7 +7,7 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 from .event import Event, EventCallback, EVENT_SINKS
 from .component import Component
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, Highlight
 
 EVENT_NAME_MOVE = 'move'
 EVENT_NAME_HIGHLIGHT = "highlight"
@@ -120,17 +120,7 @@ class TrackingWidget(EventCallback, Component, CanvasWidget):
 
         #self.c.size = (size-200, size-50) #test resize
 
-        #TODO highlight
-        '''
-        edge = WARNING_OUTLINE_WIDTH // 2 + 1  
-        self.highlight_rect = self.create_rectangle(edge, edge,
-                                            size - edge, size - edge,
-                                            outline=WARNING_OUTLINE_COLOUR, width=WARNING_OUTLINE_WIDTH)
-        self.highlight(0) #hide highlight
-        '''
-
-    def highlight(self, state):
-        self.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
+        self.highlight = Highlight(canvas, self)
 
     def sink(self, event):
         if event.args[1] == EVENT_NAME_MOVE:

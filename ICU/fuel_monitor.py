@@ -10,7 +10,7 @@ from . import event
 
 from .event import Event, EventCallback, EVENT_SINKS
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, Highlight
 
 
 from pprint import pprint
@@ -80,6 +80,9 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         self.components['fuel'] = BoxComponent(canvas, x=x, y=y+height-fh, width=width, height=fh, colour=COLOUR_GREEN, outline_thickness=0)
         self.components['outline'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, outline_thickness=FUEL_TANK_LINE_THICKNESS, outline_colour=FUEL_TANK_LINE_COLOUR)
        
+        self.highlight = Highlight(canvas, self)
+
+
     def sink(self, event):
         if event.args[1] == EVENT_NAME_HIGHLIGHT:
             self.highlight(event.args[2])
@@ -92,11 +95,6 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         fh = (self.fuel / self.capacity) * self.height
         self.components['fuel'].y = self.y + self.height - fh
         self.components['fuel'].height = fh
-
-
-        
-    def highlight(self, state):
-        self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
 
 class FuelTankInfinite(FuelTank):
 
@@ -128,10 +126,12 @@ class Pump(EventCallback, Component, CanvasWidget):
         self.tank2 = tank2
 
         self.bind("<Button-1>", self.click_callback) #bind mouse events
-        self.front()
 
         self.generator = PumpEventGenerator(self, flow_rate=PUMP_FLOW_RATE[self.name.split(":")[1]], event_rate=PUMP_EVENT_RATE)
- 
+
+        self.highlight = Highlight(canvas, self)
+
+
     @property
     def name(self):
         return self._Component__name
@@ -220,15 +220,12 @@ class FuelWidget(CanvasWidget):
 
         self.tanks = {}
         self.pumps = {}
-
-        #c = CanvasWidget(canvas, width=width, height=height, outline_thickness=0)
-
+        
         self.wing_left = Wing(canvas, small_tank_name="C",
                                 med_tank_name="E", big_tank_name="A")
         self.wing_right = Wing(canvas, small_tank_name="D",
                                med_tank_name="F", big_tank_name="B")
         
-
         self.components['wl'] = self.wing_left
         self.components['wr'] = self.wing_right
 
@@ -236,9 +233,6 @@ class FuelWidget(CanvasWidget):
         self.layout_manager.fill('wr', 'Y')
         self.layout_manager.split('wl', 'X', .5)
         self.layout_manager.split('wr', 'X', .5)
-
-        #c.debug()
-        #self.wing_left.debug()
 
         #self.wing_left.components['tank1'].debug()
         
