@@ -26,7 +26,7 @@ class Event:
         self.dst = dst
         self.src = src
         self.data = SimpleNamespace(**data)
-        self.timestamp = None
+        self.timestamp = timestamp
         if timestamp is None:
             self.timestamp = time.time()
 
@@ -39,6 +39,10 @@ class Event:
 
 EVENT_SINKS = {}
 EVENT_SOURCES = {}
+global event_scheduler
+event_scheduler = None
+
+
 
 class GlobalEventCallback:
 
@@ -67,7 +71,8 @@ class EventCallback:
 
     def source(self, dst, timestamp=None, **data):
         e = Event(self.name, dst, timestamp=timestamp, **data)
-        GLOBAL_EVENT_CALLBACK(e)
+        global event_scheduler
+        event_scheduler.schedule(e, sleep=0)
 
     def sink(self, event): #override this method
         pass
@@ -85,17 +90,22 @@ def sleep_repeat_list(sleep):
         for i in sleep:
             yield i
 
-class TKSchedular: #might be better to detach events from the GUI? quick and dirt for now...
+class TKSchedular: #might be better to detach events from the GUI? quick and dirty for now...
 
     def __init__(self, tk_root):
         self.tk_root = tk_root
 
-    def schedule(self, generator, sleep=1000, repeat=True):
+    def schedule(self, generator, sleep=0, repeat=True):
         if isinstance(sleep, float):
             sleep = int(sleep)
 
+        if isinstance(generator, Event):
+            assert isinstance(sleep, int)
+            self.trigger(generator, sleep=sleep)
+            return
+
         if isinstance(sleep, int):
-            sleep = sleep_repeat_int(sleep)
+            sleep = sleep_repeat_int([sleep]) #TODO refactor
         elif isinstance(sleep, (list,tuple)):
             sleep = sleep_repeat_list(sleep)
 
@@ -104,11 +114,20 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
         else:
             self.after(next(sleep), self.gen, generator)
 
-    def gen(self, e):
+
+    def trigger(self, e, sleep=0):
+        def fonk():
+            if e is not None:
+                if e.dst in EVENT_SINKS:
+                    EVENT_SINKS[e.dst].sink(e)
+                GLOBAL_EVENT_CALLBACK(e)
+        self.after(sleep, fonk)
+
+    def gen(self, generator, e):
         try:
             e = next(generator)
             if e is not None:
-                if e.dst is not None:
+                if e.dst in EVENT_SINKS:
                     EVENT_SINKS[e.dst].sink(e)
                 GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
@@ -127,9 +146,6 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
         
     def after(self, sleep, fun, *args):
         self.tk_root.after(sleep, fun, *args)
-
-global event_scheduler
-event_scheduler = None
 
 def tk_event_schedular(root):
     global event_scheduler

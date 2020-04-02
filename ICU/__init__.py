@@ -57,10 +57,10 @@ def run():
     root.geometry('%dx%d+%d+%d' % (1000, 1000, 500, 0))
 
     event.tk_event_schedular(root) #initial global event schedular
-  
+    
     main = main_panel.MainPanel(root, width=500, height=500)
     root.bind("<Configure>", main.resize) #for resizing the window
-
+    
     system_monitor_widget = system_monitor.SystemMonitorWidget(main, width=constants.SYSTEM_MONITOR_WIDTH, height=constants.SYSTEM_MONITOR_HEIGHT)
     main.top_frame.components['system_monitor'] = system_monitor_widget
     main.top_frame.layout_manager.fill('system_monitor', 'Y')
@@ -77,7 +77,9 @@ def run():
     main.bottom_frame.components['fuel_monitor'] = fuel_monitor_widget
     main.bottom_frame.layout_manager.fill('fuel_monitor', 'X')
     main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
-
+    
+    main.overlay(main.create_oval(10,10,30,30, fill='red', width=0))
+    
     main.pack()
 
     #event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000, repeat=True)
@@ -118,12 +120,17 @@ def run():
 
     eyetracker = None
     if constants.EYETRACKING:
-        eyetracker = eyetracking.eyetracker(sample_rate=1, stub=True)
-       # eyetracker.start()
+        eyetracker = eyetracking.eyetracker(root, sample_rate=100, stub=True)
+        eyetracker.start()
+    
+    pprint(event.EVENT_SINKS)
 
     #ensure the program exits properly
     def exit_handler():
+        if eyetracker is not None:
+            eyetracker.close()
         os.system('xset r on') #back to how it was before?
+
     atexit.register(exit_handler) 
 
     root.mainloop()

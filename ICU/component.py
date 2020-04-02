@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class Component(ABC):
+class Component(ABC): #TODO refactor this, probably it can be in BaseComponent
 
     __components__ = {} #all of the visual components, tanks, pumps, tracking etc
 
@@ -137,9 +137,8 @@ class SimpleLayoutManager:
         return self.component.padding
     
     @padding.setter
-    def padding(self):
+    def padding(self, padding):
         self.component.padding = padding
-
 
 from collections import defaultdict
 
@@ -265,7 +264,10 @@ class SimpleComponent(BaseComponent):
 
     def __init__(self, canvas, component, padding=0.):
         super(SimpleComponent, self).__init__(canvas, padding=padding)
-        self.component = component
+        if component is None:
+            component = self.canvas.create_rectangle(0,0,0,0)
+        
+        self.__component = component
         x1,y1,x2,y2 = self.canvas.coords(self.component)
         self._BaseComponent__x = x1
         self._BaseComponent__y = y1
@@ -273,6 +275,18 @@ class SimpleComponent(BaseComponent):
         self._BaseComponent__height = y2-y1 
 
         #print(x1,y1,x2,y2)
+
+    @property
+    def component(self):
+        return self.__component
+
+    @component.setter
+    def component(self, value):
+        self.canvas.delete(self.component)
+        self.__component = value
+        x1,y1,x2,y2 = self.canvas.coords(self.component)
+        self.position = (x1,y1)
+        self.size = (x2-x1,y2-y1)
 
     def move(self, dx, dy):
         self.canvas.move(self.component, dx, dy)

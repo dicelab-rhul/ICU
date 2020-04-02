@@ -85,7 +85,6 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
         self.source('Global', label='click', value=self.__state) #notify global
 
 
-
 class WarningLightComponent(EventCallback, Component, BoxComponent):
 
     __all_components__ = []
@@ -117,7 +116,6 @@ class WarningLightComponent(EventCallback, Component, BoxComponent):
 
     def sink(self, event):
         self.update()
-
         
 class SystemMonitorWidget(CanvasWidget):
 
