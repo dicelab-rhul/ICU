@@ -1,3 +1,10 @@
+"""
+    Defines eyetracking classes, most notably the Eyetracker class which interfaces with psychopy. 
+
+    @Author: Benedict Wilkins
+    @Date: 2020-04-02 21:49:01
+"""
+
 import threading
 
 from threading import Thread
@@ -7,6 +14,9 @@ import time
 from .. import event
 
 class EyeTrackingError(Exception):
+    """ 
+        An error that may be thrown by an EyeTracker, typically will wrap a psychopy error.
+    """
     
     def __init__(self, message, cause=None):
         super(EyeTrackingError, self).__init__(message)
@@ -50,6 +60,10 @@ class EyeTracker(event.EventCallback, threading.Thread):
         self.closed.set()
 
 class EyeTrackerStub(event.EventCallback, threading.Thread):
+    """ 
+        A stub EyeTracker class that uses the current mouse position as a stand in for gaze position, 
+        use for testing without eyetracking hardware.
+    """
 
     def __init__(self, root, sample_rate = 300, **kwargs):
         super(EyeTrackerStub, self).__init__()
@@ -68,10 +82,19 @@ class EyeTrackerStub(event.EventCallback, threading.Thread):
         self._n_mouse_y = 0
     
     def update(self, event):
+        """ 
+            Called when the mouse moves, updates internal mouse (x,y).
+
+            Args:
+                event (mouseevent): a mouse event generated that defines x,y attributes.
+        """
         self._n_mouse_x = event.x
         self._n_mouse_y = event.y
 
     def run(self):
+        """
+            Generates events that move the current overlay (if it exists).
+        """
         while not self.closed.is_set():
             self.__time += 1
             time.sleep(1. / self.sample_rate)
@@ -82,9 +105,23 @@ class EyeTrackerStub(event.EventCallback, threading.Thread):
                 self._p_mouse_y = self._n_mouse_y
 
     def close(self):
+        """ 
+            Force the thread to exit.
+        """
         self.closed.set()
 
 def eyetracker(root, sample_rate=300, calibrate_system=True, stub=False):
+    """ Creates a new Eyetracker (there should only ever be one).
+    
+    Args:
+        root (tk): tk root window.
+        sample_rate (int, optional): number of samples (events) per second. Defaults to 300.
+        calibrate_system (bool, optional): calibrate the eyetracker. Defaults to True.
+        stub (bool, optional): use a stub class (see StubEyeTracker) if hardware is not available. Defaults to False.
+    
+    Returns:
+        EyeTracker, StubEyeTracker: The new EyeTracker.
+    """
     if not stub:
         eyetracker = EyeTracker(sample_rate=sample_rate, calibrate_system=calibrate_system)
     else:

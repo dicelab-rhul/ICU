@@ -9,7 +9,6 @@ def quit():
 
 from ICU.component import SimpleComponent, CanvasWidget, BoxComponent
 
-
 root = tk.Tk()
 
 root.title("Test")

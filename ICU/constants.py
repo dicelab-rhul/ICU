@@ -1,7 +1,12 @@
 
 def rgb(*colour):
+    """Creates a hex string from rgb args
+    Args:
+        colour (*int): rgb values
+    Returns:
+        str: rgb hex string
+    """
     return "#%02x%02x%02x" % colour 
-
 
 # GENERAL
 

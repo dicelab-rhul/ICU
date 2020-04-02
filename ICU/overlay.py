@@ -1,10 +1,19 @@
+"""
+    An overlay may be displayed at a given positon on the GUI, make use of the Overlay class to do this.
+
+    @Author: Benedict Wilkins
+    @Date: 2020-04-02 21:57:11
+"""
+
 from .event import Event, EventCallback, EVENT_SINKS
 from .component import Component
 from .component import SimpleComponent
 
 
-
 class Overlay(EventCallback, Component, SimpleComponent):
+    """
+        A GUI widget that is placed above other widgets. Accepts 'move' and 'place' events to move the widget.
+    """
 
     def __init__(self, canvas, component):
         super(Overlay, self).__init__(canvas, component)

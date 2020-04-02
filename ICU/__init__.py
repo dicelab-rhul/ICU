@@ -105,15 +105,6 @@ def run():
     else:
         global_key_handler = keyhandler.KeyHandler(root)
 
-        #there is a delay, it needs an press/release handler to work smoothly and to handle simultanneous presses...
-        #root.bind("<Left>",     lambda *args: keyhandler.left_callback(*args))
-        #root.bind("<Right>",    lambda *args: keyhandler.right_callback(*args))
-        #root.bind("<Up>",       lambda *args: keyhandler.up_callback(*args))
-        #root.bind("<Down>",     lambda *args: keyhandler.down_callback(*args))
-
-        #TODO record joystick data (send the event to somewhere else aswell!)
-        #TODO record the target position at a given time interval, generate an event
-
     event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
 
     # ================= EYE TRACKING ================= 

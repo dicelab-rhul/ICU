@@ -1,15 +1,9 @@
-'''
-TODO
-'''
-
-
 import time
 import copy
 from types import SimpleNamespace
 
 global finish
 finish = False
-
 
 # create unique event ids (ids do not reflect time)
 EVENT_NAME = 0
