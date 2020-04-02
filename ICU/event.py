@@ -1,3 +1,8 @@
+'''
+TODO
+'''
+
+
 import time
 import copy
 from types import SimpleNamespace
@@ -13,51 +18,23 @@ def next_name():
     EVENT_NAME += 1
     return str(EVENT_NAME)
 
-def new_event_class(name, *labels): #see list of event types below
-    cls = type(name, (Event,), {})
-    cls.labels = SimpleNamespace(**{l:l for l in labels})
-    return cls
-
 class Event:
 
-    def __init__(self, label, data, timestamp=None):
+    def __init__(self, src, dst, timestamp=None, **data):
         super(Event, self).__init__()
-        cls = self.__class__
-        if label not in cls.labels.__dict__:
-            raise ValueError("label '{0}' for event type '{1}' must be one of: {2}".format(label, cls.__name__, list(cls.labels.__dict__.keys())))
         self.name = next_name()
-        self.label = label
-        self.data = data
-
+        self.dst = dst
+        self.src = src
+        self.data = SimpleNamespace(**data)
+        self.timestamp = None
         if timestamp is None:
             self.timestamp = time.time()
 
     def __str__(self):
-        return "{0} - {1}".format(self.name, self.to_dict())
+        return "{0}:{1} - ({2}->{3}): {4}".format(self.name, self.timestamp, self.src, self.dst, self.data.__dict__)
 
-    def to_dict(self):
-        return copy.deepcopy(self.__dict__)
-
-# ================================================= #
-# ================= EVENT SHEMA =================== #
-# ================================================= #
-
-click_event = new_event_class('click_event', )
-
-
-warning_light_event = new_event_class('warning_light_event', 'click', 'flip')
-scale_event = new_event_class('scale_event', 'move')
-track_event = new_event_class('track_event', 'move')
-pump_event = new_event_class('pump_event', 'click', 'transfer', 'fail', 'repair')
-highlight_event = new_event_class('highlight_event', 'flip')
-
-
-
-
-# ================================================= #
-# ================================================= #
-# ================================================= #
-
+    def to_tuple(self):
+        return (self.timestamp, self.name, (self.src, self.dst), copy.deepcopy(self.data.__dict__))
 
 
 EVENT_SINKS = {}
@@ -88,23 +65,16 @@ class EventCallback:
         EVENT_SOURCES[self.__name] = self
         #print("INFO: registered event callback: {0}".format(self.__name))
 
-    def source(self, *args):
-        GLOBAL_EVENT_CALLBACK(Event(self.__name, *args))
+    def source(self, dst, timestamp=None, **data):
+        e = Event(self.name, dst, timestamp=timestamp, **data)
+        GLOBAL_EVENT_CALLBACK(e)
 
     def sink(self, event): #override this method
         pass
 
-
-
-
-
-
-
-
-
-
-
-
+    @property
+    def name(self):
+        return self.__name
 
 def sleep_repeat_int(sleep):
     while True:
@@ -138,8 +108,8 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
         try:
             e = next(generator)
             if e is not None:
-                if e.args[0] is not None:
-                    EVENT_SINKS[e.args[0]].sink(e)
+                if e.dst is not None:
+                    EVENT_SINKS[e.dst].sink(e)
                 GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
             pass
@@ -149,8 +119,8 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             e = next(generator)
             self.after(next(sleep), self.gen_repeat, generator, sleep)
             if e is not None:
-                if e.args[0] in EVENT_SINKS:
-                    EVENT_SINKS[e.args[0]].sink(e)
+                if e.dst in EVENT_SINKS:
+                    EVENT_SINKS[e.dst].sink(e)
                 GLOBAL_EVENT_CALLBACK(e)
         except StopIteration:
             pass

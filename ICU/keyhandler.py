@@ -16,9 +16,21 @@ class KeyHandler:
         self.keys[event.keysym] = True
 
     def release(self, event):
-        print(event)
         self.keys[event.keysym] = False
 
     def isPressed(self, key):
         return self.keys[key]
 
+class JoyStickHandler:
+
+    def __init__(self, root):
+        raise NotImplementedError("TODO are we using a joystick!?")
+
+    def press(self, event):
+        pass #TODO
+
+    def release(self, event):
+        pass #TODO
+
+    def isPressed(self, key):
+        pass #TODO

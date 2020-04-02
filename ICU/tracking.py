@@ -7,28 +7,26 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 from .event import Event, EventCallback, EVENT_SINKS
 from .component import Component
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, Highlight
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .highlight import Highlight
+
 
 EVENT_NAME_MOVE = 'move'
 EVENT_NAME_HIGHLIGHT = "highlight"
 
-def get_tracking_widget_handle(): #get the name of the tracking widget for use in event callback
-    return [s for s in EVENT_SINKS.keys() if TrackingWidget.__name__ in s][0]
-
 def TrackingEventGenerator():
-    trackingwidget = get_tracking_widget_handle()
+    trackingwidget = TrackingWidget.all_components()[0]
     step = 10
 
     while True:
         dy = random.randint(-step, step)
         dx = random.randint(-step, step)
-        yield Event(trackingwidget, EVENT_NAME_MOVE, dx, dy)
+        yield Event('tracking_event_generator', trackingwidget, label=EVENT_NAME_MOVE, dx=dx, dy=dy)
 
 def KeyEventGenerator(keyhandler):
-    trackingwidget = get_tracking_widget_handle()
+    trackingwidget = TrackingWidget.all_components()[0]
     dx = 0
     dy = 0
-
     while True:
         if keyhandler.isPressed('Left'):
             dx -= TRACKING_TARGET_SPEED
@@ -40,7 +38,7 @@ def KeyEventGenerator(keyhandler):
             dy += TRACKING_TARGET_SPEED
         
         if dx != 0 or dy != 0:
-            yield Event(trackingwidget, EVENT_NAME_MOVE, dx, dy)
+            yield Event('key_event_generator', trackingwidget, label=EVENT_NAME_MOVE, dx=dx, dy=dy)
             dx = 0
             dy = 0
         else:
@@ -48,12 +46,19 @@ def KeyEventGenerator(keyhandler):
     
 class Target(CanvasWidget):
 
-    def __init__(self, canvas, radius, inner_radius, line_thickness=3):
-        circle = SimpleComponent(canvas, canvas.create_oval(0,0,radius*2,radius*2, outline=TRACKING_LINE_COLOUR, width=line_thickness*2))
+    def __init__(self, canvas, radius, inner_radius, line_thickness=5):
+        if line_thickness > 5:
+            raise ValueError("line_thickness above 5 may lead to visual artefacts... fix incoming")
+        circle = SimpleComponent(canvas, canvas.create_oval(0,0,radius*2,radius*2, outline=TRACKING_LINE_COLOUR, width=line_thickness))
         dot = SimpleComponent(canvas, canvas.create_oval(radius-inner_radius*2, radius-inner_radius*2, radius+inner_radius*2, radius+inner_radius*2, fill=TRACKING_LINE_COLOUR, width=0))
         super(Target, self).__init__(canvas, components={'circle':circle, 'dot':dot})
 
 class TrackingWidget(EventCallback, Component, CanvasWidget):
+
+    __instance__ = None
+
+    def all_components():
+        return (TrackingWidget.__instance__,)
 
     def __init__(self, canvas, size, **kwargs):
         super(TrackingWidget, self).__init__(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR, **kwargs)
@@ -68,6 +73,7 @@ class TrackingWidget(EventCallback, Component, CanvasWidget):
         edge = line_thickness // 2 + 1
 
         ts = size/12
+
         def add(**kwargs): #add components
             for k,v in kwargs.items():
                 self.components[k] = v
@@ -121,12 +127,12 @@ class TrackingWidget(EventCallback, Component, CanvasWidget):
         #self.c.size = (size-200, size-50) #test resize
 
         self.highlight = Highlight(canvas, self)
+        assert TrackingWidget.__instance__ is None #there can only be one tracking widget
+        TrackingWidget.__instance__ = self.name
+
 
     def sink(self, event):
-        if event.args[1] == EVENT_NAME_MOVE:
-            self.target.move(event.args[2], event.args[3])
-        elif event.args[1] == EVENT_NAME_HIGHLIGHT:
-            self.highlight(event.args[2])
+        self.components['target'].move(event.data.dx, event.data.dy)
 
        
 

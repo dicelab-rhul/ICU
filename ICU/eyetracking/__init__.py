@@ -68,7 +68,7 @@ class EyeTrackerStub(event.EventCallback, threading.Thread):
         while True:
             self.__time += 1
             time.sleep(1. / self.sample_rate)
-            self.source('eyetracker', random.randint(0,100), random.randint(0,100), self.__time)
+            self.source('eyetracker', x=random.randint(0,100), y=random.randint(0,100), timestamp=self.__time)
             if self.closed.is_set():
                 return
 

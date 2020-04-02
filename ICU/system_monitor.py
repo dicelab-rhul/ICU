@@ -1,5 +1,6 @@
 import tkinter as tk
 import random
+import copy
 from types import SimpleNamespace
 
 from . import panel
@@ -11,7 +12,9 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
 from .event import Event, EventCallback, EVENT_SINKS
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, Highlight
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .highlight import Highlight
+
 
 EVENT_NAME_CLICK = 'click'
 EVENT_NAME_SLIDE = 'slide'
@@ -23,28 +26,27 @@ Y_SCALE = 1/8
 X_SCALE = 1/2
 PADDING = 20
 
-
 NUM_SCALE_SPLIT = 11
 
-def highlight_rect(canvas, rect):
-    r = (rect[0] - WARNING_OUTLINE_WIDTH, rect[1] - WARNING_OUTLINE_WIDTH, 
-         rect[2] + WARNING_OUTLINE_WIDTH, rect[3] + WARNING_OUTLINE_WIDTH)
-    return canvas.create_rectangle(*r, width=0, fill=WARNING_OUTLINE_COLOUR)
-
 def ScaleEventGenerator():
-    scales = [s for s in EVENT_SINKS.keys() if Scale.__name__ in s]
+    scales = ScaleComponent.all_components()
     while True:
-        r = random.randint(0, len(scales)-1)
-        y = random.randint(0, 1) * 2 - 1
-        yield Event(scales[r], EVENT_NAME_SLIDE, y)
+        r = random.randint(0, len(scales)-1) #choose a random slider
+        y = random.randint(0, 1) * 2 - 1 #+-1
+        yield Event('scale_event_generator', scales[r], label=EVENT_NAME_SLIDE, slide=y)
 
 def WarningLightEventGenerator():
-    warning_lights = [s for s in EVENT_SINKS.keys() if WarningLight.__name__ in s]
+    warning_lights = WarningLightComponent.all_components()
     while True:
         r = random.randint(0, len(warning_lights)-1)
-        yield Event(warning_lights[r], EVENT_NAME_SWITCH)
+        yield Event('warning_light_event_generator', warning_lights[r], label=EVENT_NAME_SWITCH)
         
 class ScaleComponent(EventCallback, Component, CanvasWidget):
+
+    __scale_components__ = [] #just names
+
+    def all_components():
+        return copy.deepcopy(ScaleComponent.__scale_components__)
 
     def __init__(self, canvas, name, width=1., height=1., **kwargs):
         super(ScaleComponent, self).__init__(canvas, width=width, height=height, background_colour=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, 
@@ -63,28 +65,33 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
             line = LineComponent(self.canvas, 0, i * 1/NUM_SCALE_SPLIT, 1, i * 1/NUM_SCALE_SPLIT, thickness=OUTLINE_WIDTH)
             self.components['line-' + str(i)] = line
 
-        self.highlight = Highlight(canvas, self)
+        #self.highlight = Highlight(canvas, self)
+
+        ScaleComponent.__scale_components__.append(self.name)
     
     def slide(self, y):
         inc = self.content_height / NUM_SCALE_SPLIT
         self.__state += y
+        self.__state = max(0, min(NUM_SCALE_SPLIT-1, self.__state))
         self.components['block'].y = self.y + inc * self.__state
 
-    def highlight(self, state):
-        print("TODO highlight scale")
-
     def sink(self, event):
-        if event.args[1] == EVENT_NAME_SLIDE:
-            self.slide(event.args[2])
-        elif event.args[1] == EVENT_NAME_HIGHTLIGHT:
-            self.highlight(event.args[2])
+        #TODO validate event?
+        self.slide(event.data.slide)
 
     def click_callback(self, *args):
+        print("click_callback scale")
         self.slide(NUM_SCALE_SPLIT // 2 - self.__state)
-        self.source(EVENT_NAME_CLICK)
+        self.source('Global', label='click', value=self.__state) #notify global
+
 
 
 class WarningLightComponent(EventCallback, Component, BoxComponent):
+
+    __all_components__ = []
+    
+    def all_components():
+        return WarningLightComponent.__all_components__
 
     def __init__(self, canvas, name, width=1., height=1., state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED):
         self.__state_colours = [off_colour, on_colour]
@@ -98,6 +105,7 @@ class WarningLightComponent(EventCallback, Component, BoxComponent):
         self.bind("<Button-1>", self.click_callback)
 
         self.highlight = Highlight(canvas, self)
+        WarningLightComponent.__all_components__.append(self.name)
 
     def update(self):
         self.__state = int(not bool(self.__state))
@@ -105,14 +113,12 @@ class WarningLightComponent(EventCallback, Component, BoxComponent):
 
     def click_callback(self, *args):
         self.update()
-        self.source(EVENT_NAME_CLICK) #notify global
+        self.source('Global', label='click', value=self.__state) #notify global
 
     def sink(self, event):
-        if event.args[1] == EVENT_NAME_SWITCH:
-            self.update()
-        elif event.args[1] == EVENT_NAME_HIGHTLIGHT:
-            self.highlight(event.args[2])
+        self.update()
 
+        
 class SystemMonitorWidget(CanvasWidget):
 
     def __init__(self, canvas, width=480, height=640):
@@ -159,3 +165,7 @@ class SystemMonitorWidget(CanvasWidget):
         
         #self.scale_widget.debug()
         #self.warning_light_widget.debug()
+
+    @property
+    def name(self):
+        return self.__class__.__name__

@@ -269,8 +269,8 @@ class SimpleComponent(BaseComponent):
         x1,y1,x2,y2 = self.canvas.coords(self.component)
         self._BaseComponent__x = x1
         self._BaseComponent__y = y1
-        self._BaseComponent__width = x2-x1
-        self._BaseComponent__height = y2-y1
+        self._BaseComponent__width = x2-x1 
+        self._BaseComponent__height = y2-y1 
 
         #print(x1,y1,x2,y2)
 
@@ -282,6 +282,15 @@ class SimpleComponent(BaseComponent):
         x1,y1,_,_ = self.canvas.coords(self.component)
         self.canvas.coords(self.component, x1, y1, x1 + self.width, y1 + self.height)
  
+    def show(self):
+        self.canvas.itemconfigure(self.component, state='normal')
+    
+    def hide(self):
+        self.canvas.itemconfigure(self.component, state='hidden')
+
+    def is_hidden(self):
+        return self.canvas.itemcget(self.component, "state") == 'hidden'
+    
     def bind(self, event, callback):
         self.canvas.tag_bind(self.component, event, callback)
 
@@ -346,8 +355,9 @@ class CanvasWidget(BaseComponent):
         
         self.components['background'] = BoxComponent(self.canvas, x=x,y=y,width=width,height=height, colour=background_colour,
                                                          outline_colour=outline_colour, outline_thickness=outline_thickness)
+        
         self.__debug = None
-    
+
     def front(self):
         #TODO does not preserve ordering...
         for c in self.components.values():
@@ -419,46 +429,5 @@ class CanvasWidget(BaseComponent):
             #TODO remove component
 
         self.__debug = SimpleComponent(self.canvas, self.canvas.create_rectangle(self.x, self.y, self.x+self.width, self.y+self.height, width=1, outline='red'))
-
-
-class Highlight:
-
-    def __init__(self, canvas, component, state=False, highlight_thickness=4, highlight_colour='red'):
-        assert isinstance(component, BaseComponent)
-        self.canvas = canvas 
-        self.component = component
-        self.state = state # initial state False=OFF, True=ON
-
-        self.component.observe('size', self.resize)
-        self.component.observe('position', self.move)
-
-        self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height, outline_thickness=highlight_thickness, outline_colour=highlight_colour)
-        self.__box.front()
-
-    @property
-    def highlight_thickness(self):
-        return self.__box.outline_thickness
-    
-    @highlight_thickness.setter
-    def highlight_thickness(self, value):
-        self.__box.outline_thickness = value
-    
-    @property
-    def highlight_colour(self):
-        return self.__box.outline_colour
-
-    @highlight_colour.setter
-    def highlight_colour(self, value):
-         self.__box.outline_colour = value
-
-    def move(self, _):
-        self.__box.front() #TODO this is a work around until the layout manager supports layering
-        self.__box.position = self.component.position
-
-    def resize(self, _):
-        self.__box.size = self.component.size
-
-    def __call__(self):
-        self.state = not self.state
 
         

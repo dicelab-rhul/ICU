@@ -5,6 +5,7 @@ import os
 import atexit
 
 from pprint import pprint
+import random
 
 from . import constants
 from . import event
@@ -16,6 +17,9 @@ from . import fuel_monitor
 from . import keyhandler
 from . import eyetracking
 from . import component
+from . import highlight
+
+
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
 
@@ -23,7 +27,7 @@ def run():
     print("RUN!")
     os.system('xset r off') #problem with key press/release otherwise
 
-    event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: None) #print("callback: ", *args))
+    event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: print("callback: ", *args))
 
     def quit():
         global finish
@@ -84,8 +88,8 @@ def run():
     def highlight_event_generator():
         import random
         while True:
-            name = random.choice(list(component.all_components().keys()))
-            yield event.Event(name, 'highlight', 1)
+            dst = random.choice(list(highlight.all_highlights().keys()))
+            yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
 
     #event.event_scheduler.schedule(highlight_event_generator(), sleep=1000, repeat=True)
 
@@ -95,11 +99,9 @@ def run():
 
 
     if constants.JOYSTICK:
-        raise NotImplementedError("TODO are we using a joystick!?")
+        global_key_hander = keyhandler.JoyStickHandler(root)
     else:
         global_key_handler = keyhandler.KeyHandler(root)
-        #event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
-
 
         #there is a delay, it needs an press/release handler to work smoothly and to handle simultanneous presses...
         #root.bind("<Left>",     lambda *args: keyhandler.left_callback(*args))
@@ -110,16 +112,14 @@ def run():
         #TODO record joystick data (send the event to somewhere else aswell!)
         #TODO record the target position at a given time interval, generate an event
 
-
-
-
+    event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50, repeat=True)
 
     # ================= EYE TRACKING ================= 
 
     eyetracker = None
     if constants.EYETRACKING:
         eyetracker = eyetracking.eyetracker(sample_rate=1, stub=True)
-        eyetracker.start()
+       # eyetracker.start()
 
     #ensure the program exits properly
     def exit_handler():

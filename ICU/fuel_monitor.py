@@ -10,7 +10,8 @@ from . import event
 
 from .event import Event, EventCallback, EVENT_SINKS
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, Highlight
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .highlight import Highlight
 
 
 from pprint import pprint
@@ -36,6 +37,7 @@ class PumpEventGenerator:
         self.event_rate = event_rate
         self.on = False
         self.pump_name = self.pump.name
+        self.name = self.__class__.__name__ + ':' + self.pump_name.split(':')[1]
         event.event_scheduler.schedule(self.fail(), sleep=PUMP_FAIL_SCHEDULE, repeat=True)
 
     def start(self):
@@ -48,22 +50,17 @@ class PumpEventGenerator:
     def fail(self):
         while True:
             if self.pump._Pump__state == 2:
-                yield Event(self.pump_name, EVENT_NAME_REPAIR)
+                yield Event(self.name, self.pump_name, label=EVENT_NAME_REPAIR)
             else:
                 self.stop()
-                yield Event(self.pump_name, EVENT_NAME_FAIL)
+                yield Event(self.name, self.pump_name, label=EVENT_NAME_FAIL)
 
     def transfer(self):
         while self.on:
             flow = self.flow_rate / self.event_rate
             if self.pump.tank1.fuel == 0 or self.pump.tank2.fuel == self.pump.tank2.capacity:
-                flow = 0
-            yield Event(self.pump_name, EVENT_NAME_TRANSFER, flow)
-
-def highlight_rect(canvas, rect):
-    r = (rect[0] - WARNING_OUTLINE_WIDTH, rect[1] - WARNING_OUTLINE_WIDTH, 
-         rect[2] + WARNING_OUTLINE_WIDTH, rect[3] + WARNING_OUTLINE_WIDTH)
-    return canvas.create_rectangle(*r, width=0, fill=WARNING_OUTLINE_COLOUR)
+                flow = 0 #dont generate the event?
+            yield Event(self.name, self.pump_name, label=EVENT_NAME_TRANSFER, value=flow) 
 
 class FuelTank(EventCallback, Component, CanvasWidget):
 
@@ -82,12 +79,8 @@ class FuelTank(EventCallback, Component, CanvasWidget):
        
         self.highlight = Highlight(canvas, self)
 
-
     def sink(self, event):
-        if event.args[1] == EVENT_NAME_HIGHLIGHT:
-            self.highlight(event.args[2])
-        else:
-            raise ValueError("{0} received invalid event: {1}".format(self.name, event)) #???
+        pass #updates are handled by pump events
 
     def update(self, dfuel):
         self.fuel = min(max(self.fuel + dfuel, 0), self.capacity)
@@ -151,30 +144,22 @@ class Pump(EventCallback, Component, CanvasWidget):
 
     def click_callback(self, *args):
         print('click')
-        if self.state == 2: #the pump has failed
-            self.source('click') #notify global
-            return
+        if self.state != 2: #the pump has failed
+            self.state = abs(self.__state - 1)
+            (self.generator.start, self.generator.stop)[self.state]()
+        
+        self.source('Global', label='click', value=self.state) #notify global
 
-        self.state = abs(self.__state - 1)
-        (self.generator.start, self.generator.stop)[self.state]()
-        self.source('click') #notify global
 
     def sink(self, event):
-        if event.args[1] == EVENT_NAME_TRANSFER:
-            self.tank1.update(-event.args[2])
-            self.tank2.update(event.args[2])
-        elif event.args[1] == EVENT_NAME_FAIL:
+        if event.data.label == EVENT_NAME_TRANSFER:
+            self.tank1.update(-event.data.value)
+            self.tank2.update(event.data.value)
+        elif event.data.label == EVENT_NAME_FAIL:
             self.state = 2
-        elif event.args[1] == EVENT_NAME_REPAIR:
+        elif event.data.label == EVENT_NAME_REPAIR:
             self.state = 1
-        elif event.args[1] == EVENT_NAME_HIGHLIGHT:
-            self.highlight(event.args[2])
 
-#TODO move this somewhere more appropriate?
-def pump_rect(x,y):
-    pw2 = PUMP_WIDTH/2
-    ph2 = PUMP_HEIGHT/2
-    return (x - pw2, y - ph2, pw2*2, ph2*2)
 
 class Wing(CanvasWidget):
     
