@@ -4,7 +4,7 @@ import random
 from .constants import TRACKING_LINE_COLOUR, TRACKING_TARGET_SPEED, BACKGROUND_COLOUR
 from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
-from .event import Event, EventCallback, EVENT_SINKS
+from .event import Event, EventCallback
 from .component import Component
 
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent

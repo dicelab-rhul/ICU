@@ -10,7 +10,7 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
 #from .constants import WARNING_LIGHT_MIN_HEIGHT, WARNING_LIGHT_MIN_WIDTH
 
-from .event import Event, EventCallback, EVENT_SINKS
+from .event import Event, EventCallback, get_event_sinks
 
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
 from .highlight import Highlight

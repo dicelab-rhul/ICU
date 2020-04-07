@@ -8,7 +8,7 @@ from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
 from . import event
 
-from .event import Event, EventCallback, EVENT_SINKS
+from .event import Event, EventCallback
 
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
 from .highlight import Highlight
@@ -38,11 +38,11 @@ class PumpEventGenerator:
         self.on = False
         self.pump_name = self.pump.name
         self.name = self.__class__.__name__ + ':' + self.pump_name.split(':')[1]
-        event.event_scheduler.schedule(self.fail(), sleep=PUMP_FAIL_SCHEDULE, repeat=True)
+        event.event_scheduler.schedule(self.fail(), sleep=PUMP_FAIL_SCHEDULE)
 
     def start(self):
         self.on = True
-        event.event_scheduler.schedule(self.transfer(), sleep=int(1000/self.event_rate), repeat=True)
+        event.event_scheduler.schedule(self.transfer(), sleep=int(1000/self.event_rate))
 
     def stop(self):
         self.on = False
@@ -178,11 +178,15 @@ class Wing(CanvasWidget):
         fth = height / 3
         margin = 0.05 #using padding here is a bit too tricky, maybe update TODO
 
-        self.components['link'] = BoxComponent(canvas, fts, margin + fth/2, 2 * fts, height-2*margin - fth, outline_thickness=OUTLINE_WIDTH)
+        self.components['link'] = BoxComponent(canvas, x=fts, y=margin + fth/2 + fth/3, width=2 * fts, height=height-2*margin - fth - fth/3, outline_thickness=OUTLINE_WIDTH)
         
         self.components['tank1'] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, 1000, 100, small_tank_name)
         self.components['tank2'] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, 2000, 1000, med_tank_name)
         self.components['tank3'] = FuelTank(canvas, 2 * fts - ftw_large/2, margin, ftw_large, fth, 3000, 1000, big_tank_name)
+
+        self.tanks = {small_tank_name:self.components['tank1'],
+                      med_tank_name:self.components['tank2'],
+                      big_tank_name:self.components['tank3']}
 
         #create pumps
         cx = (fts + ftw_small/2)
@@ -211,6 +215,10 @@ class FuelWidget(CanvasWidget):
         self.wing_right = Wing(canvas, small_tank_name="D",
                                med_tank_name="F", big_tank_name="B")
         
+        self.tanks.update(self.wing_left.tanks)
+        self.tanks.update(self.wing_right.tanks)
+        print(self.tanks)
+
         self.components['wl'] = self.wing_left
         self.components['wr'] = self.wing_right
 
@@ -221,22 +229,26 @@ class FuelWidget(CanvasWidget):
 
         #self.wing_left.components['tank1'].debug()
         
-        '''
-        self.wing_right.move(width/2, 0)
 
-        (ax, ay) = self.tanks['A'].center
+        (ax, ay) = self.tanks['A'].position
         (aw, ah) = self.tanks['A'].size
+        ax = ax + aw / 2
+        ay = ay + ah / 2
 
-        (bx, by) = self.tanks['B'].center
+        (bx, by) = self.tanks['B'].position
         (bw, bh) = self.tanks['B'].size
 
-        self.line_AB = self.create_line(ax+aw/2,ay-ah/6,bx-bw/2,by-bh/6, width=OUTLINE_WIDTH)
-        self.line_BA = self.create_line(ax+aw/2,ay+ah/6,bx-bw/2,by+bh/6, width=OUTLINE_WIDTH)
+        bx = bx + bw / 2
+        by = by + bh / 2
 
-        self.pumpAB = Pump(self, pump_rect((ax+bx)/2, ay-ah/6), self.tanks['A'], self.tanks['B'], ">")
-        self.pumpBA = Pump(self, pump_rect((ax+bx)/2, ay+ah/6), self.tanks['B'], self.tanks['A'], "<")
-        '''
+        self.components['AB'] = SimpleComponent(canvas, canvas.create_line(ax+aw/2,ay-ah/6,bx-bw/2,by-bh/6, width=OUTLINE_WIDTH))
+        self.components['BA'] =  SimpleComponent(canvas, canvas.create_line(ax+aw/2,ay+ah/6,bx-bw/2,by+bh/6, width=OUTLINE_WIDTH))
 
+        w,h = self.wing_left.components['pump21'].size
+
+        self.components['pumpAB'] = Pump(canvas, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks['A'], self.tanks['B'], ">")
+        self.components['pumpBA']= Pump(canvas, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks['B'], self.tanks['A'], "<")
+    
 
     def highlight(self, child=None):
         if child is None:

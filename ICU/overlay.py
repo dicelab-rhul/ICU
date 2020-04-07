@@ -5,7 +5,7 @@
     @Date: 2020-04-02 21:57:11
 """
 
-from .event import Event, EventCallback, EVENT_SINKS
+from .event import Event, EventCallback
 from .component import Component
 from .component import SimpleComponent
 
