@@ -19,10 +19,7 @@ from . import eyetracking
 from . import component
 from . import highlight
 
-
-
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
-
 
 def run():
     print("RUN!")
