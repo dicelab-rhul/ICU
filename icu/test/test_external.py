@@ -34,25 +34,27 @@ if __name__ == '__main__':
     highlight = [h for h in m.event_sinks if 'Highlight' in h]
 
     def _sink():
-        time.sleep(0.001)
         if not sink.empty():
             event = sink.get()
-            print(event)
+            print("SINK", event)
+        
     
     def _source():
-        time.sleep(1)
-        source.source('agent-1', random.choice(highlight), label='highlight')
+        #time.sleep(0.1)
+        source.source('agent-1', random.choice(highlight), label='highlight', value=random.choice([True,False]))
 
     while p.is_alive():
         #_sink()
-        print(m._in.qsize())
-        
+        #print(m._in.qsize(), source.size(), sink.size())
+        time.sleep(0.01)
         _source()
+        _sink()
 
-    #clear buffer after ICU has closed - clean up code
-    while not sink.empty():
-        sink.get() 
+    #clear buffer after ICU has closed - clean up code, this might be OS dependant... 
+    #while not sink.empty():
+    #    sink.get()
 
+    print(m._in.qsize(), source.size(), sink.size())
     p.join()
 
     print("DONE")
