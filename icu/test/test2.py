@@ -1,8 +1,20 @@
-import ICU.event as event
+from multiprocessing import Process, Queue
 
+class Event:
 
-ec = event.new_event_class('warning_light_event', 'click') # state may be: True (on), False (off)
+    def __init__(self):
+        self.x = 0
+        self.y = 1
 
-print(ec.labels)
-print(ec)
-print(ec('test', 0))
+def f(q):
+    q.put(Event())
+
+if __name__ == '__main__':
+    q = Queue()
+    p = Process(target=f, args=(q,))
+    p.start()
+    print(q.get())    # prints "[42, None, 'hello']"
+
+    
+
+    p.join()

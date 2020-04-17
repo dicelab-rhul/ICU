@@ -2,7 +2,7 @@ import time
 import copy
 from types import SimpleNamespace
 
-from queue import Queue
+from multiprocessing import Queue
 
 global finish
 finish = False
@@ -39,7 +39,8 @@ class ExternalEventSource:
         mechanism for sending events to the ICU system.
     """
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(ExternalEventSource, self).__init__(*args, **kwargs)
         self.__buffer = Queue()
     
     def source(self, src, dst, timestamp=None, **data):
@@ -56,13 +57,20 @@ class ExternalEventSource:
     def empty(self):
         return self.__buffer.empty()
 
+    def size(self):
+        return self.__buffer.qsize()
+
+    def close(self):
+        return self.__buffer.close()
+
 class ExternalEventSink:
 
     """
         A thread-safe event sink to be used externally as a 
         mechanism for receiving events from the ICU system.
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(ExternalEventSink, self).__init__(*args, **kwargs)
         self.__buffer = Queue()
     
     def get(self):
@@ -76,6 +84,12 @@ class ExternalEventSink:
 
     def empty(self):
         return self.__buffer.empty()
+
+    def size(self):
+        return self.__buffer.qsize()
+
+    def close(self):
+        return self.__buffer.close()
 
 #EVENT_SINKS = {}
 #EVENT_SOURCES = {}
@@ -97,7 +111,7 @@ class GlobalEventCallback:
             self.__sink_external(event) #send to all external sinks
             #print(event)
 
-    def __sink_external(self, event):
+    def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed
         for sink in self.external_sinks:
             sink._ExternalEventSink__buffer.put(copy.deepcopy(event))
 
@@ -114,12 +128,6 @@ class GlobalEventCallback:
     def add_external_event_sink(self, sink):
         assert isinstance(sink, ExternalEventSink)
         self.external_sinks.append(sink)
-
-    def __call__(self, *args):
-        '''
-        for callback in self.callbacks:
-            callback(*copy.deepcopy(args))
-        '''
 
 # ===  GLOBAL === #
 GLOBAL_EVENT_CALLBACK = GlobalEventCallback()

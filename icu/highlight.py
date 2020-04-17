@@ -29,7 +29,7 @@ class Highlight(EventCallback):
         Highlight.__all_highlights__[self.name] = self
 
     def sink(self, event):
-        print("HIGHLIGHT SINK", event.dst)
+        print("HIGHLIGHT: ", event)
         (self.off, self.on)[int(event.data.value)]() #love it
 
     def on(self):

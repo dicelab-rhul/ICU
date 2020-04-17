@@ -1,22 +1,58 @@
-import ICU
+import icu
+
+import time
+import random 
 
 from threading import Thread
+from multiprocessing import Process
+
+from icu.process import PipedMemory
 
 
-class EventSink(ICU.ExternalEventSink, Thread):
+class EventSink(icu.ExternalEventSink):
 
     def __init__(self):
-        pass
+        super(EventSink, self).__init__()
+
+class EventSource(icu.ExternalEventSource):
+
+    def __init__(self):
+        super(EventSource, self).__init__()
+        
+if __name__ == '__main__':
+    sink = EventSink()
+    source = EventSource()
+
+    p, m = icu.start(sinks=[sink], sources=[source])
     
-    def run(self):
-        while True:
-            if not self.empty():
-                event = self.get()
-                print(event)
+    print("get_event_sinks")
+    print(m.event_sinks) #this will block until ICU has finished loading
+    print("EVENT SINKS!")
+    print(m.event_sources)
 
-sink = EventSink()
-sink.start()
+    #all of the hightlightable sinks
+    highlight = [h for h in m.event_sinks if 'Highlight' in h]
 
-ICU.run()
+    def _sink():
+        time.sleep(0.001)
+        if not sink.empty():
+            event = sink.get()
+            print(event)
+    
+    def _source():
+        time.sleep(1)
+        source.source('agent-1', random.choice(highlight), label='highlight')
 
+    while p.is_alive():
+        #_sink()
+        print(m._in.qsize())
+        
+        _source()
 
+    #clear buffer after ICU has closed - clean up code
+    while not sink.empty():
+        sink.get() 
+
+    p.join()
+
+    print("DONE")

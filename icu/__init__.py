@@ -7,6 +7,8 @@ import atexit
 from pprint import pprint
 import random
 
+from multiprocessing import Pipe
+
 from . import constants
 from . import event
 from . import panel
@@ -18,11 +20,59 @@ from . import keyhandler
 from . import eyetracking
 from . import component
 from . import highlight
+from . import process
 
-__all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor')
+__all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor', 'process')
 
-def run():
-    print("RUN!")
+
+# extend these classes externally to add them (send and receive events to/from ICU system)
+ExternalEventSink = event.ExternalEventSink
+ExternalEventSource = event.ExternalEventSource
+
+def get_event_sources():
+    return list(event.GLOBAL_EVENT_CALLBACK.sources.keys())
+
+def get_event_sinks():
+    return list(event.GLOBAL_EVENT_CALLBACK.sinks.keys())
+
+def get_external_event_sinks():
+    return event.GLOBAL_EVENT_CALLBACK.external_sinks
+
+def get_external_event_sources():
+    return event.GLOBAL_EVENT_CALLBACK.external_sources
+
+def start(sinks=[], sources=[]):
+    """ Start ICU as a seperate process. 
+    
+    Args:
+        sinks (list, optional): [description]. Defaults to [].
+        sources (list, optional): [description]. Defaults to [].
+    """
+    from multiprocessing import Process, Lock
+    from .process import PipedMemory
+
+    send, receive = PipedMemory(event_sinks=None, event_sources=None) #TODO more?
+    send.aquire() #this will block the current process from accessing memory attributes until ICU has finished loading
+
+    p = Process(target=run, args=(send, sinks, sources))
+    p.daemon = True 
+    p.start()
+
+    #TODO wait until intial values have been set
+
+    return p, receive
+
+
+
+def run(shared, sinks=[], sources=[]):
+    """ Starts the ICU system. Call blocks until the GUI is closed.
+
+    Args:
+        shared: shared memory - one end of a pipe that can receive data, used to expose various useful attributes about ICU.
+        sinks (list, optional): A list of external sinks, used to receive events from the ICU system. Defaults to [].
+        sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
+    """
+
     os.system('xset r off') #problem with key press/release otherwise
 
     #event.GLOBAL_EVENT_CALLBACK.add_event_callback(lambda *args: print("callback: ", *args))
@@ -91,7 +141,7 @@ def run():
             dst = random.choice(list(highlight.all_highlights().keys()))
             yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
 
-    event.event_scheduler.schedule(highlight_event_generator(), sleep=1000)
+    #event.event_scheduler.schedule(highlight_event_generator(), sleep=1000)
 
     if constants.JOYSTICK:
         global_key_hander = keyhandler.JoyStickHandler(root)
@@ -104,58 +154,59 @@ def run():
     # ================= EYE TRACKING ================= 
 
     eyetracker = None
-    if constants.EYETRACKING:
+    if constants.EYETRACKING: #TODO move this to start?
         eyetracker = eyetracking.eyetracker(root, sample_rate=100, stub=True)
         eyetracker.start()
 
     pprint(event.get_event_sinks()) #TODO remove
+
+    def close_external():
+        print("CLOSING EXTERNAL")
+        for sink in sinks:
+            sink.close()
+        for source in sources:
+            source.close()
+
 
     #ensure the program exits properly
     def exit_handler():
         if eyetracker is not None:
             eyetracker.close()
         os.system('xset r on') #back to how it was before?
+        close_external()
+        print("ICU EXIT")
 
     atexit.register(exit_handler) 
 
+    #add any external event sinks/sources
+    for sink in sinks:
+        event.GLOBAL_EVENT_CALLBACK.add_external_event_sink(sink)
+    for source in sources:
+        event.GLOBAL_EVENT_CALLBACK.add_external_event_source(source)
+    
+    # update shared memory
+    shared.event_sinks = get_event_sinks()
+    shared.event_sources = get_event_sources()
+    shared.release() # the parent process can now access attributes in shared memory
+
+
+    #start
     root.mainloop()
 
-    if eyetracker is not None:
-        eyetracker.close()
+    close_external()
 
-
-# ===== API ===== #
-
-# extend these classes externally to add them (send and receive events to/from ICU system)
-ExternalEventSink = event.ExternalEventSink
-ExternalEventSource = event.ExternalEventSource
-
-def get_event_sources():
-    return list(event.GLOBAL_EVENT_CALLBACK.sources.keys())
-
-def get_event_sinks():
-    return list(event.GLOBAL_EVENT_CALLBACK.sinks.keys())
-
-def get_external_event_sinks():
-    return event.GLOBAL_EVENT_CALLBACK.external_sinks
-
-def get_external_event_sources():
-    return event.GLOBAL_EVENT_CALLBACK.external_sources
+    print("ICU DONE")
 
 def add_event_source(source):
     '''
         Add an external event source to ICU. Any events generated by 
         this source will be propagated to an ICU event sink.
     '''
-    event.GLOBAL_EVENT_CALLBACK.add_external_event_source(source)
+    
 
 def add_event_sink(sink):
     '''
         Add an external event sink to ICU. This event sink will receive 
         all events that are generated by the ICU system.
     '''
-    event.GLOBAL_EVENT_CALLBACK.add_external_event_sink(sink)
-
-
-
-
+    
