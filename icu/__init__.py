@@ -52,16 +52,12 @@ def start(sinks=[], sources=[]):
     from multiprocessing import Process, Lock
     from .process import PipedMemory
 
-
-
     send, receive = PipedMemory(event_sinks=None, event_sources=None) #TODO more?
     send.aquire() #this will block the current process from accessing memory attributes until ICU has finished loading
 
     p = Process(target=run, args=(send, sinks, sources))
     p.daemon = True 
     p.start()
-
-    #TODO wait until intial values have been set
 
     return p, receive
 
