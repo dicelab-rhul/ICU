@@ -36,6 +36,8 @@ def ScaleEventGenerator():
         yield Event('scale_event_generator', scales[r], label=EVENT_NAME_SLIDE, slide=y)
 
 def WarningLightEventGenerator():
+    import time
+    
     warning_lights = WarningLightComponent.all_components()
     while True:
         r = random.randint(0, len(warning_lights)-1)

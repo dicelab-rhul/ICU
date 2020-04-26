@@ -250,7 +250,7 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             return
 
         if isinstance(sleep, int):
-            sleep = sleep_repeat_int([sleep]) #TODO refactor
+            sleep = sleep_repeat_int(sleep) #TODO refactor
         elif isinstance(sleep, (list,tuple)):
             sleep = sleep_repeat_list(sleep)
 
@@ -268,7 +268,7 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             pass 
 
     def after(self, sleep, fun, *args):
-        self.tk_root.after(sleep, fun, *args)
+        self.tk_root.after(int(sleep), fun, *args)
 
     def close(self):
         pass #TODO

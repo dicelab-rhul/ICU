@@ -19,12 +19,12 @@ def default_config_screen():
                 screen_height=800, 
                 screen_x = 0,
                 screen_y = 0,
-                screen_full=True)
+                screen_full=False)
 
 def default_event_schedule():
     return dict(schedule_warning_light='uniform(0, 1000)',
-                schedule_scale=100,
-                schedule_tracking=100)
+                schedule_scale=[100,50,10],
+                schedule_tracking=[1000,200])
 
 def default_config():
     
@@ -39,7 +39,7 @@ ScreenOptions = SimpleNamespace(**{k:k for k in default_config_screen().keys()})
 # =================================== # ========= DISTRIBUTIONS =========== # =================================== # 
 # =================================== # =================================== # =================================== #
 
-class Distribution:
+class Distribution: #must be an iterable...
     pass
 
 class uniform(Distribution):
@@ -53,6 +53,12 @@ class uniform(Distribution):
 
     def sample(self):
         return random.uniform(self.a, self.b)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.sample()
 
 distributions = lambda: {k.__name__:k for k in Distribution.__subclasses__()}
 
@@ -114,7 +120,6 @@ class Validator:
             
 validate = Validator()
 
-
 def save(path, **kwargs):
     """ Save config to a file.
 
@@ -172,7 +177,13 @@ if __name__ == "__main__":
     run()
 
     #regex tests...
-
+    from pprint import pprint
+    for i in default_config_screen():
+        print(i, ":")
+    print()
+    for i in default_event_schedule():
+        print(i, ":")
+    
     """
     def match(v):
         pattern = '\w+\(((\w|\d),)*((\w|\d)+)?\)'

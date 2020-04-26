@@ -1,8 +1,15 @@
 {
-    "schedule_scale": 100,
-    "schedule_tracking": 100,
+    "schedule_scale": [
+        100,
+        50,
+        10
+    ],
+    "schedule_tracking": [
+        1000,
+        200
+    ],
     "schedule_warning_light": "uniform(0, 1000)",
-    "screen_full": true,
+    "screen_full": false,
     "screen_height": 800,
     "screen_width": 800,
     "screen_x": 0,

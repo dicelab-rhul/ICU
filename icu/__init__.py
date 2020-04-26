@@ -23,7 +23,7 @@ from . import eyetracking
 from . import component
 from . import highlight
 from . import process
-from . import saveload
+from . import config as configuration
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor', 'process')
 
@@ -78,7 +78,7 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
     """
     print(config_file)
-    config = SimpleNamespace(**saveload.load(config_file)) #load local config file
+    config = SimpleNamespace(**configuration.load(config_file)) #load local config file
 
     #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors
@@ -141,9 +141,9 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         
         main.pack()
 
-        event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=1000)
-        event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=1000)
-        event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=100)
+        event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=config.schedule_warning_light)
+        event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=config.schedule_scale)
+        event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=config.schedule_tracking)
 
         #This is just for testing
         def highlight_event_generator():
