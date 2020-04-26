@@ -7,6 +7,7 @@ import atexit
 from pprint import pprint
 import random
 import traceback
+from types import SimpleNamespace
 
 from multiprocessing import Pipe
 
@@ -22,6 +23,7 @@ from . import eyetracking
 from . import component
 from . import highlight
 from . import process
+from . import saveload
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor', 'process')
 
@@ -29,6 +31,12 @@ __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'track
 # extend these classes externally to add them (send and receive events to/from ICU system)
 ExternalEventSink = event.ExternalEventSink
 ExternalEventSource = event.ExternalEventSource
+
+# some constants ... 
+NAME = "ICU"
+#TODO others?
+
+
 
 def get_event_sources():
     return event.get_event_sources()
@@ -61,59 +69,57 @@ def start(sinks=[], sources=[]):
 
     return p, receive
 
-def run(shared, sinks=[], sources=[]):
+def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0]):
     """ Starts the ICU system. Call blocks until the GUI is closed.
 
     Args:
-        shared: shared memory - one end of a pipe that can receive data, used to expose various useful attributes about ICU.
+        shared: shared memory - one end of a pipe that can receive data, used to expose various useful attributes in ICU.
         sinks (list, optional): A list of external sinks, used to receive events from the ICU system. Defaults to [].
         sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
     """
+    print(config_file)
+    config = SimpleNamespace(**saveload.load(config_file)) #load local config file
 
     #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors
+
     #ensure the program exits properly
     def exit_handler():
         if eyetracker is not None:
-            eyetracker.close()
-        os.system('xset r on') #back to how it was before?
-        shared.release()
+            eyetracker.close() #close eye tracker if it was used
+        os.system('xset r on') #back to how it was before? TODO find a better fix for this, it is not an issue on windows (test on macos)
+        if shared is not None:
+            shared.release() #release shared process memory (if it was used)
         event.close() #close all external sources/sink buffers
-
-        print("ICU EXIT")
+        print("ICU EXIT") #TODO remove
 
     try:
-
         def quit():
             global finish
             finish = True
             root.destroy()
 
         class Fullscreen:
-
             def __init__(self, root, fullscreen=False):
                 self.root = root
                 self.fullscreen = fullscreen
                 root.attributes("-fullscreen", self.fullscreen)
-                print("full screen")
                 self.root.bind("<Escape>", self.toggle)
                 self.root.bind("<F11>", self.toggle)
-
             def toggle(self, event):
                 self.fullscreen = not self.fullscreen
                 root.attributes("-fullscreen", self.fullscreen)
 
-
         root = tk.Tk()
-        full_screen = Fullscreen(root, False)
+        full_screen = Fullscreen(root, config.screen_full)
 
-        root.title("MATB-II")
+        root.title("ICU")
         root.protocol("WM_DELETE_WINDOW", quit)
-        root.geometry('%dx%d+%d+%d' % (1000, 1000, 500, 0))
+        root.geometry('%dx%d+%d+%d' % (config.screen_width, config.screen_height, config.screen_x, config.screen_y))
 
         event.tk_event_schedular(root) #initial global event schedular
         
-        main = main_panel.MainPanel(root, width=500, height=500)
+        main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height)
         root.bind("<Configure>", main.resize) #for resizing the window
         
         system_monitor_widget = system_monitor.SystemMonitorWidget(main, width=constants.SYSTEM_MONITOR_WIDTH, height=constants.SYSTEM_MONITOR_HEIGHT)
@@ -121,7 +127,7 @@ def run(shared, sinks=[], sources=[]):
         main.top_frame.layout_manager.fill('system_monitor', 'Y')
         main.top_frame.layout_manager.split('system_monitor', 'X')
 
-        tracking_widget = tracking.TrackingWidget(main, size=400)
+        tracking_widget = tracking.TrackingWidget(main, size=config.screen_height/2) #scaled anyway
         main.top_frame.components['tracking'] = tracking_widget
         main.top_frame.layout_manager.fill('tracking', 'Y')
         main.top_frame.layout_manager.split('tracking', 'X')
@@ -153,7 +159,7 @@ def run(shared, sinks=[], sources=[]):
         else:
             global_key_handler = keyhandler.KeyHandler(root)
 
-        #EVENT SCHEDULAR FOR KEYBOARD INPUT (checks every 50ms whether a key is pressed)
+        # EVENT SCHEDULER FOR KEYBOARD INPUT (checks every 50ms whether a key is pressed)
         event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50)
 
         # ================= EYE TRACKING ================= 
@@ -173,11 +179,11 @@ def run(shared, sinks=[], sources=[]):
             event.add_event_sink(sink)
         for source in sources:
             event.add_event_source(source)
-        
-        # update shared memory
-        shared.event_sinks = get_event_sinks()
-        shared.event_sources = get_event_sources()
-        shared.release() # the parent process can now access attributes in shared memory
+        if shared is not None:
+            # update shared memory
+            shared.event_sinks = get_event_sinks()
+            shared.event_sources = get_event_sources()
+            shared.release() # the parent process can now access attributes in shared memory
         
         root.mainloop()
 

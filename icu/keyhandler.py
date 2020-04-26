@@ -9,6 +9,7 @@ from collections import defaultdict
 from .event import Event
 
 MAX_KEY_CODES = 120
+# TODO define commonly used key codes  (Left, Right, Up, Down, A, S, W, D) + Joystick??
 
 #consider using os.system('xset r off') 
 
