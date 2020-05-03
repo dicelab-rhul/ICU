@@ -112,7 +112,11 @@ class ExternalEventSink:
     
 class GlobalEventCallback:
 
-    def __init__(self):
+    def __init__(self, logger):
+        if logger is None:
+            self.logger = lambda _: None
+        else:
+            self.logger = logger
 
         self.external_sinks = {}
         self.external_sources = {}
@@ -125,6 +129,8 @@ class GlobalEventCallback:
             sink.close()
         for source in self.external_sources.values():
             source.close()
+        if self.logger is not None:
+            self.logger.close()
 
     def trigger(self, event): 
         if event is not None:
@@ -132,7 +138,7 @@ class GlobalEventCallback:
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
             self.__sink_external(event) #send to all external sinks
-            #print(event)
+            self.logger.log(event)
 
     def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed
         for sink in self.external_sinks.values():
@@ -167,8 +173,9 @@ class GlobalEventCallback:
 
         event_scheduler.after(sleep, _trigger)
 
+from .log import EventLogger #TODO MOVE
 # ===  GLOBAL === #
-GLOBAL_EVENT_CALLBACK = GlobalEventCallback()
+GLOBAL_EVENT_CALLBACK = GlobalEventCallback(EventLogger('event_log.txt'))
 global event_scheduler
 event_scheduler = None
 
