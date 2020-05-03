@@ -23,8 +23,8 @@ def default_config_screen():
 
 def default_event_schedule():
     return dict(schedule_warning_light='uniform(0, 1000)',
-                schedule_scale=[100,50,10],
-                schedule_tracking=[1000,200])
+                schedule_scale=1000,
+                schedule_tracking=[[500,200]])
 
 def default_config():
     
@@ -40,59 +40,96 @@ ScreenOptions = SimpleNamespace(**{k:k for k in default_config_screen().keys()})
 # =================================== # =================================== # =================================== #
 
 class Distribution: #must be an iterable...
-    pass
-
-class uniform(Distribution):
-
-    def __init__(self, a, b):
-        try:
-            self.a = float(a)
-            self.b = float(b)
-        except:
-            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers".format(a,b))
-
-    def sample(self):
-        return random.uniform(self.a, self.b)
-
+    
     def __iter__(self):
         return self
 
     def __next__(self):
         return self.sample()
 
+
+class uniform(Distribution):
+
+    def __init__(self, a, b):
+        try:
+            #assert a >= 0 and b >= 0
+            a = float(a)
+            b = float(b)
+            self.a = min(a,b)
+            self.b = max(a,b)
+        except:
+            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers > 0".format(a,b))
+
+    def sample(self):
+        return random.uniform(self.a, self.b)
+
+class normal(Distribution):
+
+    def __init__(self, mu, sigma, decay=1.):
+        try:
+            self.mu = float(mean)
+            self.sigma = float(std)
+            self.decay = float(decay) #multiplicative decay?
+        except:
+            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers".format(a,b))
+
+    def sample(self):
+        self.mu = self.mu * self.decay
+        return random.gauss(self.mu, self.sigma) #not thread safe?
+
 distributions = lambda: {k.__name__:k for k in Distribution.__subclasses__()}
 
 # =================================== # =================================== # =================================== # 
 
-
 class Validator:
 
-    def is_schedule(**kwargs): #validate schedule (number, list, str)
+    def validate_iter(k, v):
+        for i in v:
+            if not isinstance(i, (int, float)):
+                raise ConfigurationError("Invalid value '{0}' for '{1}' in repeating schedule {2}, must be a number.".format(i, k, v))
+        return v
+
+    def validate_list(k, v):
+        if len(v) > 0 and isinstance(v[0], list):
+            if len(v) > 1:
+                raise ConfigurationError("Invalid value '{0}' for '{1}', a repeating schedule is specified through the use of double square brackets: [[...]].".format(k, v))
+            v = Validator.validate_iter(k, v[0])
+            def list_repeat(v):
+                while True:
+                    for i in v:
+                        yield i
+            return list_repeat(v)
+        else:
+            v = Validator.validate_iter(k, v)
+            return v
+
+    def validate_str(k, v):
+        pattern = '\w+\(((\w|\d)+,)*((\w|\d)+)?\)'
+        r = re.match(pattern, re.sub(r"\s+", "", v))
+        if r is not None:
+            name, args = v.split('(')
+            dists = distributions()
+            if name in dists:
+                args = args[:-1].split(",")
+                try:
+                    return dists[name](*args)
+                except Exception as e:
+                    raise ConfigurationError("Invalid value '{0}' for '{1}', failed to build distribution, perhaps the arguments were invalid.".format(v,k)) from e
+            else:
+                raise ConfigurationError("Invalid value '{0}' for '{1}', distribution not found, valid distributions include: {2}".format(v,k,tuple(distributions().keys())))
+
+
+    def is_schedule(**kwargs): #validate schedule (number, list, tuple, str)
         k = next(iter(kwargs.keys()))
         v = kwargs[k]
-        if isinstance(v, (int, float)):
+        if isinstance(v, (int, float)): #schedule a single event
             return v
         elif isinstance(v, list):
-            for i in v:
-                if not isinstance(i, (int, float)):
-                    raise ConfigurationError("Invalid value '{0}' for '{1}' in repeating schedule {1}, must be a number.".format(i, k, v))
-            return v
+            return Validator.validate_list(k, v)
         elif isinstance(v, str): #build schedule object
-            pattern = '\w+\(((\w|\d)+,)*((\w|\d)+)?\)'
-            r = re.match(pattern, re.sub(r"\s+", "", v))
-            if r is not None:
-                name, args = v.split('(')
-                dists = distributions()
-                if name in dists:
-                    args = args[:-1].split(",")
-                    try:
-                        return dists[name](*args)
-                    except Exception as e:
-                        raise ConfigurationError("Invalid value '{0}' for '{1}', failed to build distribution, perhaps the arguments were invalid.".format(v,k)) from e
-                else:
-                    raise ConfigurationError("Invalid value '{0}' for '{1}', distribution not found, valid distributions include: {2}".format(v,k,tuple(distributions().keys())))
-        raise ConfigurationError("Invalid value '{0}' for '{1}', must be a number, list of numbers or distribution.".format(v,k))
-
+            return Validator.validate_str(k, v)
+        raise ConfigurationError("Invalid value '{0}' for '{1}', must be a number, tuple, list or distribution.".format(v,k))
+    
     def is_type(*types, **kwargs): #validate type
         k = next(iter(kwargs.keys()))
         v = kwargs[k]

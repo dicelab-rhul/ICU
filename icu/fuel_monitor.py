@@ -19,7 +19,7 @@ from pprint import pprint
 EVENT_NAME_FAIL = "fail"
 EVENT_NAME_TRANSFER = "transfer"
 EVENT_NAME_REPAIR = "repair"
-EVENT_NAME_HIGHLIGHT = "highlight"
+EVENT_NAME_HIGHLIGHT = "highlight"  
 
 class PumpEventGenerator:
 
@@ -62,6 +62,7 @@ class PumpEventGenerator:
                 flow = 0 #dont generate the event?
             yield Event(self.name, self.pump_name, label=EVENT_NAME_TRANSFER, value=flow) 
 
+
 class FuelTank(EventCallback, Component, CanvasWidget):
 
     def __init__(self, canvas, x, y, width, height, capacity, fuel, name):
@@ -89,6 +90,9 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         self.components['fuel'].y = self.y + self.height - fh
         self.components['fuel'].height = fh
 
+    def to_dict(self):
+        dict(capacity=self.capacity, fuel=self.fuel, highlight=self.highlight.to_dict())
+
 class FuelTankInfinite(FuelTank):
 
     def __init__(self, *args, **kwargs):
@@ -104,17 +108,15 @@ class Pump(EventCallback, Component, CanvasWidget):
     FAIL_COLOUR = COLOUR_RED
     COLOURS = [ON_COLOUR, OFF_COLOUR, FAIL_COLOUR]
 
-    def __init__(self, canvas, x, y, width, height, tank1, tank2, text, initial_state=1):
-        self.__state = initial_state
-        
-        super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[self.__state], outline_thickness=OUTLINE_WIDTH)
+    def __init__(self, canvas, x, y, width, height, tank1, tank2, text, state=1):
+        super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[state], outline_thickness=OUTLINE_WIDTH)
 
         name = "{0}{1}".format(tank1.name.split(':')[1], tank2.name.split(':')[1])
         EventCallback.register(self, name)
         Component.register(self, name)
 
         #parent.pumps[self.name] = self
-        self.__state = initial_state
+        self.__state = state
         self.tank1 = tank1
         self.tank2 = tank2
 
@@ -124,6 +126,8 @@ class Pump(EventCallback, Component, CanvasWidget):
 
         self.highlight = Highlight(canvas, self)
 
+    def to_dict(self):
+        return dict(state=self.state, highlight=self.highlight.to_dict())
 
     @property
     def name(self):

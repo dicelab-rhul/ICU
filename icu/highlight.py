@@ -31,6 +31,9 @@ class Highlight(EventCallback):
     def sink(self, event):
         #print("HIGHLIGHT: ", event)
         (self.off, self.on)[int(event.data.value)]() #love it
+    
+    def to_dict(self):
+        return dict(state=self.is_on(), highlight_thickness=self.highlight_thickness, highlight_colour=self.highlight_colour)
 
     def on(self):
         self.__box.show()

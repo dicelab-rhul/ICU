@@ -126,8 +126,9 @@ class GlobalEventCallback:
         for source in self.external_sources.values():
             source.close()
 
-    def trigger(self, event):
+    def trigger(self, event): 
         if event is not None:
+            #print(event)
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
             self.__sink_external(event) #send to all external sinks

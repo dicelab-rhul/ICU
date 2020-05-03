@@ -28,8 +28,15 @@ class Overlay(EventCallback, Component, SimpleComponent):
         elif event.data.label == 'move':
             self.x += event.data.dx
             self.y += event.data.dy
-
-
+        elif event.data.label == 'saccade':
+            self.x = event.data.x
+            self.y = event.data.y
+            self.hide()
+        elif event.data.label == 'gaze':
+            self.x = event.data.x
+            self.y = event.data.y
+            self.show()
+        
 
 
 

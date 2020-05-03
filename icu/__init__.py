@@ -137,7 +137,17 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         main.bottom_frame.layout_manager.fill('fuel_monitor', 'X')
         main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
         
-        main.overlay(main.create_oval(10,10,30,30, fill='red', width=0))
+        arrow = main.create_polygon(-20,-10,
+                                    0,-10,
+                                    0,-20,
+                                    10,0,
+                                    0,20,
+                                    0,10,
+                                    -20,10,fill='red', width=0) #TODO components with polygons
+
+        circle = main.create_oval(10,10,30,30, fill='red', width=0)
+
+        main.overlay(circle)
         
         main.pack()
 
@@ -166,7 +176,8 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
         eyetracker = None
         if constants.EYETRACKING: #TODO move this to start?
-            eyetracker = eyetracking.eyetracker(root, sample_rate=100, stub=True)
+            filter = eyetracking.filter.TobiiFilter(10, 70) #some default thing...
+            eyetracker = eyetracking.eyetracker(root, filter=filter, sample_rate=100, stub=True)
             eyetracker.start()
 
         pprint(event.get_event_sinks()) #TODO remove
@@ -191,3 +202,6 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         traceback.print_exc()
     finally:
         exit_handler()
+
+        #save state
+        import pickle
