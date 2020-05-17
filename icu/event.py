@@ -137,6 +137,8 @@ class GlobalEventCallback:
             #print(event)
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
+            if event.dst == "Global":
+                print(event)
             self.__sink_external(event) #send to all external sinks
             self.logger.log(event)
 

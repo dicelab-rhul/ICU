@@ -79,6 +79,8 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
     """
     print(config_file)
     config = SimpleNamespace(**configuration.load(config_file)) #load local config file
+    pprint(config)
+
 
     #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors

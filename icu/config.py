@@ -75,7 +75,7 @@ class normal(Distribution):
 
     def sample(self):
         self.mu = self.mu * self.decay
-        return random.gauss(self.mu, self.sigma) #not thread safe?
+        return max(0, random.gauss(self.mu, self.sigma)) #not thread safe?
 
 distributions = lambda: {k.__name__:k for k in Distribution.__subclasses__()}
 
@@ -123,7 +123,7 @@ class Validator:
         k = next(iter(kwargs.keys()))
         v = kwargs[k]
         if isinstance(v, (int, float)): #schedule a single event
-            return v
+            return [v]
         elif isinstance(v, list):
             return Validator.validate_list(k, v)
         elif isinstance(v, str): #build schedule object

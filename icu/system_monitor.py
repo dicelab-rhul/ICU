@@ -4,7 +4,7 @@ import copy
 from types import SimpleNamespace
 
 from . import panel
-from .constants import BACKGROUND_COLOUR, OUTLINE_WIDTH, OUTLINE_COLOUR, SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR_FILL
+from .constants import BACKGROUND_COLOUR, OUTLINE_WIDTH, OUTLINE_COLOUR, COLOUR_LIGHT_BLUE, COLOUR_BLUE
 from .constants import SYSTEM_MONITOR_SCALE_POSITIONS, COLOUR_GREEN, COLOUR_RED
 from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
 
@@ -51,7 +51,7 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
         return copy.deepcopy(ScaleComponent.__scale_components__)
 
     def __init__(self, canvas, name, width=1., height=1., **kwargs):
-        super(ScaleComponent, self).__init__(canvas, width=width, height=height, background_colour=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR, 
+        super(ScaleComponent, self).__init__(canvas, width=width, height=height, background_colour=COLOUR_LIGHT_BLUE, 
                                              outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR) 
         self.__state = 0 #the position (int) of the block slider
 
@@ -59,7 +59,7 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
         Component.register(self, name)
     
         block =  BoxComponent(canvas, height=1/NUM_SCALE_SPLIT, outline_colour=OUTLINE_COLOUR, 
-                                outline_thickness=OUTLINE_WIDTH, colour=SYSTEM_MONITOR_SCALE_BACKGROUND_COLOUR_FILL)
+                                outline_thickness=OUTLINE_WIDTH, colour=COLOUR_BLUE)
         block.bind("<Button-1>", self.click_callback)
         self.components['block'] = block
 
