@@ -12,8 +12,8 @@ class Highlight(EventCallback):
     def __init__(self, canvas, component, state=False, highlight_thickness=4, highlight_colour='red'):
         assert isinstance(component, BaseComponent)
         super(Highlight, self).__init__()
-        
-        EventCallback.register(self, component.name)
+        name = "{0}:{1}".format(Highlight.__name__, component.name)
+        EventCallback.register(self, name)
 
         self.__canvas = canvas 
         self.__component = component

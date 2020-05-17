@@ -15,7 +15,7 @@ EVENT_NAME_MOVE = 'move'
 EVENT_NAME_HIGHLIGHT = "highlight"
 
 def TrackingEventGenerator():
-    trackingwidget = TrackingWidget.all_components()[0]
+    trackingwidget = Tracking.all_components()[0]
     step = 10
 
     while True:
@@ -24,7 +24,7 @@ def TrackingEventGenerator():
         yield Event('tracking_event_generator', trackingwidget, label=EVENT_NAME_MOVE, dx=dx, dy=dy)
 
 def KeyEventGenerator(keyhandler):
-    trackingwidget = TrackingWidget.all_components()[0]
+    trackingwidget = Tracking.all_components()[0]
     dx = 0
     dy = 0
     while True:
@@ -53,19 +53,19 @@ class Target(CanvasWidget):
         dot = SimpleComponent(canvas, canvas.create_oval(radius-inner_radius*2, radius-inner_radius*2, radius+inner_radius*2, radius+inner_radius*2, fill=TRACKING_LINE_COLOUR, width=0))
         super(Target, self).__init__(canvas, components={'circle':circle, 'dot':dot})
 
-class TrackingWidget(EventCallback, Component, CanvasWidget):
+class Tracking(EventCallback, Component, CanvasWidget):
 
     __instance__ = None
 
     def all_components():
-        return (TrackingWidget.__instance__,)
+        return (Tracking.__instance__,)
 
     def __init__(self, canvas, size, **kwargs):
-        super(TrackingWidget, self).__init__(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR, **kwargs)
+        super(Tracking, self).__init__(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR, **kwargs)
 
-        name = str(0)
+        name = "{0}:{1}".format(Target.__name__, str(0))
         EventCallback.register(self, name)
-        Component.register(self, name)    
+        Component.register(self, name)
     
         #draw the tracking pattern
         line_size = size/16
@@ -127,8 +127,8 @@ class TrackingWidget(EventCallback, Component, CanvasWidget):
         #self.c.size = (size-200, size-50) #test resize
 
         self.highlight = Highlight(canvas, self)
-        assert TrackingWidget.__instance__ is None #there can only be one tracking widget
-        TrackingWidget.__instance__ = self.name
+        assert Tracking.__instance__ is None #there can only be one tracking widget
+        Tracking.__instance__ = self.name
 
 
     def sink(self, event):

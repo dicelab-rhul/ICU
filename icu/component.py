@@ -8,7 +8,7 @@ class Component(ABC): #TODO refactor this, probably it can be in BaseComponent
         super(Component, self).__init__(*args, **kwargs)
     
     def register(self, name):
-        self.__name = "{0}:{1}".format(type(self).__name__, name)
+        self.__name = name
         Component.__components__[self.__name] = self
         #print("INFO: registered component: {0}".format(self.__name))
 

@@ -79,7 +79,8 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
     """
     print(config_file)
     config = SimpleNamespace(**configuration.load(config_file)) #load local config file
-    pprint(config)
+    config_schedule = SimpleNamespace(**config.schedule)
+
 
 
     #os.system('xset r off') #problem with key press/release otherwise
@@ -129,7 +130,7 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         main.top_frame.layout_manager.fill('system_monitor', 'Y')
         main.top_frame.layout_manager.split('system_monitor', 'X')
 
-        tracking_widget = tracking.TrackingWidget(main, size=config.screen_height/2) #scaled anyway
+        tracking_widget = tracking.Tracking(main, size=config.screen_height/2) #scaled anyway
         main.top_frame.components['tracking'] = tracking_widget
         main.top_frame.layout_manager.fill('tracking', 'Y')
         main.top_frame.layout_manager.split('tracking', 'X')
@@ -153,9 +154,11 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         
         main.pack()
 
-        event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=config.schedule_warning_light)
-        event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=config.schedule_scale)
-        event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=config.schedule_tracking)
+
+
+        #event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=config.schedule_warning_light)
+        #event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=config.schedule_scale)
+        #event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=config.schedule_tracking)
 
         #This is just for testing
         def highlight_event_generator():

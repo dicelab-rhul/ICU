@@ -17,7 +17,8 @@ class Overlay(EventCallback, Component, SimpleComponent):
 
     def __init__(self, canvas, component):
         super(Overlay, self).__init__(canvas, component)
-        name = self.__class__.__name__
+        name = "{0}:{1}".format(Overlay.__name__, str(0))
+
         EventCallback.register(self, name)
         Component.register(self, name) 
 

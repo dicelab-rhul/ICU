@@ -29,7 +29,7 @@ PADDING = 20
 NUM_SCALE_SPLIT = 11
 
 def ScaleEventGenerator():
-    scales = ScaleComponent.all_components()
+    scales = Scale.all_components()
     while True:
         r = random.randint(0, len(scales)-1) #choose a random slider
         y = random.randint(0, 1) * 2 - 1 #+-1
@@ -38,23 +38,23 @@ def ScaleEventGenerator():
 def WarningLightEventGenerator():
     import time
     
-    warning_lights = WarningLightComponent.all_components()
+    warning_lights = WarningLight.all_components()
     while True:
         r = random.randint(0, len(warning_lights)-1)
         yield Event('warning_light_event_generator', warning_lights[r], label=EVENT_NAME_SWITCH)
         
-class ScaleComponent(EventCallback, Component, CanvasWidget):
+class Scale(EventCallback, Component, CanvasWidget):
 
     __scale_components__ = [] #just names
 
     def all_components():
-        return copy.deepcopy(ScaleComponent.__scale_components__)
+        return copy.deepcopy(Scale.__scale_components__)
 
     def __init__(self, canvas, name, width=1., height=1., **kwargs):
-        super(ScaleComponent, self).__init__(canvas, width=width, height=height, background_colour=COLOUR_LIGHT_BLUE, 
+        super(Scale, self).__init__(canvas, width=width, height=height, background_colour=COLOUR_LIGHT_BLUE, 
                                              outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR) 
         self.__state = 0 #the position (int) of the block slider
-
+        name = "{0}:{1}".format(Scale.__name__, name)
         EventCallback.register(self, name)
         Component.register(self, name)
     
@@ -69,7 +69,7 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
 
         #self.highlight = Highlight(canvas, self)
 
-        ScaleComponent.__scale_components__.append(self.name)
+        Scale.__scale_components__.append(self.name)
     
     def slide(self, y):
         inc = self.content_height / NUM_SCALE_SPLIT
@@ -87,26 +87,27 @@ class ScaleComponent(EventCallback, Component, CanvasWidget):
         self.source('Global', label='click', value=self.__state) #notify global
 
 
-class WarningLightComponent(EventCallback, Component, BoxComponent):
+class WarningLight(EventCallback, Component, BoxComponent):
 
     __all_components__ = []
     
     def all_components():
-        return WarningLightComponent.__all_components__
+        return WarningLight.__all_components__
 
     def __init__(self, canvas, name, width=1., height=1., state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED):
         self.__state_colours = [off_colour, on_colour]
         self.__state = state
         colour = self.__state_colours[self.__state]
-        super(WarningLightComponent, self).__init__(canvas, width=width, height=height, colour=colour, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR)
+        super(WarningLight, self).__init__(canvas, width=width, height=height, colour=colour, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR)
         
+        name = "{0}:{1}".format(WarningLight.__name__, name)
         EventCallback.register(self, name)
         Component.register(self, name)
 
         self.bind("<Button-1>", self.click_callback)
 
         self.highlight = Highlight(canvas, self)
-        WarningLightComponent.__all_components__.append(self.name)
+        WarningLight.__all_components__.append(self.name)
 
     def update(self):
         self.__state = int(not bool(self.__state))
@@ -132,9 +133,9 @@ class SystemMonitorWidget(CanvasWidget):
         self.components['warning_light_widget'] = self.warning_light_widget
       
 
-        self.warning_light_widget.components['warning_right'] = WarningLightComponent(canvas, name=str(0), width=1/3,
+        self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=str(0), width=1/3,
                             on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, state=1)
-        self.warning_light_widget.components['warning_left'] = WarningLightComponent(canvas, name=str(1), width=1/3,
+        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=str(1), width=1/3,
                             on_colour=COLOUR_RED,   off_colour=BACKGROUND_COLOUR, state=0)
 
         self.layout_manager.fill('warning_light_widget', 'X')
@@ -153,7 +154,7 @@ class SystemMonitorWidget(CanvasWidget):
         self.warning_light_widget.layout_manager.fill('warning_right', 'Y')
         
         for i in range(len(SYSTEM_MONITOR_SCALE_POSITIONS)):
-            scale = ScaleComponent(canvas, name=str(i))
+            scale = Scale(canvas, name=str(i))
             scale.slide(SYSTEM_MONITOR_SCALE_POSITIONS[i])
             self.scale_widget.components[str(i)] = scale
 

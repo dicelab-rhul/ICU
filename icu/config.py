@@ -22,9 +22,15 @@ def default_config_screen():
                 screen_full=False)
 
 def default_event_schedule():
-    return dict(schedule_warning_light='uniform(0, 1000)',
-                schedule_scale=1000,
-                schedule_tracking=[[500,200]])
+    return {"ScaleComponent:0" : 1000,
+            "ScaleComponent:1" : 1500,
+            "ScaleComponent:2": 2000,
+            "ScaleComponent:3": 2500,
+            "TrackingWidget:0": [[500,200]]}
+
+def default_event_generator():
+    return {"ScaleComponent" : "ScaleEventGenerator"}
+
 
 def default_config():
     
@@ -129,6 +135,8 @@ class Validator:
         elif isinstance(v, str): #build schedule object
             return Validator.validate_str(k, v)
         raise ConfigurationError("Invalid value '{0}' for '{1}', must be a number, tuple, list or distribution.".format(v,k))
+
+
     
     def is_type(*types, **kwargs): #validate type
         k = next(iter(kwargs.keys()))
@@ -146,9 +154,8 @@ class Validator:
     screen_y        = lambda **kwargs: Validator.is_type(int, float, **kwargs)
     screen_full     = lambda **kwargs: Validator.is_type(bool, **kwargs)
 
-    schedule_warning_light  =  lambda **kwargs: Validator.is_schedule(**kwargs)
-    schedule_scale          =  lambda **kwargs: Validator.is_schedule(**kwargs)
-    schedule_tracking       =  lambda **kwargs: Validator.is_schedule(**kwargs)
+    schedule  =  lambda **kwargs: {k:Validator.is_schedule(**v) for k,v in kwargs.items()}
+    generators = lambda **kwargs: None
     
     # ================================================================================== #
 

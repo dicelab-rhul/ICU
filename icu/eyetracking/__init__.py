@@ -43,9 +43,9 @@ class EyeTrackerBase(event.EventCallback, threading.Thread):
             if e is not None:
                 d = dict(label='place', x=x, y=x, timestamp=t)
                 d.update(e)
-                super().source('Overlay:Overlay', **d) #TODO change Overlay if we want to event to go elsewhere
+                super().source('Overlay:0', **d) #TODO change Overlay if we want to event to go elsewhere
         else:
-            super().source('Overlay:Overlay', label='place', x=x, y=x, timestamp=t)
+            super().source('Overlay:0', label='place', x=x, y=x, timestamp=t)
 
 class EyeTracker(EyeTrackerBase):
 
@@ -71,7 +71,8 @@ class EyeTracker(EyeTrackerBase):
                 raise EyeTrackingError("failed to calibrate eyetracker.")
         
         self.closed = threading.Event()
-        self.register('eyetracker')
+        name = "{0}:{1}".format(EyeTracker.__name__, str(0))
+        self.register(name)
             
     def run(self):
         self.tracker.setRecordingState(True) #what is this?

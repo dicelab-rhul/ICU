@@ -1,12 +1,16 @@
 {
-    "schedule_scale": 1000,
-    "schedule_tracking": [
-        [
-            500,
-            200
-        ]
-    ],
-    "schedule_warning_light": "uniform(0, 1000)",
+    "schedule":{
+        "Scale:0" : 1000,
+        "Scale:1" : 1500,
+        "Scale:2": 2000,
+        "Scale:3": 2500,
+        "Tracking:0": [[500,200]]
+    },
+
+    "generators": {
+        "ScaleComponent" : "ScaleEventGenerator"
+    },
+   
     "screen_full": false,
     "screen_height": 800,
     "screen_width": 800,

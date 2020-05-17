@@ -219,8 +219,9 @@ class EventCallback:
     def __init__(self, *args, **kwargs):
         super(EventCallback, self).__init__(*args, **kwargs)
 
+
     def register(self, name):
-        self.__name = "{0}:{1}".format(type(self).__name__, name)
+        self.__name = name
         GLOBAL_EVENT_CALLBACK.register_sink(self.__name, self)
         GLOBAL_EVENT_CALLBACK.register_source(self.__name, self)
 

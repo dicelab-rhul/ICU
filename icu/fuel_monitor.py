@@ -68,6 +68,7 @@ class FuelTank(EventCallback, Component, CanvasWidget):
     def __init__(self, canvas, x, y, width, height, capacity, fuel, name):
         super(FuelTank, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=BACKGROUND_COLOUR)
 
+        name = "{0}:{1}".format(FuelTank.__name__, name)
         EventCallback.register(self, name)
         Component.register(self, name)
 
@@ -155,6 +156,8 @@ class Pump(EventCallback, Component, CanvasWidget):
         super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[state], outline_thickness=OUTLINE_WIDTH)
 
         name = "{0}{1}".format(tank1.name.split(':')[1], tank2.name.split(':')[1])
+        name = "{0}:{1}".format(Pump.__name__, name)
+        
         EventCallback.register(self, name)
         Component.register(self, name)
 
@@ -165,6 +168,7 @@ class Pump(EventCallback, Component, CanvasWidget):
 
         self.bind("<Button-1>", self.click_callback) #bind mouse events
 
+        
         self.generator = PumpEventGenerator(self, flow_rate=PUMP_FLOW_RATE[self.name.split(":")[1]], event_rate=PUMP_EVENT_RATE)
 
         self.highlight = Highlight(canvas, self)
