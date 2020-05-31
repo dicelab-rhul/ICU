@@ -4,7 +4,7 @@
         "Scale:1" : 1500,
         "Scale:2":  2000,
         "Scale:3":  2500,
-        "Target:0": [[100]],
+        "Target:0": [[100]]
     },
 
     "Scale:0" : {"size":11, "position":0},
