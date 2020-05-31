@@ -6,8 +6,10 @@ import atexit
 
 from pprint import pprint
 import random
+import copy
 import traceback
 from types import SimpleNamespace
+from itertools import cycle
 
 from multiprocessing import Pipe
 
@@ -23,6 +25,7 @@ from . import eyetracking
 from . import component
 from . import highlight
 from . import process
+from . import generator
 from . import config as configuration
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor', 'process')
@@ -69,6 +72,9 @@ def start(sinks=[], sources=[]):
 
     return p, receive
 
+global config
+config = None
+
 def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0]):
     """ Starts the ICU system. Call blocks until the GUI is closed.
 
@@ -77,11 +83,14 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         sinks (list, optional): A list of external sinks, used to receive events from the ICU system. Defaults to [].
         sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
     """
-    print(config_file)
+    print("USING CONFIG FILE: {0}".format(config_file))
+
+    global config # this is used in other places and should be accessible
     config = SimpleNamespace(**configuration.load(config_file)) #load local config file
+    
+    pprint(config.__dict__)
+
     config_schedule = SimpleNamespace(**config.schedule)
-
-
 
     #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors
@@ -125,39 +134,63 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height)
         root.bind("<Configure>", main.resize) #for resizing the window
         
-        system_monitor_widget = system_monitor.SystemMonitorWidget(main, width=constants.SYSTEM_MONITOR_WIDTH, height=constants.SYSTEM_MONITOR_HEIGHT)
-        main.top_frame.components['system_monitor'] = system_monitor_widget
-        main.top_frame.layout_manager.fill('system_monitor', 'Y')
-        main.top_frame.layout_manager.split('system_monitor', 'X')
+        # ==================== SYSTEM MONITOR WIDGET ==================== #
 
-        tracking_widget = tracking.Tracking(main, size=config.screen_height/2) #scaled anyway
-        main.top_frame.components['tracking'] = tracking_widget
-        main.top_frame.layout_manager.fill('tracking', 'Y')
-        main.top_frame.layout_manager.split('tracking', 'X')
+        task = SimpleNamespace(**config.task)
 
-        fuel_monitor_widget = fuel_monitor.FuelWidget(main, width=constants.FUEL_MONITOR_WIDTH, height=constants.FUEL_MONITOR_HEIGHT)
-        main.bottom_frame.components['fuel_monitor'] = fuel_monitor_widget
-        main.bottom_frame.layout_manager.fill('fuel_monitor', 'X')
-        main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
+        if task.system:
+            system_monitor_widget = system_monitor.SystemMonitorWidget(main, copy.deepcopy(config.__dict__), width=constants.SYSTEM_MONITOR_WIDTH, height=constants.SYSTEM_MONITOR_HEIGHT)
+            main.top_frame.components['system_monitor'] = system_monitor_widget
+            main.top_frame.layout_manager.fill('system_monitor', 'Y')
+            main.top_frame.layout_manager.split('system_monitor', 'X')
+
+        if task.track:
+            tracking_widget = tracking.Tracking(main, copy.deepcopy(config.__dict__), size=config.screen_height/2) #scaled anyway
+            main.top_frame.components['tracking'] = tracking_widget
+            main.top_frame.layout_manager.fill('tracking', 'Y')
+            main.top_frame.layout_manager.split('tracking', 'X')
+
+        if task.fuel:
+            fuel_monitor_widget = fuel_monitor.FuelWidget(main, copy.deepcopy(config.__dict__), width=constants.FUEL_MONITOR_WIDTH, height=constants.FUEL_MONITOR_HEIGHT)
+            main.bottom_frame.components['fuel_monitor'] = fuel_monitor_widget
+            main.bottom_frame.layout_manager.fill('fuel_monitor', 'X')
+            main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
         
-        arrow = main.create_polygon(-20,-10,
-                                    0,-10,
-                                    0,-20,
-                                    10,0,
-                                    0,20,
-                                    0,10,
-                                    -20,10,fill='red', width=0) #TODO components with polygons
+        #arrow = main.create_polygon(-20,-10, 0,-10, 0,-20, 10,0,0,20, 0,10, -20,10,fill='red', width=0) #TODO components with polygons
 
-        circle = main.create_oval(10,10,30,30, fill='red', width=0)
+        if config.overlay['arrow']:
+            circle = main.create_oval(10,10,30,30, fill='red', width=0)
+            main.overlay(circle)
 
-        main.overlay(circle)
+        if config.overlay['transparent']:
+            pass #TODO
+
+        if config.overlay['outline']:
+            pass #TODO
         
         main.pack()
 
 
+        # ==================== SYSTEM MONITOR EVENT SCHEDULES ==================== #
+        if task.system:
+            task_system_monitor(config)
 
-        #event.event_scheduler.schedule(system_monitor.WarningLightEventGenerator(), sleep=config.schedule_warning_light)
-        #event.event_scheduler.schedule(system_monitor.ScaleEventGenerator(), sleep=config.schedule_scale)
+        # ====================   TRACKING EVENT SCHEDULES     ==================== #
+        if task.track:
+            task_tracking(config)
+            # EVENT SCHEDULER FOR KEYBOARD INPUT (checks every 50ms whether a key is pressed)
+            if config.input['joystick']:
+                global_key_hander = keyhandler.JoyStickHandler(root)
+            else:
+                global_key_handler = keyhandler.KeyHandler(root)
+            event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=cycle([50]))
+
+        # ==================== FULE MONITOR EVENT SCHEDULES   ==================== #
+        if task.fuel:
+            task_fuel_monitor(config)
+            
+        # ==================== ============================== ==================== #
+
         #event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=config.schedule_tracking)
 
         #This is just for testing
@@ -166,26 +199,18 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             while True:
                 dst = random.choice(list(highlight.all_highlights().keys()))
                 yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
-
-        #event.event_scheduler.schedule(highlight_event_generator(), sleep=1000)
-
-        if constants.JOYSTICK:
-            global_key_hander = keyhandler.JoyStickHandler(root)
-        else:
-            global_key_handler = keyhandler.KeyHandler(root)
-
-        # EVENT SCHEDULER FOR KEYBOARD INPUT (checks every 50ms whether a key is pressed)
-        event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=50)
+        event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
+       
 
         # ================= EYE TRACKING ================= 
 
         eyetracker = None
-        if constants.EYETRACKING: #TODO move this to start?
+        if config.input['eye_tracker']:
             filter = eyetracking.filter.TobiiFilter(10, 70) #some default thing...
             eyetracker = eyetracking.eyetracker(root, filter=filter, sample_rate=100, stub=True)
             eyetracker.start()
 
-        pprint(event.get_event_sinks()) #TODO remove
+        #pprint(event.get_event_sinks()) #TODO remove
   
 
         atexit.register(exit_handler) 
@@ -210,3 +235,46 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
         #save state
         import pickle
+
+
+def task_system_monitor(config):
+    """ Set up system monitoring task event schedules
+
+    Args:
+        config (SimpleNamespace): configuration options
+    """
+    scales = system_monitor.Scale.all_components()
+    for scale in scales:
+        schedule = config.schedule.get(scale, configuration.default_scale_schedule())
+        event.event_scheduler.schedule(generator.ScaleEventGenerator(scale), sleep=schedule)
+        #print(scale, schedule)
+
+    warning_lights = system_monitor.WarningLight.all_components()
+    for warning_light in warning_lights:
+        schedule = config.schedule.get(warning_light, configuration.default_warning_light_schedule())
+        event.event_scheduler.schedule(generator.WarningLightEventGenerator(warning_light), sleep=schedule)
+        #print(scale, schedule)
+
+def task_tracking(config):
+    """ Set up tracking task event schedules
+
+    Args:
+        config (SimpleNamespace): configuration options
+    """
+    targets = tracking.Tracking.all_components()
+    for target in targets:
+        schedule = config.schedule.get(target, configuration.default_target_schedule())
+        event.event_scheduler.schedule(generator.TargetEventGenerator(target, **config.__dict__[target]), sleep=schedule)
+
+def task_fuel_monitor(config):
+    """ Set up fuel monitoring task event scheduless
+
+    Args:
+        config (SimpleNamespace): configuration options
+    """
+    pumps = fuel_monitor.Pump.all_components()
+    for pump in pumps:
+        schedule = config.schedule.get(pump, configuration.default_pump_schedule())
+        event.event_scheduler.schedule(generator.PumpEventGenerator(pump, False), sleep=schedule)
+
+

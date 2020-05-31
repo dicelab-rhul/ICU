@@ -8,6 +8,16 @@ def rgb(*colour):
     """
     return "#%02x%02x%02x" % colour 
 
+# EVENT
+
+EVENT_LABEL_CLICK = 'click'
+EVENT_LABEL_SLIDE = 'slide'
+EVENT_LABEL_SWITCH = 'switch'
+EVENT_LABEL_HIGHTLIGHT = 'highlight'
+EVENT_LABEL_MOVE = 'move'
+EVENT_LABEL_REPAIR = 'repair'
+EVENT_LABEL_FAIL = 'fail'
+
 # GENERAL
 
 JOYSTICK = False #are we using a joystick?

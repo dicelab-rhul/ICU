@@ -9,7 +9,7 @@ class Highlight(EventCallback):
 
     __all_highlights__ = {}
 
-    def __init__(self, canvas, component, state=False, highlight_thickness=4, highlight_colour='red'):
+    def __init__(self, canvas, component, state=False, highlight_thickness=4, highlight_colour='red', outline=True, transparent=False, **kwargs):
         assert isinstance(component, BaseComponent)
         super(Highlight, self).__init__()
         name = "{0}:{1}".format(Highlight.__name__, component.name)
@@ -22,9 +22,16 @@ class Highlight(EventCallback):
         self.component.observe('size', self.resize)
         self.component.observe('position', self.move)
 
-        self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height, outline_thickness=highlight_thickness, outline_colour=highlight_colour)
+        background_colour = (highlight_colour, None)[int(transparent)]
+        outline = (0, highlight_thickness)[int(outline)]
+
+        self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height,
+                                    colour=background_colour, outline_thickness=highlight_thickness, outline_colour=highlight_colour, stipple="gray25")
         #self.__box.front()
         self.off()
+
+        if hasattr(component, 'click_callback'):
+            self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
 
         Highlight.__all_highlights__[self.name] = self
 

@@ -11,18 +11,6 @@ from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, L
 from .highlight import Highlight
 
 
-EVENT_NAME_MOVE = 'move'
-EVENT_NAME_HIGHLIGHT = "highlight"
-
-def TrackingEventGenerator():
-    trackingwidget = Tracking.all_components()[0]
-    step = 10
-
-    while True:
-        dy = random.randint(-step, step)
-        dx = random.randint(-step, step)
-        yield Event('tracking_event_generator', trackingwidget, label=EVENT_NAME_MOVE, dx=dx, dy=dy)
-
 def KeyEventGenerator(keyhandler):
     trackingwidget = Tracking.all_components()[0]
     dx = 0
@@ -58,9 +46,9 @@ class Tracking(EventCallback, Component, CanvasWidget):
     __instance__ = None
 
     def all_components():
-        return (Tracking.__instance__,)
+        return [Tracking.__instance__.name]
 
-    def __init__(self, canvas, size, **kwargs):
+    def __init__(self, canvas, config, size, **kwargs):
         super(Tracking, self).__init__(canvas, width=size, height=size, background_colour=BACKGROUND_COLOUR, **kwargs)
 
         name = "{0}:{1}".format(Target.__name__, str(0))
@@ -125,10 +113,10 @@ class Tracking(EventCallback, Component, CanvasWidget):
         #add(B=BoxComponent(canvas, edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline_colour=TRACKING_LINE_COLOUR, outline_thickness=line_thickness))
 
         #self.c.size = (size-200, size-50) #test resize
-
-        self.highlight = Highlight(canvas, self)
+        highlight = config['overlay']
+        self.highlight = Highlight(canvas, self, **highlight)
         assert Tracking.__instance__ is None #there can only be one tracking widget
-        Tracking.__instance__ = self.name
+        Tracking.__instance__ = self
 
 
     def sink(self, event):

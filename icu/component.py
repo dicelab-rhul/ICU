@@ -322,8 +322,8 @@ class LineComponent(SimpleComponent):
 
 class BoxComponent(SimpleComponent):
 
-    def __init__(self, canvas, x=0., y=0., width=1., height=1., colour=None, outline_colour=None, outline_thickness=None):
-        rect = canvas.create_rectangle(x, y, x+width, y+height, width=outline_thickness, fill=colour, outline=outline_colour)
+    def __init__(self, canvas, x=0., y=0., width=1., height=1., colour=None, outline_colour=None, outline_thickness=None, **kwargs):
+        rect = canvas.create_rectangle(x, y, x+width, y+height, width=outline_thickness, fill=colour, outline=outline_colour, **kwargs)
         super(BoxComponent, self).__init__(canvas, rect)
 
     @property

@@ -4,7 +4,9 @@ import re
 import random
 
 from types import SimpleNamespace
+from collections import defaultdict
 
+from itertools import cycle, islice
 
 
 class ConfigurationError(Exception):
@@ -14,6 +16,9 @@ class ConfigurationError(Exception):
 # =================================== # ======== ALL CONFIG OPTIONS ======= # =================================== # 
 # =================================== # =================================== # =================================== #
 
+def tasks():
+    return SimpleNamespace(**{k:k for k in ['system', 'fuel', 'track']})
+
 def default_config_screen():
     return dict(screen_width=800, 
                 screen_height=800, 
@@ -21,20 +26,41 @@ def default_config_screen():
                 screen_y = 0,
                 screen_full=False)
 
+def default_task_options():
+    return   {"system" : True, "track" : True,"fuel" : True}
+
 def default_event_schedule():
-    return {"ScaleComponent:0" : 1000,
-            "ScaleComponent:1" : 1500,
-            "ScaleComponent:2": 2000,
-            "ScaleComponent:3": 2500,
-            "TrackingWidget:0": [[500,200]]}
+    return {"Scale:0" :         default_scale_schedule(),
+            "Scale:1" :         default_scale_schedule(),
+            "Scale:2" :         default_scale_schedule(),
+            "Scale:3" :         default_scale_schedule(),
+            "WarningLight:0" :  default_warning_light_schedule(),
+            "WarningLight:1" :  default_warning_light_schedule(),
+            "Target:0" :      default_target_schedule()}
+
+def default_pump_config():
+    return dict(flow_rate = 10, event_rate = 10)
 
 def default_event_generator():
     return {"ScaleComponent" : "ScaleEventGenerator"}
 
+def default_scale_schedule():
+    return uniform(1000,10000) 
+
+def default_warning_light_schedule():
+    return uniform(1000,10000) 
+
+def default_pump_schedule():
+    return uniform(0,20000)
+
+def default_target_schedule():
+    return cycle([300])
+
+def default_overlay():
+    return dict(transparent=True, outline=True, arrow=True)
 
 def default_config():
-    
-    return dict(**default_config_screen(), **default_event_schedule())
+    return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay())
 
 ScreenOptions = SimpleNamespace(**{k:k for k in default_config_screen().keys()})
 # TODO other options
@@ -52,7 +78,6 @@ class Distribution: #must be an iterable...
 
     def __next__(self):
         return self.sample()
-
 
 class uniform(Distribution):
 
@@ -87,6 +112,119 @@ distributions = lambda: {k.__name__:k for k in Distribution.__subclasses__()}
 
 # =================================== # =================================== # =================================== # 
 
+def is_type(*types): #validate type(s) 
+    def _is_type(**kwargs): #expects a singleton dictionary
+        assert len(kwargs) == 1
+        k = next(iter(kwargs.keys()))
+        v = kwargs[k]
+        #print(k,v,types)
+        if not isinstance(v, tuple(types)):
+            raise ConfigurationError("Invalid value '{0}' for '{1}', must be one of type: {2}.".format(v, k, tuple([t.__name__ for t in types])))
+        return v
+    return _is_type
+
+def condition(cond):
+    def _condition(**kwargs):
+        assert len(kwargs) == 1
+        k = next(iter(kwargs.keys()))
+        v = kwargs[k]
+
+        cond(v)
+
+
+        
+def get_option(k, group, _options=None):
+    if _options is None:
+        _options = options
+
+    k = k.split(":")[0]
+    if k in _options:
+        option = _options[k]
+        assert isinstance(option, Option)
+        if option.group == group:
+            return option
+
+    raise ConfigurationError("Invalid config option: \"{0}\" for config group: \"{1}\"".format(k, group))
+
+def validate_options(group, _options=None):
+    return (lambda **kwargs : {k:get_option(k, group, _options=_options)(**{k:v}) for k,v in next(iter(kwargs.values())).items()})
+
+class Option:
+    
+    def __init__(self, group, fun):
+        self.group =  group
+        self.__fun = fun
+
+    def __call__(self, **kwargs):
+        return self.__fun(**kwargs)
+
+# CONFIG OPTIONS ARE ALL DEFINED IN THE DICTIONARY BELOW - EACH SHOULD BE VALIDATED
+
+pump_options = dict(
+    flow_rate           = Option('pump', is_type(int)),
+    event_rate          = Option('pump', is_type(int))
+
+)
+
+target_options = dict(
+    speed               = Option('target', is_type(int, float)),
+
+)
+warninglight_options = dict(
+    on_colour           = Option('warning_light', is_type(str)),
+    off_colour          = Option('warning_light', is_type(str)),
+    outline_colour      = Option('warning_light', is_type(str)),
+    outline_thickness   = Option('warning_light', is_type(int))
+)
+
+scale_options = dict(
+    size                = Option('scale', is_type(int)),
+    position            = Option('scale', is_type(int)),
+    background_colour   = Option('scale', is_type(str)),
+    outline_colour      = Option('scale', is_type(str)),
+    outline_thickness   = Option('scale', is_type(int)),
+    slider_colour       = Option('scale', is_type(str))
+)
+
+options = dict(
+
+            main            = Option('-', validate_options('main')),
+
+            #TODO validate these arguments?
+            Pump            = Option('main', validate_options('pump', _options=pump_options)),
+            Target          = Option('main', validate_options('target', _options=target_options)),
+            WarningLight    = Option('main', validate_options('warning_light', _options=warninglight_options)),
+            Scale           = Option('main', validate_options('scale', _options=scale_options)),
+
+            screen_width    = Option('main', is_type(int, float)),
+            screen_height   = Option('main', is_type(int, float)),
+            screen_x        = Option('main', is_type(int, float)),
+            screen_y        = Option('main', is_type(int, float)),
+            screen_full     = Option('main', is_type(bool)),
+
+            schedule        = Option('main', lambda **kwargs: {k:Validator.is_schedule(**{k:v}) for k,v in next(iter(kwargs.values())).items()}),
+            
+            task            = Option('main', validate_options('task')),
+            system          = Option('task', is_type(bool)),
+            track           = Option('task', is_type(bool)),
+            fuel            = Option('task', is_type(bool)),
+
+            input           = Option('main',  validate_options('input')),
+            mouse           = Option('input', is_type(bool)),
+            keyboard        = Option('input', is_type(bool)),
+            joystick        = Option('input', is_type(bool)),
+            eye_tracker     = Option('input', is_type(bool)),
+
+            generators      = Option('main', lambda **kwargs: None), #TODO
+
+            overlay             = Option('main',    validate_options('overlay')),
+            arrow               = Option('overlay', is_type(bool)),
+            transparent         = Option('overlay', is_type(bool)),
+            outline             = Option('overlay', is_type(bool)),
+            highlight_thickness = Option('overlay', is_type(int)),
+            highlight_colour    = Option('overlay', is_type(str))
+    )
+
 class Validator:
 
     def validate_iter(k, v):
@@ -100,14 +238,10 @@ class Validator:
             if len(v) > 1:
                 raise ConfigurationError("Invalid value '{0}' for '{1}', a repeating schedule is specified through the use of double square brackets: [[...]].".format(k, v))
             v = Validator.validate_iter(k, v[0])
-            def list_repeat(v):
-                while True:
-                    for i in v:
-                        yield i
-            return list_repeat(v)
+            return cycle(v)
         else:
             v = Validator.validate_iter(k, v)
-            return v
+            return iter(v)
 
     def validate_str(k, v):
         pattern = '\w+\(((\w|\d)+,)*((\w|\d)+)?\)'
@@ -129,7 +263,7 @@ class Validator:
         k = next(iter(kwargs.keys()))
         v = kwargs[k]
         if isinstance(v, (int, float)): #schedule a single event
-            return [v]
+            return v
         elif isinstance(v, list):
             return Validator.validate_list(k, v)
         elif isinstance(v, str): #build schedule object
@@ -137,31 +271,9 @@ class Validator:
         raise ConfigurationError("Invalid value '{0}' for '{1}', must be a number, tuple, list or distribution.".format(v,k))
 
 
-    
-    def is_type(*types, **kwargs): #validate type
-        k = next(iter(kwargs.keys()))
-        v = kwargs[k]
-        #print(k,v,types)
-        if not isinstance(v, tuple(types)):
-            raise ConfigurationError("Invalid value '{0}' for '{1}', must be one of type: {2}.".format(v, k, tuple([t.__name__ for t in types])))
-        return v
-
-    # ================================================================================== #
-
-    screen_width    = lambda **kwargs: Validator.is_type(int, float, **kwargs)
-    screen_height   = lambda **kwargs: Validator.is_type(int, float, **kwargs)
-    screen_x        = lambda **kwargs: Validator.is_type(int, float, **kwargs)
-    screen_y        = lambda **kwargs: Validator.is_type(int, float, **kwargs)
-    screen_full     = lambda **kwargs: Validator.is_type(bool, **kwargs)
-
-    schedule  =  lambda **kwargs: {k:Validator.is_schedule(**v) for k,v in kwargs.items()}
-    generators = lambda **kwargs: None
-    
-    # ================================================================================== #
-
     def __call__(self, **kwargs):
-        return {k:getattr(Validator, k)(**{k:v}) for k,v in kwargs.items()}
-            
+        return validate_options('main')(**{'main':kwargs}) #{k:get_option(k, 'main')(**{k:v}) for k,v in kwargs.items()}
+    
 validate = Validator()
 
 def save(path, **kwargs):
@@ -194,7 +306,9 @@ def load(path):
     with open(path, 'r') as f: 
         data = json.load(f)
         data = validate(**data)
-        return data
+        result = default_config()
+        result.update(data)
+        return result
 
 def reset(path):
     """ Reset config file to default values.

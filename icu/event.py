@@ -133,6 +133,7 @@ class GlobalEventCallback:
             self.logger.close()
 
     def trigger(self, event): 
+        print(event)
         if event is not None:
             #print(event)
             if event.dst in self.sinks:
@@ -259,13 +260,12 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             assert isinstance(sleep, int)
             self.after(sleep, GLOBAL_EVENT_CALLBACK.trigger, generator)
             return
-
+        
         if isinstance(sleep, int):
-            sleep = sleep_repeat_int(sleep) #TODO refactor
-        elif isinstance(sleep, (list,tuple)):
-            sleep = sleep_repeat_list(sleep)
+            self.after(sleep, GLOBAL_EVENT_CALLBACK.trigger, next(generator))
+            return
 
-        #repeated event
+        #repeated event - sleep is a generator (or iterable)
         self.after(next(sleep), self.__trigger_repeat, generator, sleep)
 
     def __trigger_repeat(self, generator, sleep):

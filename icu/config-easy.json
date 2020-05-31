@@ -5,13 +5,16 @@
         "Scale:2":  2000,
         "Scale:3":  2500,
         "Target:0": [[100]],
+        "Pump:AB":   [[100]],
+        "Pump:BA":   [[100]]
     },
 
-    "Scale:0" : {"size":11, "position":0},
+    "Scale:0" : {"size":11, "position":0,  "background_colour":"blue", "outline_colour":"green", "outline_thickness":10, "slider_colour":"white"},
     "Scale:1" : {"size":11, "position":-1},
     "Scale:2" : {"size":11, "position":20},
     "Scale:3" : {"size":11},
-    "Scale:4" : {"size":11},
+
+    "WarningLight:1" : {"on_colour":"blue", "off_colour":"white", "outline_colour":"green", "outline_thickness":10},
 
     "Target:0" : { "speed" : 40 },
 
@@ -19,7 +22,7 @@
     "Pump:1" : { "flow_rate": 1, "event_rate": 1}, 
 
     "overlay": {
-        "transparent":true,
+        "transparent":false,
         "highlight_colour":"red",
         "highlight_thickness":4,
         "outline":true,
@@ -39,5 +42,3 @@
     "screen_x": 0,
     "screen_y": 0
 }
-
-
