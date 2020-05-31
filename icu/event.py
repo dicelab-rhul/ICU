@@ -133,9 +133,8 @@ class GlobalEventCallback:
             self.logger.close()
 
     def trigger(self, event): 
-        print(event)
         if event is not None:
-            #print(event)
+            print(event)
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
             if event.dst == "Global":

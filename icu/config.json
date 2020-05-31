@@ -13,10 +13,19 @@
     "Scale:3" : {"size":11},
     "Scale:4" : {"size":11},
 
-    "Target:0" : { "speed" : 40 },
+    "Target:0" : { "step" : 10 },
 
-    "Pump:0" : { "flow_rate": 1, "event_rate": 1},
-    "Pump:1" : { "flow_rate": 1, "event_rate": 1}, 
+    "Pump:0" : { "flow_rate": 10, "event_rate": 1},
+    "Pump:1" : { "flow_rate": 10, "event_rate": 1}, 
+
+    "FuelTank:A" : {"capacity":100, "fuel":100, "accept_position":0.5, "accept_proportion":0.1},
+    "FuelTank:B" : {},
+    "FuelTank:C" : {},
+    "FuelTank:D" : {},
+    "FuelTank:E" : {},
+    "FuelTank:F" : {},
+
+
 
     "overlay": {
         "transparent":true,

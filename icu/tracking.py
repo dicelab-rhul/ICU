@@ -3,6 +3,8 @@ import random
 
 from .constants import TRACKING_LINE_COLOUR, TRACKING_TARGET_SPEED, BACKGROUND_COLOUR
 from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
+from .constants import EVENT_LABEL_MOVE
+
 
 from .event import Event, EventCallback
 from .component import Component
@@ -26,7 +28,7 @@ def KeyEventGenerator(keyhandler):
             dy += TRACKING_TARGET_SPEED
         
         if dx != 0 or dy != 0:
-            yield Event('key_event_generator', trackingwidget, label=EVENT_NAME_MOVE, dx=dx, dy=dy)
+            yield Event('key_event_generator', trackingwidget, label=EVENT_LABEL_MOVE, dx=dx, dy=dy)
             dx = 0
             dy = 0
         else:

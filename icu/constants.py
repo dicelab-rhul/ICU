@@ -17,6 +17,8 @@ EVENT_LABEL_HIGHTLIGHT = 'highlight'
 EVENT_LABEL_MOVE = 'move'
 EVENT_LABEL_REPAIR = 'repair'
 EVENT_LABEL_FAIL = 'fail'
+EVENT_LABEL_TRANSFER = 'transfer'
+EVENT_LABEL_BURN = 'burn'
 
 # GENERAL
 
@@ -28,8 +30,13 @@ COLOUR_RED = '#f2644d'
 
 
 BACKGROUND_COLOUR = 'lightgray'
-OUTLINE_WIDTH = 2
+OUTLINE_WIDTH = 2 #TODO remove
 OUTLINE_COLOUR = 'black'
+
+OUTLINE_THICKESS = 2
+OUTLINE_COLOUR = "BLACK"
+
+
 
 WARNING_OUTLINE_COLOUR = 'red'
 WARNING_OUTLINE_WIDTH = 7
@@ -63,11 +70,12 @@ TRACKING_TARGET_SPEED = 2
 
 #---------- FUEL MONITOR ----------
 
+FUEL_COLOUR = COLOUR_GREEN
+
 FUEL_MONITOR_WIDTH = 800
 FUEL_MONITOR_HEIGHT = 400
 
-FUEL_TANK_LINE_THICKNESS = 2
-FUEL_TANK_LINE_COLOUR = 'black'
+
 
 PUMP_HEIGHT = 20
 PUMP_WIDTH = 40
@@ -77,7 +85,8 @@ PUMP_WIDTH = 40
 TANK_ACCEPT_PROPORTION = 0.2 # what is the acceptable region for fuel in tank?
 TANK_ACCEPT_POSITION = 0.5 
 
-TANK_BURN_RATE = 0.1 #TODO
+TANK_BURN_RATE = 5 # burn 5 fuel per second in main tanks (A, B)
+EVENT_RATE = 10 #10 events per second by default
 
 
 #N fuel-transfer events per second

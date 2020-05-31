@@ -4,9 +4,15 @@ import copy
 
 from . import config as configuration
 
-from .constants import BACKGROUND_COLOUR, FUEL_TANK_LINE_THICKNESS, FUEL_TANK_LINE_COLOUR, COLOUR_GREEN, COLOUR_RED, COLOUR_LIGHT_BLUE, COLOUR_BLUE
+from .constants import BACKGROUND_COLOUR, COLOUR_GREEN, COLOUR_RED, COLOUR_LIGHT_BLUE, COLOUR_BLUE
 from .constants import PUMP_HEIGHT, PUMP_WIDTH, OUTLINE_COLOUR, OUTLINE_WIDTH, PUMP_EVENT_RATE, PUMP_FLOW_RATE, PUMP_FAIL_SCHEDULE
 from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH, TANK_ACCEPT_POSITION, TANK_ACCEPT_PROPORTION
+
+
+from .constants import BACKGROUND_COLOUR, OUTLINE_THICKESS, OUTLINE_COLOUR, FUEL_COLOUR
+from .constants import TANK_BURN_RATE
+
+from .constants import EVENT_LABEL_TRANSFER, EVENT_LABEL_FAIL, EVENT_LABEL_REPAIR, EVENT_LABEL_CLICK, EVENT_LABEL_MOVE, EVENT_LABEL_BURN
 
 
 from . import event
@@ -20,18 +26,18 @@ from .highlight import Highlight
 from pprint import pprint
 from itertools import cycle
 
-EVENT_NAME_FAIL = "fail"
-EVENT_NAME_TRANSFER = "transfer"
-EVENT_NAME_REPAIR = "repair"
-EVENT_NAME_HIGHLIGHT = "highlight"  
+
+
 
 
 class FuelTank(EventCallback, Component, CanvasWidget):
 
-    def __init__(self, canvas, x, y, width, height, capacity, fuel, name, highlight):
-        super(FuelTank, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=BACKGROUND_COLOUR)
+    def __init__(self, canvas, x, y, width, height,  name, highlight, capacity=1000, fuel=100, 
+                 background_colour=BACKGROUND_COLOUR, outline_thickness=OUTLINE_THICKESS, outline_colour=OUTLINE_COLOUR,
+                 fuel_colour=FUEL_COLOUR, **kwargs):
 
-        name = "{0}:{1}".format(FuelTank.__name__, name)
+        super(FuelTank, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=background_colour)
+ 
         EventCallback.register(self, name)
         Component.register(self, name)
 
@@ -40,8 +46,8 @@ class FuelTank(EventCallback, Component, CanvasWidget):
 
         fh = (self.fuel / self.capacity) * height
        
-        self.components['fuel'] = BoxComponent(canvas, x=x, y=y+height-fh, width=width, height=fh, colour=COLOUR_GREEN, outline_thickness=0)
-        self.components['outline'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, outline_thickness=FUEL_TANK_LINE_THICKNESS, outline_colour=FUEL_TANK_LINE_COLOUR)
+        self.components['fuel'] = BoxComponent(canvas, x=x, y=y+height-fh, width=width, height=fh, colour=fuel_colour, outline_thickness=0)
+        self.components['outline'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, colour=None, outline_thickness=outline_thickness, outline_colour=outline_colour)
        
         self.highlight = Highlight(canvas, self, **highlight)
 
@@ -60,16 +66,21 @@ class FuelTank(EventCallback, Component, CanvasWidget):
 
 class FuelTankMain(FuelTank):
 
-    def __init__(self, canvas, x, y, width, height, capacity, fuel, name, highlight):
-        super(FuelTankMain, self).__init__(canvas, x, y, width, height, capacity, fuel, name, highlight)
+    def __init__(self, canvas, x, y, width, height, name, highlight, burn_rate=TANK_BURN_RATE, accept_position=TANK_ACCEPT_POSITION, 
+                accept_proportion=TANK_ACCEPT_PROPORTION, background_colour=BACKGROUND_COLOUR, **kwargs):
+        super(FuelTankMain, self).__init__(canvas, x, y, width, height, name, highlight, background_colour=background_colour, **kwargs)
+        self.accept_position = accept_position
+        self.accept_proportion = accept_proportion
+        self.burn_rate = burn_rate #fuel per second
+        self.event_rate = 10 #TODO config? 10 events per second
 
-        py = height*TANK_ACCEPT_POSITION - height*(TANK_ACCEPT_PROPORTION/2)
+        py = height*self.accept_position  - height*(self.accept_proportion/2)
         lx, ly, lw = x-0.1*width, y + py, width + width/5
-        lh = height * TANK_ACCEPT_PROPORTION
+        lh = height * self.accept_proportion
 
         self.components['limit_box'] = BoxComponent(canvas, x=lx, y=ly, width=lw, height=lh, colour=COLOUR_LIGHT_BLUE, outline_thickness=0)
         self.components['limit_line'] = LineComponent(canvas, lx, ly + lh/2, lx + lw, ly + lh/2, colour=COLOUR_BLUE, thickness=3)
-        self.components['back'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, colour=BACKGROUND_COLOUR, outline_thickness=0)
+        self.components['back'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, colour=background_colour, outline_thickness=0)
         self.components['fuel'].front()
         self.components['outline'].front()
         
@@ -78,9 +89,21 @@ class FuelTankMain(FuelTank):
         self.__trigger_enter = self.fuel > lim[0] and self.fuel < lim[1]
         self.__trigger_leave = not self.__trigger_enter
 
+        event.event_scheduler.schedule(self.__burn(), sleep=cycle([int(1000/self.event_rate)])) #start burning fuel
+
+    def __burn(self):
+        while True:
+            dfuel = self.burn_rate / self.event_rate
+            if self.fuel > 0:
+                self.update(-dfuel)
+                yield event.Event(self.name, 'Global', label=EVENT_LABEL_BURN, value=-dfuel)
+            else:
+                yield None
+
+
     @property
     def limits(self):
-        cy, ch = self.capacity*TANK_ACCEPT_POSITION, self.capacity*(TANK_ACCEPT_PROPORTION/2)
+        cy, ch = self.capacity*self.accept_position, self.capacity*(self.accept_proportion/2)
         return cy - ch, cy + ch
 
     def update(self, dfuel):
@@ -164,7 +187,7 @@ class Pump(EventCallback, Component, CanvasWidget):
         flow = self.flow_rate / self.event_rate
         self.tank1.update(-flow)
         self.tank2.update(flow)
-        return Event(self.name, 'Global', label=EVENT_NAME_TRANSFER, value=flow) #has no effect
+        return Event(self.name, 'Global', label=EVENT_LABEL_TRANSFER, value=flow) #has no effect
 
     def to_dict(self):
         return dict(state=self.state, highlight=self.highlight.to_dict())
@@ -197,12 +220,12 @@ class Pump(EventCallback, Component, CanvasWidget):
 
 
     def sink(self, event):
-        if event.data.label == EVENT_NAME_TRANSFER: #this may never happen... the event generator is now internal TODO refactor
+        if event.data.label == EVENT_LABEL_TRANSFER: #this may never happen... the event generator is now internal TODO refactor
             self.tank1.update(-event.data.value)
             self.tank2.update(event.data.value)
-        elif event.data.label == EVENT_NAME_FAIL:
+        elif event.data.label == EVENT_LABEL_FAIL:
             self.state = 2 # failed (unusable)
-        elif event.data.label == EVENT_NAME_REPAIR:
+        elif event.data.label == EVENT_LABEL_REPAIR:
             self.state = 1 # not transfering (useable)
 
 
@@ -225,12 +248,20 @@ class Wing(CanvasWidget):
 
 
         self.components['link'] = BoxComponent(canvas, x=fts, y=margin + fth/2 + fth/3, width=2 * fts, height=height-2*margin - fth - fth/3, outline_thickness=OUTLINE_WIDTH)
-        
-        self.components['tank1'] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, 1000, 100, small_tank_name, highlight)
-        self.components['tank2'] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, 2000, 1000, med_tank_name, highlight)
-        self.components['tank3'] = FuelTankMain(canvas, 2 * fts - ftw_large/2, margin, ftw_large, fth, 3000, 1000, big_tank_name, highlight)
 
-        self.tanks = {small_tank_name:self.components['tank1'], med_tank_name:self.components['tank2'], big_tank_name:self.components['tank3']}
+        #TODO refactor?
+        config[small_tank_name]['capacity']  = config[small_tank_name].get('capacity', 1000)
+        config[med_tank_name]['capacity']    = config[med_tank_name].get('capacity', 2000)
+        config[big_tank_name]['capacity']    = config[big_tank_name].get('capacity', 3000)
+        config[small_tank_name]['fuel']  = config[small_tank_name].get('fuel', 100)
+        config[med_tank_name]['fuel']    = config[med_tank_name].get('fuel', 1000)
+        config[big_tank_name]['fuel']    = config[big_tank_name].get('fuel', 1000)
+
+        self.components[small_tank_name] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, small_tank_name, highlight, **config[small_tank_name])
+        self.components[med_tank_name] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, med_tank_name, highlight, **config[med_tank_name])
+        self.components[big_tank_name] = FuelTankMain(canvas, 2 * fts - ftw_large/2, margin, ftw_large, fth, big_tank_name, highlight, **config[big_tank_name])
+
+        self.tanks = {small_tank_name:self.components[small_tank_name], med_tank_name:self.components[med_tank_name], big_tank_name:self.components[big_tank_name]}
 
         #create pumps
         cx = (fts + ftw_small/2)
@@ -241,9 +272,9 @@ class Wing(CanvasWidget):
         pw = width / 16
         ph = height / 20
 
-        self.components['pump21'] = Pump(canvas, config, ecx - pw/2, ecy - ph/2, pw, ph, self.components['tank2'], self.components['tank1'], "<", highlight=highlight)
-        self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components['tank1'], self.components['tank3'], '^', highlight=highlight)
-        self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components['tank2'], self.components['tank3'], '^', highlight=highlight)
+        self.components['pump21'] = Pump(canvas, config, ecx - pw/2, ecy - ph/2, pw, ph, self.components[med_tank_name], self.components[small_tank_name], "<", highlight=highlight)
+        self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components[small_tank_name], self.components[big_tank_name], '^', highlight=highlight)
+        self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components[med_tank_name], self.components[big_tank_name], '^', highlight=highlight)
        
         #self.components['link'].back()
    
@@ -257,8 +288,10 @@ class FuelWidget(CanvasWidget):
 
         highlight = config['overlay'] #highlight options
         
-        self.wing_left  = Wing(canvas, config, "C", "E", "A", highlight)
-        self.wing_right = Wing(canvas, config, "D", "F", "B", highlight)
+        name = FuelTank.__name__ + ":{0}"
+
+        self.wing_left  = Wing(canvas, config, name.format("C"), name.format("E"), name.format("A"), highlight)
+        self.wing_right = Wing(canvas, config, name.format("D"), name.format("F"), name.format("B"), highlight)
         
         self.tanks.update(self.wing_left.tanks)
         self.tanks.update(self.wing_right.tanks)
@@ -271,13 +304,16 @@ class FuelWidget(CanvasWidget):
         self.layout_manager.split('wl', 'X', .5)
         self.layout_manager.split('wr', 'X', .5)
         
-        (ax, ay) = self.tanks['A'].position
-        (aw, ah) = self.tanks['A'].size
+        tank_a_name = name.format('A')
+        tank_b_name = name.format('B')
+
+        (ax, ay) = self.tanks[tank_a_name].position
+        (aw, ah) = self.tanks[tank_a_name].size
         ax = ax + aw / 2
         ay = ay + ah / 2
 
-        (bx, by) = self.tanks['B'].position
-        (bw, bh) = self.tanks['B'].size
+        (bx, by) = self.tanks[tank_b_name].position
+        (bw, bh) = self.tanks[tank_b_name].size
 
         bx = bx + bw / 2
         by = by + bh / 2
@@ -287,8 +323,8 @@ class FuelWidget(CanvasWidget):
 
         w,h = self.wing_left.components['pump21'].size
 
-        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks['A'], self.tanks['B'], ">", highlight=highlight)
-        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks['B'], self.tanks['A'], "<", highlight=highlight)
+        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], ">", highlight=highlight)
+        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], "<", highlight=highlight)
 
         print(Pump.all_components().keys())
 

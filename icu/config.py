@@ -167,7 +167,7 @@ pump_options = dict(
 )
 
 target_options = dict(
-    speed               = Option('target', is_type(int, float)),
+    step               = Option('target', is_type(int, float)),
 
 )
 warninglight_options = dict(
@@ -186,6 +186,19 @@ scale_options = dict(
     slider_colour       = Option('scale', is_type(str))
 )
 
+tank_options = dict(
+    burn_rate           = Option('tank', is_type(int, float)),
+    accept_position     = Option('tank', is_type(int, float)),
+    accept_proportion   = Option('tank', is_type(int, float)),
+    capacity            = Option('tank', is_type(int, float)),
+    fuel                = Option('tank', is_type(int, float)),
+
+    fuel_colour         = Option('tank', is_type(str)),
+    background_colour   = Option('tank', is_type(str)),
+    outline_colour      = Option('tank', is_type(str)),
+    outline_thickness   = Option('tank', is_type(int)),
+)
+
 options = dict(
 
             main            = Option('-', validate_options('main')),
@@ -195,6 +208,7 @@ options = dict(
             Target          = Option('main', validate_options('target', _options=target_options)),
             WarningLight    = Option('main', validate_options('warning_light', _options=warninglight_options)),
             Scale           = Option('main', validate_options('scale', _options=scale_options)),
+            FuelTank        = Option('main', validate_options('tank', _options=tank_options)),
 
             screen_width    = Option('main', is_type(int, float)),
             screen_height   = Option('main', is_type(int, float)),
