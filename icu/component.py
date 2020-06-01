@@ -269,6 +269,7 @@ class SimpleComponent(BaseComponent):
         
         self.__component = component
         x1,y1,x2,y2 = self.canvas.coords(self.component)
+
         self._BaseComponent__x = x1
         self._BaseComponent__y = y1
         self._BaseComponent__width = x2-x1 
@@ -317,8 +318,30 @@ class SimpleComponent(BaseComponent):
 class LineComponent(SimpleComponent):
 
     def __init__(self, canvas, x1,y1,x2,y2, colour='black', thickness=None):
-        line = canvas.create_line(x1,y1,x2,y2,fill=colour,width=thickness)
-        super(LineComponent, self,).__init__(canvas, line)
+        line = canvas.create_line(x1,y1,x2,y2,fill=colour, width=thickness)
+        super(LineComponent, self).__init__(canvas, line)
+
+class TextComponent(BaseComponent):
+    
+    def __init__(self, canvas, x, y, text, colour='black', bold=False):
+        super(TextComponent, self).__init__(canvas, x=x, y=y)
+        self.component = canvas.create_text((x,y), text=text)
+        if bold:
+            self.bold()
+    
+    def resize(self, dw, dh):
+        pass
+
+    def move(self, dx, dy):
+        self.canvas.move(self.component, dx, dy)
+
+    def bind(self, event, callback):
+        self.canvas.tag_bind(self.component, event, callback)
+
+
+    def bold(self):
+        self.canvas.itemconfigure(self.component, font='bold')
+
 
 class BoxComponent(SimpleComponent):
 
@@ -383,7 +406,9 @@ class CanvasWidget(BaseComponent):
             self.canvas.tag_lower(c)
 
     def bind(self, event, callback):
-        self.components['background'].bind(event, callback)
+        for c in self.components.values():
+            c.bind(event, callback)
+        #self.components['background'].bind(event, callback)
   
     @property
     def background(self):

@@ -134,11 +134,12 @@ class GlobalEventCallback:
 
     def trigger(self, event): 
         if event is not None:
-            print(event)
+            #print(event)
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
             if event.dst == "Global":
-                print(event)
+                #print(event)
+                pass
             self.__sink_external(event) #send to all external sinks
             self.logger.log(event)
 

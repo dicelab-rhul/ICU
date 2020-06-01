@@ -19,7 +19,7 @@ from . import event
 
 from .event import Event, EventCallback
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, TextComponent
 from .highlight import Highlight
 
 
@@ -49,7 +49,10 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         self.components['fuel'] = BoxComponent(canvas, x=x, y=y+height-fh, width=width, height=fh, colour=fuel_colour, outline_thickness=0)
         self.components['outline'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, colour=None, outline_thickness=outline_thickness, outline_colour=outline_colour)
        
+        #self.bind("<Button-1>", self.click_callback)
+
         self.highlight = Highlight(canvas, self, **highlight)
+    
 
     def sink(self, event):
         pass #updates are handled by pump events
@@ -88,6 +91,9 @@ class FuelTankMain(FuelTank):
         lim = self.limits
         self.__trigger_enter = self.fuel > lim[0] and self.fuel < lim[1]
         self.__trigger_leave = not self.__trigger_enter
+
+
+      
 
         event.event_scheduler.schedule(self.__burn(), sleep=cycle([int(1000/self.event_rate)])) #start burning fuel
 
@@ -143,7 +149,7 @@ class Pump(EventCallback, Component, CanvasWidget):
     FAIL_COLOUR = COLOUR_RED
     COLOURS = [ON_COLOUR, OFF_COLOUR, FAIL_COLOUR]
 
-    def __init__(self, canvas, config, x, y, width, height, tank1, tank2, text, state=1, highlight={}):
+    def __init__(self, canvas, config, x, y, width, height, tank1, tank2, direction, state=1, highlight={}):
         super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[state], outline_thickness=OUTLINE_WIDTH)
 
         name = "{0}{1}".format(tank1.name.split(':')[1], tank2.name.split(':')[1])
@@ -163,15 +169,32 @@ class Pump(EventCallback, Component, CanvasWidget):
         self.tank1 = tank1
         self.tank2 = tank2
 
-        self.bind("<Button-1>", self.click_callback) #bind mouse events
+        
+        #p1, p2, p3 = direction(x, y, width, height)
+        #self.components['arrow_line_1'] = LineComponent(canvas, *p1, *p2, thickness=2, colour=OUTLINE_COLOUR)
+        #self.components['arrow_line_2'] = LineComponent(canvas, *p3, *p2, thickness=2, colour=OUTLINE_COLOUR)
 
-        #self.generator = PumpEventGenerator(self, flow_rate=PUMP_FLOW_RATE[self.name.split(":")[1]], event_rate=PUMP_EVENT_RATE)
+        self.components['arrow'] = TextComponent(canvas, x + width/2, y + height/2, direction)
 
+
+        self.bind("<Button-1>", self.click_callback) #bind mouse eventss
         self.highlight = Highlight(canvas, self, **highlight)
 
         assert self.name not in Pump.__components__
         Pump.__components__[self.name] = self
 
+    def right(x, y, width, height):
+        n,d = 2,3
+        return (x + width/d, y + height/d), (x + width*n/d, y + height/2), (x + width/d, y + height*n/d)
+
+    def left(x, y, width, height):
+        n,d = 2,3
+        return (x + width*n/d, y + height/d), (x + width/d, y + height/2), (x + width*n/d, y + height*n/d)
+
+    def up(x, y, width, height):
+        n,d = 2,3
+        return (x + width/d, y + height*n/d), (x + width/2, y + height/d), (x + width*n/d, y + height*n/d)
+    
     def start(self):
         event.event_scheduler.schedule(self.__transfer(), sleep=cycle([int(1000/self.event_rate)]))
 
@@ -273,8 +296,8 @@ class Wing(CanvasWidget):
         ph = height / 20
 
         self.components['pump21'] = Pump(canvas, config, ecx - pw/2, ecy - ph/2, pw, ph, self.components[med_tank_name], self.components[small_tank_name], "<", highlight=highlight)
-        self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components[small_tank_name], self.components[big_tank_name], '^', highlight=highlight)
-        self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components[med_tank_name], self.components[big_tank_name], '^', highlight=highlight)
+        self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components[small_tank_name], self.components[big_tank_name], "^", highlight=highlight)
+        self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components[med_tank_name], self.components[big_tank_name], "^", highlight=highlight)
        
         #self.components['link'].back()
    
@@ -323,8 +346,8 @@ class FuelWidget(CanvasWidget):
 
         w,h = self.wing_left.components['pump21'].size
 
-        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], ">", highlight=highlight)
-        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], "<", highlight=highlight)
+        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], "<", highlight=highlight)
+        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], ">", highlight=highlight)
 
         print(Pump.all_components().keys())
 
