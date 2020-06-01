@@ -19,7 +19,7 @@ from . import event
 
 from .event import Event, EventCallback
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, TextComponent
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, TextComponent, BaseComponent
 from .highlight import Highlight
 
 
@@ -169,7 +169,6 @@ class Pump(EventCallback, Component, CanvasWidget):
         self.tank1 = tank1
         self.tank2 = tank2
 
-        
         #p1, p2, p3 = direction(x, y, width, height)
         #self.components['arrow_line_1'] = LineComponent(canvas, *p1, *p2, thickness=2, colour=OUTLINE_COLOUR)
         #self.components['arrow_line_2'] = LineComponent(canvas, *p3, *p2, thickness=2, colour=OUTLINE_COLOUR)

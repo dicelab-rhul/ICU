@@ -9,7 +9,7 @@ from .constants import EVENT_LABEL_MOVE
 from .event import Event, EventCallback
 from .component import Component
 
-from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
+from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, BaseComponent
 from .highlight import Highlight
 
 
@@ -120,7 +120,46 @@ class Tracking(EventCallback, Component, CanvasWidget):
         assert Tracking.__instance__ is None #there can only be one tracking widget
         Tracking.__instance__ = self
 
+    # keep aspect ratio
+    def resize(self, dw, dh):
+        aspect = min(self.size)
+        pw, ph = aspect - dw, aspect - dh
+        sw, sh = aspect / pw, aspect / ph
+        #print(self, "scale:", sw, sh, "from:", pw,ph, "to:", self.width, self.height)
+        for c in self.components.values(): #scale each widget
+            c.size = (c.width * sw, c.height * sh)
+           
+            c.x = self.x + (c.x - self.x) * sw
+            c.y = self.y + (c.y - self.y) * sh
 
+    @BaseComponent.size.setter
+    def size(self, value):
+        d = min(value) - min(self.size)
+        self._BaseComponent__width, self._BaseComponent__height = value
+        
+        self.resize(d, d)
+        for observer in self.observers['size']:
+            observer((d, d))
+
+    @BaseComponent.width.setter
+    def width(self, value):
+        d = min(value, self._BaseComponent__height) - min(self.size)
+        self._BaseComponent__width = value
+        if d != 0:
+            self.resize(d, d)
+            for observer in self.observers['size']:
+                observer((d, d))
+    
+    @BaseComponent.height.setter
+    def height(self, value):
+        d = min(self._BaseComponent__width, value) - min(self.size)
+        self._BaseComponent__height =  value
+        if d != 0:
+            self.resize(d, d)
+            for observer in self.observers['size']:
+                observer((d, d))
+
+        
     def sink(self, event):
         self.components['target'].move(event.data.dx, event.data.dy)
 

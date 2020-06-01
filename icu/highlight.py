@@ -28,7 +28,8 @@ class Highlight(EventCallback):
         self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height,
                                     colour=background_colour, outline_thickness=highlight_thickness, outline_colour=highlight_colour, stipple="gray25")
         #self.__box.front()
-        self.off()
+        if not state:
+            self.off()
 
         if hasattr(component, 'click_callback'):
             self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
@@ -84,8 +85,10 @@ class Highlight(EventCallback):
         self.__box.front() #TODO this is a work around until the layout manager supports layering
         self.__box.position = self.component.position
 
-    def resize(self, _):
-        self.__box.size = self.component.size
+    def resize(self, dsize):
+        dx, dy = dsize
+        sx, sy = self.__box.size
+        self.__box.size = (sx + dx, sy + dy)
 
     def __call__(self):
         self.state = not self.state

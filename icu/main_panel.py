@@ -10,8 +10,7 @@ from .overlay import Overlay
 class MainPanel(tk.Canvas):
 
     def __init__(self, parent, width, height):
-        super(MainPanel, self).__init__(parent, width=width, 
-                    height=height, bg='blue')
+        super(MainPanel, self).__init__(parent, width=width, height=height, bg='blue')
         #create banners
         self.__main = CanvasWidget(self, x=10, y=10, width=width-20, height=width-20)
 

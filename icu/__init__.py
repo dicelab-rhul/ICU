@@ -128,6 +128,8 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         root.title("ICU")
         root.protocol("WM_DELETE_WINDOW", quit)
         root.geometry('%dx%d+%d+%d' % (config.screen_width, config.screen_height, config.screen_x, config.screen_y))
+        root.minsize(640, 480) 
+
 
         event.tk_event_schedular(root) #initial global event schedular
         
@@ -147,8 +149,11 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         if task.track:
             tracking_widget = tracking.Tracking(main, copy.deepcopy(config.__dict__), size=config.screen_height/2) #scaled anyway
             main.top_frame.components['tracking'] = tracking_widget
+            print(tracking_widget.components['background'].size)
             main.top_frame.layout_manager.fill('tracking', 'Y')
+            print(tracking_widget.components['background'].size)
             main.top_frame.layout_manager.split('tracking', 'X')
+            print(tracking_widget.components['background'].size)
 
         if task.fuel:
             fuel_monitor_widget = fuel_monitor.FuelWidget(main, copy.deepcopy(config.__dict__), width=constants.FUEL_MONITOR_WIDTH, height=constants.FUEL_MONITOR_HEIGHT)
