@@ -16,6 +16,7 @@ setuptools.setup(name='icu',
       author_email='benrjw@googlemail.co.uk',
       license='',
       packages=setuptools.find_packages(),
+      include_package_data=True,
       classifiers=[
         "Programming Language :: Python :: 3.7",
         "Development Status :: 2 - Pre-Alpha",
