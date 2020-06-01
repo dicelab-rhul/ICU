@@ -120,7 +120,25 @@ class Tracking(EventCallback, Component, CanvasWidget):
         assert Tracking.__instance__ is None #there can only be one tracking widget
         Tracking.__instance__ = self
 
-    # keep aspect ratio
+
+
+
+    def sink(self, event):
+        dx = event.data.dx 
+        dy = event.data.dy
+        x, y = self.components['target'].position
+        w, h = self.components['target'].size
+        rx, ry = self.position
+        rw, rh = self.components['background'].size #TODO fix the aspect ratio code - e.g. use content_size?
+        nx, ny = x + dx, y + dy
+        #clip bounds
+        nx = max(rx, min(rx + rw - w, nx))
+        ny = max(ry, min(ry + rh - h, ny))
+
+        self.components['target'].position = (nx, ny)
+
+
+    # keep aspect ratio TODO move all this to a layout manager or special widget
     def resize(self, dw, dh):
         aspect = min(self.size)
         pw, ph = aspect - dw, aspect - dh
@@ -160,8 +178,6 @@ class Tracking(EventCallback, Component, CanvasWidget):
                 observer((d, d))
 
         
-    def sink(self, event):
-        self.components['target'].move(event.data.dx, event.data.dy)
 
        
 
