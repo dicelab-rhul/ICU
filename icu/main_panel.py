@@ -3,7 +3,7 @@ import tkinter as tk
 from . import panel
 from .constants import MAIN_BANNER_COLOUR, MAIN_BANNER_HEIGHT, BACKGROUND_COLOUR
 
-from .component import CanvasWidget
+from .component import CanvasWidget, SimpleLayoutManager, EmptyComponent
 
 from .overlay import Overlay
 
@@ -12,14 +12,21 @@ class MainPanel(tk.Canvas):
     def __init__(self, parent, width, height):
         super(MainPanel, self).__init__(parent, width=width, height=height, bg='blue')
         #create banners
-        self.__main = CanvasWidget(self, x=10, y=10, width=width-20, height=width-20)
+        layout_manager = SimpleLayoutManager(inner_sep=20)
+        layout_manager = None
+        self.__main = CanvasWidget(self, x=10, y=10, width=width-20, height=width-20, layout_manager=layout_manager)
 
         self.top_frame = CanvasWidget(self)
         self.bottom_frame = CanvasWidget(self)
+        self.padding_frame = EmptyComponent()
+
+
         self.__main.components['top'] = self.top_frame
         self.__main.components['bottom'] = self.bottom_frame
+        self.__main.components['padding'] = self.padding_frame
         
         self.__main.layout_manager.split('top', 'Y')
+        self.__main.layout_manager.split('padding', 'Y', prop=0.1)
         self.__main.layout_manager.split('bottom', 'Y')
 
         self.__main.layout_manager.fill('top', 'X')

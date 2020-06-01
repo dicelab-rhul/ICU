@@ -74,7 +74,7 @@ class SplitLayoutY:
 
 class SimpleLayoutManager:
 
-    def __init__(self, component, inner_sep=0., inner_sep_x=0., inner_sep_y=0.):
+    def __init__(self, component=None, inner_sep=0., inner_sep_x=0., inner_sep_y=0.):
         self.component = component
         self.__split_x = SplitLayoutX(self, inner_sep=max(inner_sep, inner_sep_x))
         self.__split_y = SplitLayoutY(self, inner_sep=max(inner_sep, inner_sep_y))
@@ -258,8 +258,19 @@ class BaseComponent:
     def resize(self, dw, dh):
         pass
 
-#TODO bind doesnt seem to work for some reason...?
+class EmptyComponent(BaseComponent): #useful for padding...
 
+    def __init__(self):
+        super(EmptyComponent, self).__init__(None)
+        pass
+
+    def move(self, dx, dy):
+        pass
+
+    def resize(self, dw, dh):
+        pass
+
+#TODO bind doesnt seem to work for some reason...?
 class SimpleComponent(BaseComponent):
 
     def __init__(self, canvas, component, padding=0.):
@@ -348,7 +359,7 @@ class BoxComponent(SimpleComponent):
     def __init__(self, canvas, x=0., y=0., width=1., height=1., colour=None, outline_colour=None, outline_thickness=None, **kwargs):
         rect = canvas.create_rectangle(x, y, x+width, y+height, width=outline_thickness, fill=colour, outline=outline_colour, **kwargs)
         super(BoxComponent, self).__init__(canvas, rect)
-        
+
     @property
     def colour(self):
         return self.canvas.itemcget(self.component, "fill")
@@ -387,6 +398,9 @@ class CanvasWidget(BaseComponent):
 
         if layout_manager is None:
             self.layout_manager = SimpleLayoutManager(self, inner_sep=inner_sep, inner_sep_x=inner_sep_x, inner_sep_y=inner_sep_y)
+        else:
+            self.layout_manager = layout_manager
+            self.layout_manager.component = self
 
         self.components = dict(**components)
         

@@ -146,14 +146,16 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             main.top_frame.layout_manager.fill('system_monitor', 'Y')
             main.top_frame.layout_manager.split('system_monitor', 'X')
 
+            main.top_frame.components['top_padding'] = component.EmptyComponent()
+            main.top_frame.layout_manager.split('top_padding', 'X', prop=0.3)
+
         if task.track:
             tracking_widget = tracking.Tracking(main, copy.deepcopy(config.__dict__), size=config.screen_height/2) #scaled anyway
             main.top_frame.components['tracking'] = tracking_widget
-            print(tracking_widget.components['background'].size)
             main.top_frame.layout_manager.fill('tracking', 'Y')
-            print(tracking_widget.components['background'].size)
             main.top_frame.layout_manager.split('tracking', 'X')
-            print(tracking_widget.components['background'].size)
+            #tracking_widget.debug()
+            main.top_frame.layout_manager.anchor('tracking', 'E')
 
         if task.fuel:
             fuel_monitor_widget = fuel_monitor.FuelWidget(main, copy.deepcopy(config.__dict__), width=constants.FUEL_MONITOR_WIDTH, height=constants.FUEL_MONITOR_HEIGHT)
