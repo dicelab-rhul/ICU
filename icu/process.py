@@ -16,13 +16,13 @@ class PipedMemorySend:
     def __setattr__(self, attr, value):
         if attr != "_args" and attr in self._args:
             self._args[attr] = value
-            print(os.getpid(), "SEND", attr, value)
+            #print(os.getpid(), "SEND", attr, value)
             self._out.put((attr, value))
         else:
             super().__setattr__(attr, value)
 
     def __getattr__(self, attr):
-        print(os.getpid(), "send", attr)
+        #print(os.getpid(), "send", attr)
         if attr != "_args" and attr in self._args:
             return self._args[attr]
         raise AttributeError("Attribute: {0} does not exist.")
@@ -42,7 +42,7 @@ class PipedMemoryReceive:
         self.__lock = lock
 
     def __getattr__(self, attr):
-        print(os.getpid(), "receive", attr)
+        #print(os.getpid(), "receive", attr)
         if attr != "_args" and attr in self._args:
             #this allows the sender to block the receiver while it prepares attributes
             #obviously this might go bad if the sender process dies... TODO come up with a better solution for this

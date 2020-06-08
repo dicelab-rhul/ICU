@@ -7,38 +7,55 @@ from .component import CanvasWidget, SimpleLayoutManager, EmptyComponent
 
 from .overlay import Overlay
 
+OUTER_PADDING = 0 ##??? maybe...
+ 
 class MainPanel(tk.Canvas):
 
     def __init__(self, parent, width, height):
         super(MainPanel, self).__init__(parent, width=width, height=height, bg='blue')
         #create banners
-        layout_manager = SimpleLayoutManager(inner_sep=20)
+        layout_manager = SimpleLayoutManager(inner_sep=0)
         layout_manager = None
-        self.__main = CanvasWidget(self, x=10, y=10, width=width-20, height=width-20, layout_manager=layout_manager)
+        self.__main = CanvasWidget(self, x=OUTER_PADDING, y=OUTER_PADDING, width=width-OUTER_PADDING*2, height=width-OUTER_PADDING*2, layout_manager=layout_manager)
 
+        
         self.top_frame = CanvasWidget(self)
         self.bottom_frame = CanvasWidget(self)
         self.padding_frame = EmptyComponent()
 
+        self.banner1 = EmptyComponent()
+        self.banner2 = EmptyComponent()
+
 
         self.__main.components['top'] = self.top_frame
         self.__main.components['bottom'] = self.bottom_frame
-        self.__main.components['padding'] = self.padding_frame
-        
-        self.__main.layout_manager.split('top', 'Y')
-        self.__main.layout_manager.split('padding', 'Y', prop=0.1)
-        self.__main.layout_manager.split('bottom', 'Y')
+        self.__main.components['banner1'] = self.banner1
+        self.__main.components['banner2'] = self.banner2    
+    
+
+        self.__main.layout_manager.split('banner1','Y', prop=25/700)
+        self.__main.layout_manager.split('top', 'Y', prop=350/700)
+        self.__main.layout_manager.split('banner2', 'Y', prop=25/700)
+        self.__main.layout_manager.split('bottom', 'Y', prop=300/700)
 
         self.__main.layout_manager.fill('top', 'X')
         self.__main.layout_manager.fill('bottom', 'X')
 
         self.__overlay = None
 
+    @property
+    def size(self):
+        return self.__main.size
+
+    @property
+    def position(self):
+        return self.__main.position
+
     def resize(self, event):
         #print(event.width, event.height)
         if self.winfo_width() != event.width or self.winfo_height() != event.height:
             self.config(width=event.width, height=event.height)
-            self.__main.size = (event.width-20, event.height-20)
+            self.__main.size = (event.width-OUTER_PADDING*2, event.height-OUTER_PADDING*2)
             self.pack()
 
     def overlay(self, component):

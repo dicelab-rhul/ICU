@@ -136,54 +136,59 @@ class SystemMonitorWidget(CanvasWidget):
         highlight = config['overlay']
 
         #warning lights
-        scale_prop = 0.2
+        scale_prop = 1/4
 
         #warning light widget
         self.warning_light_widget = CanvasWidget(canvas)
         self.components['warning_light_widget'] = self.warning_light_widget
-      
+        self.warning_lights = {}
 
 
         name = "{0}:{1}".format(WarningLight.__name__, str(0))
         options = dict(on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR)
         options.update(config.get(name, {}))
-        self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=name, width=1/3,
+        self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
                             state=1, highlight=highlight, **options)
+        self.warning_lights[name] = self.warning_light_widget.components['warning_right']
+
 
         name = "{0}:{1}".format(WarningLight.__name__, str(1))
         options = dict(on_colour=COLOUR_RED,  off_colour=BACKGROUND_COLOUR)
         options.update(config.get(name, {}))
-        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3,
+        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
                            state=0, highlight=highlight, **options)
+        self.warning_lights[name] = self.warning_light_widget.components['warning_left']
 
         self.layout_manager.fill('warning_light_widget', 'X')
         self.layout_manager.split('warning_light_widget', 'Y', scale_prop)
+        
+        #place warning lights
+        self.warning_light_widget.layout_manager.anchor('warning_left', 'EN')
+        #self.warning_light_widget.layout_manager.fill('warning_left', 'Y')
+        self.warning_light_widget.layout_manager.anchor('warning_right', 'WN')
+        #self.warning_light_widget.layout_manager.fill('warning_right', 'Y')
 
         #scale widget
-        self.scale_widget = CanvasWidget(canvas, padding=PADDING, inner_sep=self.content_width/(len(SYSTEM_MONITOR_SCALE_POSITIONS)*3))
+        scales = {k:v for k,v in config.items() if 'Scale' in k}
+
+        self.scale_widget = CanvasWidget(canvas, padding=0, inner_sep=self.content_width/(len(scales)*2-1))
         self.components['scale_widget'] = self.scale_widget
         self.layout_manager.fill('scale_widget', 'X')
         self.layout_manager.split('scale_widget', 'Y', 1-scale_prop)
 
-        #place warning lights
-        self.warning_light_widget.layout_manager.anchor('warning_left', 'E')
-        self.warning_light_widget.layout_manager.fill('warning_left', 'Y')
-        self.warning_light_widget.layout_manager.anchor('warning_right', 'W')
-        self.warning_light_widget.layout_manager.fill('warning_right', 'Y')
         
-        scales = {k:v for k,v in config.items() if 'Scale' in k}
-
+        self.scales = {}
         for i in range(len(scales)):
             name = "{0}:{1}".format(Scale.__name__, str(i))
             options = scales.get(name, {})
 
             scale = Scale(canvas, name=name, **options, highlight=highlight)
-     
+            self.scales[name] = scale
+
             self.scale_widget.components[str(i)] = scale
 
             self.scale_widget.layout_manager.fill(str(i), 'Y')
             self.scale_widget.layout_manager.split(str(i), 'X')
-
         
         #self.highlight = Highlight(canvas, self, **highlight) #TODO this blocks clicks, it can be fixed with some difficulty...
         

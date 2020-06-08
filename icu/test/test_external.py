@@ -2,6 +2,7 @@ import icu
 
 import time
 import random 
+from pprint import pprint
 
 from threading import Thread
 from multiprocessing import Process
@@ -25,10 +26,10 @@ if __name__ == '__main__':
 
     p, m = icu.start(sinks=[sink], sources=[source])
     
-    print("get_event_sinks")
-    print(m.event_sinks) #this will block until ICU has finished loading
-    print("EVENT SINKS!")
-    print(m.event_sources)
+    #print("get_event_sinks")
+    #print(m.event_sinks) #this will block until ICU has finished loading
+    #print("EVENT SINKS!")
+    #print(m.event_sources)
 
     #all of the hightlightable sinks
     highlight = [h for h in m.event_sinks if 'Highlight' in h]
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     def _sink():
         if not sink.empty():
             event = sink.get()
-            print("SINK", event)
+            #print("SINK", event)
         
     
     def _source():
@@ -54,7 +55,10 @@ if __name__ == '__main__':
     #while not sink.empty():
     #    sink.get()
 
-    print(m._in.qsize(), source.size(), sink.size())
+
+    pprint(m.window_properties)
+
+    #print(m._in.qsize(), source.size(), sink.size())
     p.join()
 
     print("DONE")

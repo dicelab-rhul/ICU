@@ -298,6 +298,8 @@ class Wing(CanvasWidget):
         self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components[small_tank_name], self.components[big_tank_name], "^", highlight=highlight)
         self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components[med_tank_name], self.components[big_tank_name], "^", highlight=highlight)
        
+        self.pumps = {p.name:p for k,p in self.components.items() if 'pump' in k}
+
         #self.components['link'].back()
    
 class FuelWidget(CanvasWidget):
@@ -317,6 +319,8 @@ class FuelWidget(CanvasWidget):
         
         self.tanks.update(self.wing_left.tanks)
         self.tanks.update(self.wing_right.tanks)
+        self.pumps.update(self.wing_left.pumps)
+        self.pumps.update(self.wing_right.pumps)
 
         self.components['wl'] = self.wing_left
         self.components['wr'] = self.wing_right
@@ -347,6 +351,9 @@ class FuelWidget(CanvasWidget):
 
         self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], "<", highlight=highlight)
         self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], ">", highlight=highlight)
+
+        self.pumps[self.components['pumpAB'].name] = self.components['pumpAB']
+        self.pumps[self.components['pumpBA'].name] = self.components['pumpBA']
 
         print(Pump.all_components().keys())
 

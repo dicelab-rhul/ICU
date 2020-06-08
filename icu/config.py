@@ -12,6 +12,14 @@ from itertools import cycle, islice
 class ConfigurationError(Exception):
     pass
 
+# size 800,800
+# banner 25
+
+# scales 240, 350
+
+# fuel padding 250 
+
+
 # =================================== # =================================== # =================================== # 
 # =================================== # ======== ALL CONFIG OPTIONS ======= # =================================== # 
 # =================================== # =================================== # =================================== #
@@ -22,7 +30,7 @@ def tasks():
 def default_config_screen():
     return dict(#screen_width=None,  #handled by post processing
                 #screen_height=None, #handled by post processing
-                screen_size=(600,600),
+                screen_size=(800,700),
                 #screen_x = None, #handled by post processing
                 #screen_y = None, #handled by post processing
                 screen_position=(0,0),

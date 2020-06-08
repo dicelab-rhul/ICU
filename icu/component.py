@@ -104,16 +104,17 @@ class SimpleLayoutManager:
         if isinstance(component, str):
             component = self.component.components[component]
 
-        if anchor == 'W': 
-            component.x = self.component.x + self.padding[0]
-        elif anchor == 'E':
-            component.x = self.component.x + self.component.width - component.width - self.padding[0]
-        elif anchor == 'N':
-            component.y = self.component.y + self.padding[1]
-        elif anchor == 'S':
-            component.y  =self.component.y + self.component.height - component.height - self.padding[1]
-        else:
-            raise NotImplementedError("TODO")
+        for a in anchor:
+            if a == 'W': 
+                component.x = self.component.x + self.padding[0]
+            elif a == 'E':
+                component.x = self.component.x + self.component.width - component.width - self.padding[0]
+            elif a == 'N':
+                component.y = self.component.y + self.padding[1]
+            elif a == 'S':
+                component.y  =self.component.y + self.component.height - component.height - self.padding[1]
+            else:
+                raise NotImplementedError("TODO ?")
 
 
     @property
@@ -305,7 +306,11 @@ class SimpleComponent(BaseComponent):
 
     def resize(self, dw, dh):
         #print(self, "resize:", self.width - dw, self.height - dh, "to:", self.width, self.height)
+       
         x1,y1,_,_ = self.canvas.coords(self.component)
+        #if x1 != self.x or y1 != self.y:
+        #    print(self.x, x1, self.y, y1)
+        #    raise ValueError()
         self.canvas.coords(self.component, x1, y1, x1 + self.width, y1 + self.height)
  
     def show(self):
@@ -476,7 +481,6 @@ class CanvasWidget(BaseComponent):
  
 
     def debug(self):
-        print(self.x, self.y, self.x+self.width, self.y+self.height)
         if self.__debug is not None:
             raise NotImplementedError()
             #TODO remove component

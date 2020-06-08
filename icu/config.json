@@ -40,11 +40,10 @@
     },
 
     "screen_full": false,
-    "screen_height": 800,
+    "screen_height": 700,
     "screen_width": 800,
     "screen_x": 0,
     "screen_y": 0,
-    "screen_aspect":[1,1],
     "screen_resizable":true,
     "screen_min_size":[400,400],
     "screen_max_size":[2000,2000]

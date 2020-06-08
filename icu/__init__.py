@@ -63,7 +63,7 @@ def start(sinks=[], sources=[]):
     from multiprocessing import Process, Lock
     from .process import PipedMemory
 
-    send, receive = PipedMemory(event_sinks=None, event_sources=None) #TODO more?
+    send, receive = PipedMemory(event_sinks=None, event_sources=None, config=None, window_properties=None) #TODO more?
     send.aquire() #this will block the current process from accessing memory attributes until ICU has finished loading
 
     p = Process(target=run, args=(send, sinks, sources))
@@ -90,7 +90,13 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
     
     pprint(config.__dict__)
 
+
     config_schedule = SimpleNamespace(**config.schedule)
+    window_properties = {}
+                         
+                         
+
+
 
     #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors
@@ -147,6 +153,10 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height)
         root.bind("<Configure>", main.resize) #for resizing the window
         
+
+
+
+
         # ==================== SYSTEM MONITOR WIDGET ==================== #
 
         task = SimpleNamespace(**config.task)
@@ -155,24 +165,30 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             system_monitor_widget = system_monitor.SystemMonitorWidget(main, copy.deepcopy(config.__dict__), width=constants.SYSTEM_MONITOR_WIDTH, height=constants.SYSTEM_MONITOR_HEIGHT)
             main.top_frame.components['system_monitor'] = system_monitor_widget
             main.top_frame.layout_manager.fill('system_monitor', 'Y')
-            main.top_frame.layout_manager.split('system_monitor', 'X')
+            main.top_frame.layout_manager.split('system_monitor', 'X', 250/800)
 
-            main.top_frame.components['top_padding'] = component.EmptyComponent()
-            main.top_frame.layout_manager.split('top_padding', 'X', prop=0.3)
+            #main.top_frame.components['top_padding'] = component.EmptyComponent()
+            #main.top_frame.layout_manager.split('top_padding', 'X', prop=0.3)
 
         if task.track:
             tracking_widget = tracking.Tracking(main, copy.deepcopy(config.__dict__), size=config.screen_height/2) #scaled anyway
             main.top_frame.components['tracking'] = tracking_widget
             main.top_frame.layout_manager.fill('tracking', 'Y')
-            main.top_frame.layout_manager.split('tracking', 'X')
+            main.top_frame.layout_manager.split('tracking', 'X', 550/800)
             #tracking_widget.debug()
             main.top_frame.layout_manager.anchor('tracking', 'E')
 
         if task.fuel:
+            main.bottom_frame.components['coms'] = component.EmptyComponent()
+            main.bottom_frame.layout_manager.split('coms', 'X', prop=250/800)
+
             fuel_monitor_widget = fuel_monitor.FuelWidget(main, copy.deepcopy(config.__dict__), width=constants.FUEL_MONITOR_WIDTH, height=constants.FUEL_MONITOR_HEIGHT)
             main.bottom_frame.components['fuel_monitor'] = fuel_monitor_widget
-            main.bottom_frame.layout_manager.fill('fuel_monitor', 'X')
+            main.bottom_frame.layout_manager.split('fuel_monitor', 'X', prop=550/800)
             main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
+
+            
+
         
         #arrow = main.create_polygon(-20,-10, 0,-10, 0,-20, 10,0,0,20, 0,10, -20,10,fill='red', width=0) #TODO components with polygons
 
@@ -187,7 +203,6 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             pass #TODO
         
         main.pack()
-
 
         # ==================== SYSTEM MONITOR EVENT SCHEDULES ==================== #
         if task.system:
@@ -238,10 +253,30 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             event.add_event_sink(sink)
         for source in sources:
             event.add_event_source(source)
+
         if shared is not None:
             # update shared memory
             shared.event_sinks = get_event_sinks()
             shared.event_sources = get_event_sources()
+            shared.config = config
+            # get all window properties
+            root.update_idletasks() 
+            shared.window_properties = dict(window = dict(position = (root.winfo_rootx(), root.winfo_rooty()),
+                                                          size     = (root.winfo_width(), root.winfo_height())),
+                                            tracking = dict(position = tracking_widget.position,
+                                                            size     = tuple([min(tracking_widget.size)]*2)), #TODO fix this in tracking widget...?
+                                            system   = dict(position = system_monitor_widget.position,
+                                                            size     = system_monitor_widget.size,
+                                                            **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.warning_lights.items()},
+                                                            **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.scales.items()}),
+                                            fuel     = dict(position = fuel_monitor_widget.position,
+                                                            size     = fuel_monitor_widget.size,
+                                                            **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.tanks.items()},
+                                                            **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.pumps.items()})
+                                            )
+            
+            #root.bind( "<Configure>", d ) update window properties ???
+
             shared.release() # the parent process can now access attributes in shared memory
         
         root.mainloop()
@@ -253,6 +288,10 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
         #save state
         import pickle
+
+
+
+
 
 
 def task_system_monitor(config):
