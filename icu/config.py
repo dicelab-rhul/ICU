@@ -20,11 +20,17 @@ def tasks():
     return SimpleNamespace(**{k:k for k in ['system', 'fuel', 'track']})
 
 def default_config_screen():
-    return dict(screen_width=800, 
-                screen_height=800, 
-                screen_x = 0,
-                screen_y = 0,
-                screen_full=False)
+    return dict(#screen_width=None,  #handled by post processing
+                #screen_height=None, #handled by post processing
+                screen_size=(600,600),
+                #screen_x = None, #handled by post processing
+                #screen_y = None, #handled by post processing
+                screen_position=(0,0),
+                screen_min_size=(100,100),
+                screen_max_size=(2000,2000),
+                screen_full=False,
+                screen_resizable=True,
+                screen_aspect=None)
 
 def default_task_options():
     return   {"system" : True, "track" : True,"fuel" : True}
@@ -123,15 +129,25 @@ def is_type(*types): #validate type(s)
         return v
     return _is_type
 
+def is_coord():
+    def _is_coord(**kwargs):
+        k = next(iter(kwargs.keys()))
+        v = kwargs[k]
+        if isinstance(v, list) and len(v) == 2 and isinstance(v[0], (int, float)) and isinstance(v[1], (int,float)):
+            return tuple(v)
+        else:
+            raise ConfigurationError("Invalid value '{0}' for '{1}', must be a list of length 2 and contain only numbers.".format(v, k))
+    return _is_coord
+
 def condition(cond):
     def _condition(**kwargs):
         assert len(kwargs) == 1
         k = next(iter(kwargs.keys()))
         v = kwargs[k]
-
-        cond(v)
-
-
+        if not cond(v):
+            raise ConfigurationError("Invalid value '{0}' for '{1}'.".format(v, k))
+        return v
+    return _condition
         
 def get_option(k, group, _options=None):
     if _options is None:
@@ -212,10 +228,17 @@ options = dict(
 
             screen_width    = Option('main', is_type(int, float)),
             screen_height   = Option('main', is_type(int, float)),
+            screen_size     = Option('main', is_coord()),
             screen_x        = Option('main', is_type(int, float)),
             screen_y        = Option('main', is_type(int, float)),
-            screen_full     = Option('main', is_type(bool)),
+            screen_position        = Option('main', is_coord()),
 
+            screen_full            = Option('main', is_type(bool)),
+            screen_resizable       = Option('main', is_type(bool)),
+            screen_aspect          = Option('main', is_coord()),
+            screen_min_size        = Option('main', is_coord()),
+            screen_max_size        = Option('main', is_coord()),
+            
             schedule        = Option('main', lambda **kwargs: {k:Validator.is_schedule(**{k:v}) for k,v in next(iter(kwargs.values())).items()}),
             
             task            = Option('main', validate_options('task')),
@@ -286,8 +309,19 @@ class Validator:
 
 
     def __call__(self, **kwargs):
-        return validate_options('main')(**{'main':kwargs}) #{k:get_option(k, 'main')(**{k:v}) for k,v in kwargs.items()}
-    
+        config =  validate_options('main')(**{'main':kwargs}) #{k:get_option(k, 'main')(**{k:v}) for k,v in kwargs.items()}
+
+        # ====== POST PROCESSING ====== # 
+        #TOOD move this somewhere more suitable
+        result = default_config()
+        result.update(config)
+
+        result['screen_size'] = (result.get('screen_width', result['screen_size'][0]), result.get('screen_height', result['screen_size'][1]))
+        result['screen_position'] = (result.get('screen_x', result['screen_position'][0]), result.get('screen_y', result['screen_position'][1]))
+        result['screen_width'], result['screen_height'] = result['screen_size']
+        result['screen_x'], result['screen_y'] = result['screen_position']
+        return result
+
 validate = Validator()
 
 def save(path, **kwargs):
@@ -319,9 +353,7 @@ def load(path):
         raise FileNotFoundError("Could not find config file at location: {0}".format(path))
     with open(path, 'r') as f: 
         data = json.load(f)
-        data = validate(**data)
-        result = default_config()
-        result.update(data)
+        result = validate(**data)
         return result
 
 def reset(path):

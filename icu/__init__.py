@@ -123,12 +123,23 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
                 root.attributes("-fullscreen", self.fullscreen)
 
         root = tk.Tk()
-        full_screen = Fullscreen(root, config.screen_full)
+        full_screen = None
 
+        if config.screen_aspect is not None: 
+            root.aspect(*config.screen_aspect, *config.screen_aspect)
+       
+        if config.screen_resizable:
+            full_screen = Fullscreen(root, config.screen_full)
+            root.minsize(*config.screen_min_size)
+            root.maxsize(*config.screen_max_size) 
+        else:
+            root.resizable(0,0)
+        
         root.title("ICU")
         root.protocol("WM_DELETE_WINDOW", quit)
         root.geometry('%dx%d+%d+%d' % (config.screen_width, config.screen_height, config.screen_x, config.screen_y))
-        root.minsize(640, 480) 
+  
+
 
 
         event.tk_event_schedular(root) #initial global event schedular
