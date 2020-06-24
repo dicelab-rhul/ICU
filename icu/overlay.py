@@ -6,11 +6,10 @@
 """
 
 from .event import Event, EventCallback
-from .component import Component
-from .component import SimpleComponent
+from .component import Component, PolyComponent, BaseComponent
 
 
-class Overlay(EventCallback, Component, SimpleComponent):
+class Overlay(EventCallback, Component, PolyComponent):
     """
         A GUI widget that is placed above other widgets. Accepts 'move' and 'place' events to move the widget.
     """
@@ -22,7 +21,10 @@ class Overlay(EventCallback, Component, SimpleComponent):
         EventCallback.register(self, name)
         Component.register(self, name) 
 
+        self.bind("<Button-1>", self.click_callback)
+        
     def sink(self, event):
+        #print(event)
         if event.data.label == 'place':
             self.x = event.data.x
             self.y = event.data.y
@@ -38,6 +40,14 @@ class Overlay(EventCallback, Component, SimpleComponent):
             self.y = event.data.y
             self.show()
         
+    def click_callback(self, event):
+        print("click...", event)
+        #print(BaseComponent.__all_components__)
+        overlapping = self.canvas.find_overlapping(event.x, event.y, event.x, event.y)
+        for o in overlapping:
+            print(self.canvas.tag_bind(o))
+            print(self.canvas.gettags(o))
+
 
 
 

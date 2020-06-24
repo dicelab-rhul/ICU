@@ -36,13 +36,13 @@ class EyeTrackerBase(event.EventCallback, threading.Thread):
         super(EyeTrackerBase, self).__init__(**kwargs)
         self.__filter = filter
 
-
     def source(self, t, x, y):
         if self.__filter is not None:
             e = self.__filter(t, x, y)
             if e is not None:
                 d = dict(label='place', x=x, y=x, timestamp=t)
                 d.update(e)
+                #print(e)
                 super().source('Overlay:0', **d) #TODO change Overlay if we want to event to go elsewhere
         else:
             super().source('Overlay:0', label='place', x=x, y=x, timestamp=t)
@@ -125,7 +125,6 @@ class EyeTrackerStub(EyeTrackerBase):
             time.sleep(1. / self.sample_rate)
             #self.source('Overlay:Overlay', label='move', dx=random.randint(0,10), dy=random.randint(0,10), timestamp=self.__time)
             #if self._p_mouse_x != self._n_mouse_x or self._p_mouse_y != self._n_mouse_y:
-            #self.source('Overlay:Overlay', label='place', x=self._n_mouse_x, y=self._n_mouse_y)
             self.source(time.time(), self._n_mouse_x, self._n_mouse_y)
             
             self._p_mouse_x = self._n_mouse_x

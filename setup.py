@@ -15,7 +15,7 @@ setuptools.setup(name='icu',
       author='Benedict Wilkins',
       author_email='benrjw@googlemail.co.uk',
       license='',
-      packages=setuptools.find_packages(),
+      packages=['icu'],
       include_package_data=True,
       classifiers=[
         "Programming Language :: Python :: 3.7",

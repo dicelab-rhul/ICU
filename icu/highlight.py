@@ -12,29 +12,30 @@ class Highlight(EventCallback):
     def __init__(self, canvas, component, state=False, highlight_thickness=4, highlight_colour='red', outline=True, transparent=False, **kwargs):
         assert isinstance(component, BaseComponent)
         super(Highlight, self).__init__()
-        name = "{0}:{1}".format(Highlight.__name__, component.name)
-        EventCallback.register(self, name)
+        if kwargs.get('enable', True): #otherwise this is a stub
+            name = "{0}:{1}".format(Highlight.__name__, component.name)
+            EventCallback.register(self, name)
 
-        self.__canvas = canvas 
-        self.__component = component
-        self.__highlight_thickness = highlight_thickness
+            self.__canvas = canvas 
+            self.__component = component
+            self.__highlight_thickness = highlight_thickness
 
-        self.component.observe('size', self.resize)
-        self.component.observe('position', self.move)
+            self.component.observe('size', self.resize)
+            self.component.observe('position', self.move)
 
-        background_colour = (highlight_colour, None)[int(transparent)]
-        outline = (0, highlight_thickness)[int(outline)]
+            background_colour = (highlight_colour, None)[int(transparent)]
+            outline = (0, highlight_thickness)[int(outline)]
 
-        self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height,
-                                    colour=background_colour, outline_thickness=highlight_thickness, outline_colour=highlight_colour, stipple="gray25")
-        #self.__box.front()
-        if not state:
-            self.off()
+            self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height,
+                                        colour=background_colour, outline_thickness=highlight_thickness, outline_colour=highlight_colour, stipple="gray25")
+            #self.__box.front()
+            if not state:
+                self.off()
 
-        if hasattr(component, 'click_callback'):
-            self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
+            if hasattr(component, 'click_callback'):
+                self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
 
-        Highlight.__all_highlights__[self.name] = self
+            Highlight.__all_highlights__[self.name] = self
 
     def sink(self, event):
         #print("HIGHLIGHT: ", event)

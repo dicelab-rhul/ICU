@@ -25,18 +25,19 @@
     "FuelTank:F" : {},
 
     "overlay": {
+        "enable":true,
         "transparent":true,
         "highlight_colour":"red",
         "highlight_thickness":4,
         "outline":true,
-        "arrow":false
+        "arrow":true
     },
 
     "input" : {
         "mouse" : true,
         "keyboard" : true,
         "joystick" : false,
-        "eye_tracker" : false
+        "eye_tracker" : true
     },
 
     "screen_full": false,

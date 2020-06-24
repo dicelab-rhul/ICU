@@ -71,7 +71,7 @@ def default_target_schedule():
     return cycle([300])
 
 def default_overlay():
-    return dict(transparent=True, outline=True, arrow=True)
+    return dict(enable=True, transparent=True, outline=True, arrow=True)
 
 def default_config():
     return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay())
@@ -263,6 +263,7 @@ options = dict(
             generators      = Option('main', lambda **kwargs: None), #TODO
 
             overlay             = Option('main',    validate_options('overlay')),
+            enable              = Option('overlay', is_type(bool)),
             arrow               = Option('overlay', is_type(bool)),
             transparent         = Option('overlay', is_type(bool)),
             outline             = Option('overlay', is_type(bool)),

@@ -190,17 +190,30 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             
 
         
-        #arrow = main.create_polygon(-20,-10, 0,-10, 0,-20, 10,0,0,20, 0,10, -20,10,fill='red', width=0) #TODO components with polygons
+        #arrow = main.create_polygon(-20,-10, 0,-10, 0,-20, 10,0,0,20, 0,10, -20,10,fill='red', width=0) #TODO components with polygons 
 
-        if config.overlay['arrow']:
-            circle = main.create_oval(10,10,30,30, fill='red', width=0)
-            main.overlay(circle)
 
-        if config.overlay['transparent']:
-            pass #TODO
+        if config.overlay['enable']:
+            #This is just for testing
+            def highlight_event_generator():
+                import random
+                while True:
+                    dst = random.choice(list(highlight.all_highlights().keys()))
+                    print("highlight")
+                    yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
+            event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
 
-        if config.overlay['outline']:
-            pass #TODO
+            if config.overlay['arrow']:
+                
+                arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
+                
+                #arrow = main.create_oval(10,10,30,30, fill='red', width=0)
+               
+                main.overlay(arrow)
+
+  
+
+
         
         main.pack()
 
@@ -226,13 +239,6 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
         #event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=config.schedule_tracking)
 
-        #This is just for testing
-        def highlight_event_generator():
-            import random
-            while True:
-                dst = random.choice(list(highlight.all_highlights().keys()))
-                yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
-        event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
        
 
         # ================= EYE TRACKING ================= 

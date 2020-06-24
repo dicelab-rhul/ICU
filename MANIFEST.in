@@ -1,1 +1,2 @@
 include icu/*.json
+include res/arrow.png

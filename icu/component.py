@@ -143,7 +143,30 @@ class SimpleLayoutManager:
 
 from collections import defaultdict
 
+def bounding_box(*v): #find a simple bounding box (along x and y)
+    x, y = v[::2], v[1::2]
+    return (min(x), min(y)), (max(x), max(y))
+
+def center(*v):
+    x, y = v[::2], v[1::2]
+    return sum(x) / len(x), sum(y) / len(y)
+
+def add(v, s):
+    v[::2] = list(map(lambda x: x + s[0], v[::2]))
+    v[1::2] = list(map(lambda x: x + s[1], v[1::2]))
+    return v
+
+def sub(v, s):
+    v[::2] = list(map(lambda x: x - s[0], v[::2]))
+    v[1::2] = list(map(lambda x: x - s[1], v[1::2]))
+    return v
+
+def rotate(angle, *p): #rotate a set of points
+    pass
+
 class BaseComponent:
+
+    __all_components__ = {}
 
     def __init__(self, canvas, x=0., y=0., width=0., height=0., padding=0.):
         self.canvas = canvas
@@ -275,31 +298,19 @@ class EmptyComponent(BaseComponent): #useful for padding...
 class SimpleComponent(BaseComponent):
 
     def __init__(self, canvas, component, padding=0.):
-        super(SimpleComponent, self).__init__(canvas, padding=padding)
         if component is None:
-            component = self.canvas.create_rectangle(0,0,0,0)
-        
+            component = canvas.create_rectangle(0,0,0,0)
         self.__component = component
-        x1,y1,x2,y2 = self.canvas.coords(self.component)
+        #print(component, canvas.coords(component))
+        x1,y1,x2,y2 = canvas.coords(component)
+        #(x,y), (w,h) = bounding_box(*canvas.coords(self.component))
 
-        self._BaseComponent__x = x1
-        self._BaseComponent__y = y1
-        self._BaseComponent__width = x2-x1 
-        self._BaseComponent__height = y2-y1 
-
-        #print(x1,y1,x2,y2)
-
+        super(SimpleComponent, self).__init__(canvas, x=x1,y=y1,width=x2-x1,height=y2-y1,padding=padding)
+        BaseComponent.__all_components__[self.component] = self
+    
     @property
     def component(self):
         return self.__component
-
-    @component.setter
-    def component(self, value):
-        self.canvas.delete(self.component)
-        self.__component = value
-        x1,y1,x2,y2 = self.canvas.coords(self.component)
-        self.position = (x1,y1)
-        self.size = (x2-x1,y2-y1)
 
     def move(self, dx, dy):
         self.canvas.move(self.component, dx, dy)
@@ -307,7 +318,7 @@ class SimpleComponent(BaseComponent):
     def resize(self, dw, dh):
         #print(self, "resize:", self.width - dw, self.height - dh, "to:", self.width, self.height)
        
-        x1,y1,_,_ = self.canvas.coords(self.component)
+        x1,y1, _,_ = self.canvas.coords(self.component)
         #if x1 != self.x or y1 != self.y:
         #    print(self.x, x1, self.y, y1)
         #    raise ValueError()
@@ -331,11 +342,86 @@ class SimpleComponent(BaseComponent):
     def back(self):
         self.canvas.tag_lower(self.component)
 
+class PolyComponent(BaseComponent):
+
+    def __init__(self, canvas, component, padding=0.):
+        if component is None:
+            component = canvas.create_rectangle(0,0,0,0)
+        self.__component = component
+        (x1,y1), (x2,y2) = bounding_box(*canvas.coords(component))
+        self.__debug = canvas.create_rectangle(x1, y1, x2, y2, outline="pink")
+        super(PolyComponent, self).__init__(canvas, x=x1, y=y1, width=x2-x1, height=y2-y1, padding=padding)
+        
+        BaseComponent.__all_components__[self.component] = self
+
+        #print(self.position, self.size, self.coords)
+        #self.size = (self.width + 10, self.height + 10)
+        #print(self.position, self.size, self.coords)
+
+
+    @property
+    def coords(self):
+        return self.canvas.coords(self.component)
+
+    @property
+    def lcoords(self): #local coordinates
+        coords = self.coords()
+        return sub(coords, center(coords))
+    
+    @property
+    def center(self):
+        return center(self.coords())
+
+    @property
+    def component(self):
+        return self.__component
+
+    def move(self, dx, dy):
+        self.canvas.move(self.component, dx, dy)
+        self.canvas.move(self.__debug, dx, dy)
+
+    def resize(self, dw, dh):
+        sx, sy = self.width / (self.width - dw), self.height / (self.height - dh) 
+        self.canvas.scale(self.component, *self.position, sx, sy)
+        self.canvas.scale(self.__debug, *self.position, sx, sy)
+
+    def show(self):
+        self.canvas.itemconfigure(self.component, state='normal')
+    
+    def hide(self):
+        self.canvas.itemconfigure(self.component, state='hidden')
+
+    def is_hidden(self):
+        return self.canvas.itemcget(self.component, "state") == 'hidden'
+    
+    def bind(self, event, callback):
+        self.canvas.tag_bind(self.component, event, callback)
+        self.canvas.tag_bind(self.__debug, event, callback)
+
+    def front(self):
+        self.canvas.tag_raise(self.component)
+
+    def back(self):
+        self.canvas.tag_lower(self.component)
+
+
+
 class LineComponent(SimpleComponent):
 
     def __init__(self, canvas, x1,y1,x2,y2, colour='black', thickness=None):
         line = canvas.create_line(x1,y1,x2,y2,fill=colour, width=thickness)
         super(LineComponent, self).__init__(canvas, line)
+
+        print("LINE: ", self.position, self.size)
+
+    def resize(self, dw, dh):
+        #print(self, "resize:", self.width - dw, self.height - dh, "to:", self.width, self.height)
+       
+        x1,y1, _,_ = self.canvas.coords(self.component)
+        #if x1 != self.x or y1 != self.y:
+        #    print(self.x, x1, self.y, y1)
+        #    raise ValueError()
+        self.canvas.coords(self.component, x1, y1, x1 + self.width, y1 + self.height)
 
 class TextComponent(BaseComponent):
     
@@ -411,7 +497,6 @@ class CanvasWidget(BaseComponent):
         
         self.components['background'] = BoxComponent(self.canvas, x=x,y=y,width=width,height=height, colour=background_colour,
                                                          outline_colour=outline_colour, outline_thickness=outline_thickness)
-        
         self.__debug = None
 
     def front(self):

@@ -114,6 +114,7 @@ class WarningLight(EventCallback, Component, BoxComponent):
 
         self.bind("<Button-1>", self.click_callback)
 
+
         self.highlight = Highlight(canvas, self, **highlight)
         WarningLight.__all_components__.append(self.name)
 

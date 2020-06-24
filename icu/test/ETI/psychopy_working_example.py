@@ -64,7 +64,7 @@ def stream(tracker, duration):
             yield (e['left_gaze_x'], e['left_gaze_y'], e['time'])
 
 
-def __main__(duration = 5, # 5 seconds for demo 
+def run(duration = 5, # 5 seconds for demo 
              calibrate_system = False,
              sample_rate = 300):
     """
@@ -93,7 +93,9 @@ def __main__(duration = 5, # 5 seconds for demo
     if calibrate_system:
         calibrate(tracker)
     
-    for event in stream(tracker, duration):
-        print(event) #do some stuff
+    #for event in stream(tracker, duration):
+    #    print(event) #do some stuff
     
     io.quit()
+
+run()
