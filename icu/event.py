@@ -1,8 +1,9 @@
 import time
 import copy
-from types import SimpleNamespace
-from json import dump, dumps
+import os
 
+from types import SimpleNamespace
+from json import dumps
 from multiprocessing import Queue
 
 global finish
