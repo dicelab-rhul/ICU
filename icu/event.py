@@ -1,6 +1,7 @@
 import time
 import copy
 from types import SimpleNamespace
+from json import dump, dumps
 
 from multiprocessing import Queue
 
@@ -31,6 +32,22 @@ class Event:
 
     def to_tuple(self):
         return (self.timestamp, self.name, (self.src, self.dst), copy.deepcopy(self.data.__dict__))
+
+    def serialise(self) -> dict:
+        return {
+            "src": self.src,
+            "dst": self.dst,
+            "data": self.data.__dict__,
+            "name": self.name,
+            "timestamp": self.timestamp,
+        }
+
+    def serialise_to_str(self) -> str:
+        return dumps(self.serialise())
+
+    @staticmethod
+    def empty_event() -> "Event":
+        return Event(src="empty", dst="empty")
 
 
 class ExternalEventSource: 
