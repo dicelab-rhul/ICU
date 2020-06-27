@@ -16,6 +16,7 @@ setuptools.setup(name='icu',
       author_email='benrjw@googlemail.co.uk',
       license='',
       packages=['icu', 'icu.eyetracking'],
+      package_data={'': ['*.json']},
       include_package_data=True,
       classifiers=[
         "Programming Language :: Python :: 3.7",
