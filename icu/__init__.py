@@ -94,10 +94,6 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
     config_schedule = SimpleNamespace(**config.schedule)
     window_properties = {}
                          
-                         
-
-
-
     #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors
 
@@ -201,7 +197,7 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
                     dst = random.choice(list(highlight.all_highlights().keys()))
                     print("highlight")
                     yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
-            event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
+            #event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
 
             if config.overlay['arrow']:
                 

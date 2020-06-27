@@ -56,7 +56,9 @@ class ExternalEventSource:
             dst (str): the name of the destination (sink) object (a unique ID), see get_event_sources() for a list of source IDs.
             timestamp (float, optional): floating point number expressed in seconds since the epoch, in UTC (see time.time()). Defaults to the current time (on event instantiation).
         """
-        self.__buffer.put(Event(src, dst, timestamp=timestamp, **data))
+        event = Event(src, dst, timestamp=timestamp, **data)
+        print("EXTERNAL-{0}: {1}".format(os.getpid(), event))
+        self.__buffer.put(event)
 
     def empty(self):
         return self.__buffer.empty()
@@ -91,6 +93,7 @@ class ExternalEventSink:
         '''
         return self.__buffer.get()
 
+        
     def full(self):
         return self.__buffer.full()
 
