@@ -1,10 +1,10 @@
 {
     "schedule":{
-        "Scale:0" : 1000,
+        "Scale:0" : "normal(0,1000)",
         "Scale:1" : 1500,
         "Scale:2":  2000,
         "Scale:3":  2500,
-        "Target:0": [[100]]
+        "Target:0": [[1000]]
     },
 
     "Scale:0" : {"size":11, "position":0},
@@ -12,7 +12,7 @@
     "Scale:2" : {"size":11, "position":20},
     "Scale:3" : {"size":11},
 
-    "Target:0" : { "step" : 10 },
+    "Target:0" : { "step" : 10 , "invert" : true},
 
     "Pump:0" : { "flow_rate": 10, "event_rate": 1},
     "Pump:1" : { "flow_rate": 10, "event_rate": 1}, 
@@ -37,7 +37,13 @@
         "mouse" : true,
         "keyboard" : true,
         "joystick" : false,
-        "eye_tracker" : true
+        "eye_tracker" : false
+    },
+
+    "task" : {
+        "system" : true,
+        "track" : false,
+        "fuel" : false
     },
 
     "screen_full": false,

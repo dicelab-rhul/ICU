@@ -28,21 +28,30 @@ class Highlight(EventCallback):
 
             self.__box = BoxComponent(self.canvas, x=component.x, y=component.y, width=component.width, height=component.height,
                                         colour=background_colour, outline_thickness=highlight_thickness, outline_colour=highlight_colour, stipple="gray25")
+
             #self.__box.front()
             if not state:
                 self.off()
 
             if hasattr(component, 'click_callback'):
-                self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
+                pass #self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
 
             Highlight.__all_highlights__[self.name] = self
 
     def sink(self, event):
-        #print("HIGHLIGHT: ", event)
-        (self.off, self.on)[int(event.data.value)]() #love it
+        if "value" in event.data.__dict__: #if no value is given, flip the highlight on/off
+            (self.off, self.on)[int(event.data.value)]() #love it
+        else:
+            self.flip()
     
     def to_dict(self):
         return dict(state=self.is_on(), highlight_thickness=self.highlight_thickness, highlight_colour=self.highlight_colour)
+
+    def flip(self):
+        if self.is_on:
+            self.off()
+        else:
+            self.on()
 
     def on(self):
         self.__box.show()

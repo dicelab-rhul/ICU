@@ -43,7 +43,7 @@ def WarningLightEventGenerator():
     while True:
         r = random.randint(0, len(warning_lights)-1)
         yield Event('warning_light_event_generator', warning_lights[r], label=EVENT_NAME_SWITCH)
-        
+
 class Scale(EventCallback, Component, CanvasWidget):
 
     __scale_components__ = [] #just names
@@ -68,7 +68,8 @@ class Scale(EventCallback, Component, CanvasWidget):
 
         block =  BoxComponent(canvas, height=1/self.__size, outline_colour=outline_colour, 
                                 outline_thickness=outline_thickness, colour=slider_colour)
-        block.bind("<Button-1>", self.click_callback)
+        block.bind("<Button-1>")
+        block.__dict__['name'] = name #hacky...! TODO make less hacky, see Component.bind
         self.components['block'] = block
 
         for i in range(1, self.__size):
@@ -87,8 +88,11 @@ class Scale(EventCallback, Component, CanvasWidget):
         self.components['block'].y = self.y + inc * self.__state
 
     def sink(self, event):
-        #TODO validate event?
-        self.slide(event.data.slide)
+        if event.data.label == EVENT_NAME_CLICK:
+            self.click_callback()
+        else:
+            #TODO validate event?
+            self.slide(event.data.slide)
 
     def click_callback(self, *args):
         #print("click_callback scale")
@@ -112,7 +116,7 @@ class WarningLight(EventCallback, Component, BoxComponent):
         EventCallback.register(self, name)
         Component.register(self, name)
 
-        self.bind("<Button-1>", self.click_callback)
+        self.bind("<Button-1>") #, self.click_callback)
 
 
         self.highlight = Highlight(canvas, self, **highlight)
@@ -122,13 +126,14 @@ class WarningLight(EventCallback, Component, BoxComponent):
         self.__state = int(not bool(self.__state))
         self.colour = self.__state_colours[self.__state]
 
-    def click_callback(self, *args):
-        self.update()
-        self.source('Global', label='click', value=self.__state) #notify global
-
     def sink(self, event):
-        self.update()
-        
+        if event.data.label == EVENT_NAME_CLICK:
+            self.update()
+        else: #TODO
+            self.update()
+
+
+
 class SystemMonitorWidget(CanvasWidget):
 
     def __init__(self, canvas, config, width=480, height=640):

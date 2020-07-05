@@ -91,6 +91,12 @@ class ExternalEventSource:
     def name(self):
         return self.__name
 
+    def __str__(self):
+        return "{0}:{1}".format(self.name, self.size())
+
+    def __repr__(self):
+        return str(self)
+
 class ExternalEventSink:
     """
         A thread-safe event sink to be used externally as a 
@@ -109,8 +115,8 @@ class ExternalEventSink:
         '''
             Pop from event buffer.
         '''
-        return self.__buffer.get()
-
+        event = self.__buffer.get()
+        return event
         
     def full(self):
         return self.__buffer.full()
@@ -127,6 +133,12 @@ class ExternalEventSink:
     @property
     def name(self):
         return self.__name
+    
+    def __str__(self):
+        return "{0}:{1}".format(self.name, self.size())
+
+    def __repr__(self):
+        return str(self)
 
 #EVENT_SINKS = {}
 #EVENT_SOURCES = {}
@@ -159,7 +171,6 @@ class GlobalEventCallback:
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
             if event.dst == "Global":
-                #print(event)
                 pass
             self.__sink_external(event) #send to all external sinks
             self.logger.log(event)
@@ -185,12 +196,19 @@ class GlobalEventCallback:
     def schedule_external(self, sleep=50):
         def _event_iterator(source):
             while not source.empty():
-                yield source._ExternalEventSource__buffer.get()
+                event =  source._ExternalEventSource__buffer.get()
+                if isinstance(event.dst, (list, tuple)): #if multiple destinations
+                    for dst in event.dst:
+                        e = copy.deepcopy(event) #not efficient... oh well
+                        e.dst = dst
+                        yield e
+                else:
+                    yield event
+
         def _trigger():
-            #print("trigger")
             for source in self.external_sources.values():
                 for event in _event_iterator(source):
-                    #print(event)
+                    print(" -- EXTERNAL:", event)
                     if event is not None and event.dst in self.sinks:
                         self.sinks[event.dst].sink(event)
             event_scheduler.after(sleep, _trigger)

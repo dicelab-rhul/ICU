@@ -141,17 +141,10 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         root.protocol("WM_DELETE_WINDOW", quit)
         root.geometry('%dx%d+%d+%d' % (config.screen_width, config.screen_height, config.screen_x, config.screen_y))
   
-
-
-
         event.tk_event_schedular(root) #initial global event schedular
         
         main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height)
         root.bind("<Configure>", main.resize) #for resizing the window
-        
-
-
-
 
         # ==================== SYSTEM MONITOR WIDGET ==================== #
 
@@ -183,12 +176,6 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             main.bottom_frame.layout_manager.split('fuel_monitor', 'X', prop=550/800)
             main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
 
-            
-
-        
-        #arrow = main.create_polygon(-20,-10, 0,-10, 0,-20, 10,0,0,20, 0,10, -20,10,fill='red', width=0) #TODO components with polygons 
-
-
         if config.overlay['enable']:
             #This is just for testing
             def highlight_event_generator():
@@ -196,21 +183,14 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
                 while True:
                     dst = random.choice(list(highlight.all_highlights().keys()))
                     print("highlight")
-                    yield event.Event('high_light_generator', dst, label='highlight', value=random.choice([True,False]))
+                    yield event.Event('highlight_generator', dst, label='highlight', value=random.choice([True,False]))
             #event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
 
             if config.overlay['arrow']:
-                
+                #TODO the arrow should rotate
                 arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
-                
-                #arrow = main.create_oval(10,10,30,30, fill='red', width=0)
-               
                 main.overlay(arrow)
 
-  
-
-
-        
         main.pack()
 
         # ==================== SYSTEM MONITOR EVENT SCHEDULES ==================== #
@@ -264,20 +244,20 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             # get all window properties
             root.update_idletasks() 
             shared.window_properties = dict(window = dict(position = (root.winfo_rootx(), root.winfo_rooty()),
-                                                          size     = (root.winfo_width(), root.winfo_height())),
-                                            tracking = dict(position = tracking_widget.position,
-                                                            size     = tuple([min(tracking_widget.size)]*2)), #TODO fix this in tracking widget...?
-                                            system   = dict(position = system_monitor_widget.position,
-                                                            size     = system_monitor_widget.size,
-                                                            **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.warning_lights.items()},
-                                                            **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.scales.items()}),
-                                            fuel     = dict(position = fuel_monitor_widget.position,
-                                                            size     = fuel_monitor_widget.size,
-                                                            **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.tanks.items()},
-                                                            **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.pumps.items()})
-                                            )
-            
-            #root.bind( "<Configure>", d ) update window properties ???
+                                                          size     = (root.winfo_width(), root.winfo_height())))
+            if task.track:
+                shared.window_properties['track'] =  dict(position = tracking_widget.position,
+                                                          size     = tuple([min(tracking_widget.size)]*2)), #TODO fix this in tracking widget...?
+            if task.system:
+                shared.window_properties['system'] = dict(position = system_monitor_widget.position,
+                                                        size     = system_monitor_widget.size,
+                                                        **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.warning_lights.items()},
+                                                        **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.scales.items()}),
+            if task.fuel:
+                shared.window_properties['fuel'] = dict(position = fuel_monitor_widget.position,
+                                                        size     = fuel_monitor_widget.size,
+                                                        **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.tanks.items()},
+                                                        **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.pumps.items()})
 
             shared.release() # the parent process can now access attributes in shared memory
         
@@ -324,6 +304,9 @@ def task_tracking(config):
     for target in targets:
         schedule = config.schedule.get(target, configuration.default_target_schedule())
         event.event_scheduler.schedule(generator.TargetEventGenerator(target, **config.__dict__[target]), sleep=schedule)
+
+
+
 
 def task_fuel_monitor(config):
     """ Set up fuel monitoring task event scheduless

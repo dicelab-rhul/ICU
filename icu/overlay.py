@@ -20,8 +20,6 @@ class Overlay(EventCallback, Component, PolyComponent):
 
         EventCallback.register(self, name)
         Component.register(self, name) 
-
-        self.bind("<Button-1>", self.click_callback)
         
     def sink(self, event):
         #print(event)
@@ -39,15 +37,6 @@ class Overlay(EventCallback, Component, PolyComponent):
             self.x = event.data.x
             self.y = event.data.y
             self.show()
-        
-    def click_callback(self, event):
-        print("click...", event)
-        #print(BaseComponent.__all_components__)
-        overlapping = self.canvas.find_overlapping(event.x, event.y, event.x, event.y)
-        for o in overlapping:
-            print(self.canvas.tag_bind(o))
-            print(self.canvas.gettags(o))
-
 
 
 

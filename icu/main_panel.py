@@ -3,16 +3,22 @@ import tkinter as tk
 from . import panel
 from .constants import MAIN_BANNER_COLOUR, MAIN_BANNER_HEIGHT, BACKGROUND_COLOUR
 
-from .component import CanvasWidget, SimpleLayoutManager, EmptyComponent
+from .component import BaseComponent, CanvasWidget, SimpleLayoutManager, EmptyComponent
+
+from .event import EventCallback
 
 from .overlay import Overlay
 
 OUTER_PADDING = 0 ##??? maybe...
- 
-class MainPanel(tk.Canvas):
+MOUSE_BIND = "<Button-1>"
+
+class MainPanel(tk.Canvas, EventCallback):
 
     def __init__(self, parent, width, height):
         super(MainPanel, self).__init__(parent, width=width, height=height, bg='blue')
+        
+        EventCallback.register(self, "Canvas")
+        
         #create banners
         layout_manager = SimpleLayoutManager(inner_sep=0)
         layout_manager = None
@@ -42,6 +48,22 @@ class MainPanel(tk.Canvas):
         self.__main.layout_manager.fill('bottom', 'X')
 
         self.__overlay = None
+
+        # mouse clicks should be registered to the canvas
+
+        self.bind(MOUSE_BIND, self.on_click)
+
+    def sink(self, event):
+        pass #events should never be sent here?
+
+    def on_click(self, event):
+        overlapping = self.find_overlapping(event.x, event.y, event.x, event.y)
+        bound = BaseComponent.bound(MOUSE_BIND)
+        for overlap in overlapping:
+            if overlap in bound:
+                print("BOUND: ", bound[overlap])
+                clickable = bound[overlap]
+                self.source(clickable.name, label="click", x=event.x, y=event.y)
 
     @property
     def size(self):

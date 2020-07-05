@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
 
 class Component(ABC): #TODO refactor this, probably it can be in BaseComponent
 
@@ -167,6 +168,7 @@ def rotate(angle, *p): #rotate a set of points
 class BaseComponent:
 
     __all_components__ = {}
+    __bind__ = defaultdict(dict)
 
     def __init__(self, canvas, x=0., y=0., width=0., height=0., padding=0.):
         self.canvas = canvas
@@ -282,6 +284,13 @@ class BaseComponent:
     def resize(self, dw, dh):
         pass
 
+    def bind(self, event):
+        BaseComponent.__bind__[event][self.tag] = self
+    
+    @staticmethod
+    def bound(event):
+        return BaseComponent.__bind__.get(event, {})
+
 class EmptyComponent(BaseComponent): #useful for padding...
 
     def __init__(self):
@@ -332,15 +341,16 @@ class SimpleComponent(BaseComponent):
 
     def is_hidden(self):
         return self.canvas.itemcget(self.component, "state") == 'hidden'
-    
-    def bind(self, event, callback):
-        self.canvas.tag_bind(self.component, event, callback)
 
     def front(self):
         self.canvas.tag_raise(self.component)
 
     def back(self):
         self.canvas.tag_lower(self.component)
+
+    @property
+    def tag(self):
+        return self.component
 
 class PolyComponent(BaseComponent):
 
@@ -394,9 +404,9 @@ class PolyComponent(BaseComponent):
     def is_hidden(self):
         return self.canvas.itemcget(self.component, "state") == 'hidden'
     
-    def bind(self, event, callback):
-        self.canvas.tag_bind(self.component, event, callback)
-        self.canvas.tag_bind(self.__debug, event, callback)
+    #def bind(self, event, callback):
+    #    self.canvas.tag_bind(self.component, event, callback)
+    #    self.canvas.tag_bind(self.__debug, event, callback)
 
     def front(self):
         self.canvas.tag_raise(self.component)
@@ -412,7 +422,7 @@ class LineComponent(SimpleComponent):
         line = canvas.create_line(x1,y1,x2,y2,fill=colour, width=thickness)
         super(LineComponent, self).__init__(canvas, line)
 
-        print("LINE: ", self.position, self.size)
+        #print("LINE: ", self.position, self.size)
 
     def resize(self, dw, dh):
         #print(self, "resize:", self.width - dw, self.height - dh, "to:", self.width, self.height)
@@ -436,10 +446,6 @@ class TextComponent(BaseComponent):
 
     def move(self, dx, dy):
         self.canvas.move(self.component, dx, dy)
-
-    def bind(self, event, callback):
-        self.canvas.tag_bind(self.component, event, callback)
-
 
     def bold(self):
         self.canvas.itemconfigure(self.component, font='bold')
@@ -499,6 +505,10 @@ class CanvasWidget(BaseComponent):
                                                          outline_colour=outline_colour, outline_thickness=outline_thickness)
         self.__debug = None
 
+    @property
+    def tag(self):
+        return self.components['background']
+
     def front(self):
         #TODO does not preserve ordering...
         for c in self.components.values():
@@ -509,10 +519,8 @@ class CanvasWidget(BaseComponent):
         for c in self.components.values():
             self.canvas.tag_lower(c)
 
-    def bind(self, event, callback):
-        for c in self.components.values():
-            c.bind(event, callback)
-        #self.components['background'].bind(event, callback)
+    def bind(self, event):
+        BaseComponent.__bind__[event][self.components['background'].tag] = self
   
     @property
     def background(self):

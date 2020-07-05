@@ -112,11 +112,11 @@ class normal(Distribution):
 
     def __init__(self, mu, sigma, decay=1.):
         try:
-            self.mu = float(mean)
-            self.sigma = float(std)
+            self.mu = float(mu)
+            self.sigma = float(sigma)
             self.decay = float(decay) #multiplicative decay?
         except:
-            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers".format(a,b))
+            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers".format(mu, sigma))
 
     def sample(self):
         self.mu = self.mu * self.decay
@@ -192,8 +192,9 @@ pump_options = dict(
 
 target_options = dict(
     step               = Option('target', is_type(int, float)),
-
+    invert             = Option('target', is_type(bool))
 )
+
 warninglight_options = dict(
     on_colour           = Option('warning_light', is_type(str)),
     off_colour          = Option('warning_light', is_type(str)),

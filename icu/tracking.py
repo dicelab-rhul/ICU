@@ -19,13 +19,13 @@ def KeyEventGenerator(keyhandler):
     dy = 0
     while True:
         if keyhandler.isPressed('Left'):
-            dx -= TRACKING_TARGET_SPEED
+            dx -= 1
         if keyhandler.isPressed('Right'):
-            dx += TRACKING_TARGET_SPEED
+            dx += 1
         if keyhandler.isPressed('Up'):
-            dy -= TRACKING_TARGET_SPEED
+            dy -= 1
         if keyhandler.isPressed('Down'):
-            dy += TRACKING_TARGET_SPEED
+            dy += 1
         
         if dx != 0 or dy != 0:
             yield Event('key_event_generator', trackingwidget, label=EVENT_LABEL_MOVE, dx=dx, dy=dy)
@@ -119,13 +119,16 @@ class Tracking(EventCallback, Component, CanvasWidget):
         self.highlight = Highlight(canvas, self, **highlight)
         assert Tracking.__instance__ is None #there can only be one tracking widget
         Tracking.__instance__ = self
-
-
-
+        
+        if config[name].get('invert', True):
+            self.invert = (-1,-1)
+        else:
+            self.invert = (1,1)
+        self.step = config[name].get('step', 1)
 
     def sink(self, event):
-        dx = event.data.dx 
-        dy = event.data.dy
+        dx = event.data.dx * self.invert[0]
+        dy = event.data.dy * self.invert[1]
         x, y = self.components['target'].position
         w, h = self.components['target'].size
         rx, ry = self.position

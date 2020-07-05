@@ -174,9 +174,8 @@ class Pump(EventCallback, Component, CanvasWidget):
         #self.components['arrow_line_2'] = LineComponent(canvas, *p3, *p2, thickness=2, colour=OUTLINE_COLOUR)
 
         self.components['arrow'] = TextComponent(canvas, x + width/2, y + height/2, direction)
+        self.bind("<Button-1>") #bind mouse events
 
-
-        self.bind("<Button-1>", self.click_callback) #bind mouse eventss
         self.highlight = Highlight(canvas, self, **highlight)
 
         assert self.name not in Pump.__components__
@@ -202,7 +201,6 @@ class Pump(EventCallback, Component, CanvasWidget):
             yield self.transfer()
 
     def transfer(self):
-        print("TRANSFER")
         if self.tank1.fuel == 0 or self.tank2.fuel == self.tank2.capacity:
             return None #no event...
 
@@ -233,13 +231,9 @@ class Pump(EventCallback, Component, CanvasWidget):
         self.highlight_state = state
         self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
 
-    def click_callback(self, *args):
-        print('click')
+    def click_callback(self):
         if self.state != 2: #the pump has failed
             self.state = abs(self.__state - 1)
-
-        self.source('Global', label='click', value=self.state) #notify global
-
 
     def sink(self, event):
         if event.data.label == EVENT_LABEL_TRANSFER: #this may never happen... the event generator is now internal TODO refactor
@@ -249,6 +243,8 @@ class Pump(EventCallback, Component, CanvasWidget):
             self.state = 2 # failed (unusable)
         elif event.data.label == EVENT_LABEL_REPAIR:
             self.state = 1 # not transfering (useable)
+        elif event.data.label == EVENT_LABEL_CLICK:
+            self.click_callback()
 
 
 class Wing(CanvasWidget):
