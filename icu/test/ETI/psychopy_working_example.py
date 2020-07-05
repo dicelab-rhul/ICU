@@ -1,26 +1,13 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
-
-Psychopy based eyetracker interface - Example.
-
-"""
+from psychopy.iohub import launchHubServer
 
 def connect_eyetracker(sample_rate = 300):
-    from psychopy.iohub import launchHubServer
-    
+    print("CONNECTING EYETRACKER...")
     iohub_config = {'eyetracker.hw.tobii.EyeTracker':
-        {'name': 'tracker',
-         'runtime_settings': {'sampling_rate': sample_rate}}
-        }
+                   {'name': 'tracker', 'runtime_settings': {'sampling_rate': sample_rate}}}
     
-    io = launchHubServer(**iohub_config)    
+    io = launchHubServer(**iohub_config)  
+    print("SUCCESS!")  
     return io
-
-#io = connect_eyetracker()
-
-# Get the eye tracker device.
-#tracker = io.devices.tracker
 
 def calibrate(tracker):
     r = tracker.runSetupProcedure()
@@ -30,10 +17,8 @@ def calibrate(tracker):
     else:
         print('calibration unsuccessful')
 
-
 def stream(tracker, duration):
     """
-
     Parameters
     ----------
     tracker : io.devices.tracker attribute
@@ -89,7 +74,8 @@ def run(duration = 5, # 5 seconds for demo
     io = connect_eyetracker(sample_rate = sample_rate)
     
     tracker = io.devices.tracker
-    
+
+    print("CALIBRATING EYETRACKER") 
     if calibrate_system:
         calibrate(tracker)
     

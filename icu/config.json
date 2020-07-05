@@ -42,8 +42,8 @@
 
     "task" : {
         "system" : true,
-        "track" : false,
-        "fuel" : false
+        "track" : true,
+        "fuel" : true
     },
 
     "screen_full": false,

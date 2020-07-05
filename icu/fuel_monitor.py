@@ -26,10 +26,6 @@ from .highlight import Highlight
 from pprint import pprint
 from itertools import cycle
 
-
-
-
-
 class FuelTank(EventCallback, Component, CanvasWidget):
 
     def __init__(self, canvas, x, y, width, height,  name, highlight, capacity=1000, fuel=100, 
@@ -42,17 +38,25 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         Component.register(self, name)
 
         self.capacity = capacity
-        self.fuel = fuel
+        self.__fuel = fuel
 
         fh = (self.fuel / self.capacity) * height
        
         self.components['fuel'] = BoxComponent(canvas, x=x, y=y+height-fh, width=width, height=fh, colour=fuel_colour, outline_thickness=0)
         self.components['outline'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, colour=None, outline_thickness=outline_thickness, outline_colour=outline_colour)
-       
-        #self.bind("<Button-1>", self.click_callback)
 
         self.highlight = Highlight(canvas, self, **highlight)
+        self.components['text'] = TextComponent(canvas, x + width/2, y + height *11/10, self.fuel)
+
     
+    @property
+    def fuel(self):
+        return self.__fuel
+
+    @fuel.setter
+    def fuel(self, value):
+        self.__fuel = value
+        self.components['text'].text = value
 
     def sink(self, event):
         pass #updates are handled by pump events
@@ -86,14 +90,11 @@ class FuelTankMain(FuelTank):
         self.components['back'] = BoxComponent(canvas, x=x, y=y, width=width, height=height, colour=background_colour, outline_thickness=0)
         self.components['fuel'].front()
         self.components['outline'].front()
-        
+
         # in out of limits
         lim = self.limits
         self.__trigger_enter = self.fuel > lim[0] and self.fuel < lim[1]
         self.__trigger_leave = not self.__trigger_enter
-
-
-      
 
         event.event_scheduler.schedule(self.__burn(), sleep=cycle([int(1000/self.event_rate)])) #start burning fuel
 
@@ -106,7 +107,6 @@ class FuelTankMain(FuelTank):
             else:
                 yield None
 
-
     @property
     def limits(self):
         cy, ch = self.capacity*self.accept_position, self.capacity*(self.accept_proportion/2)
@@ -116,18 +116,19 @@ class FuelTankMain(FuelTank):
         super(FuelTankMain, self).update(dfuel)
         lim = self.limits
         if self.fuel > lim[0] and self.fuel < lim[1]:
-            #print("in", lim, self.fuel)
             #within the acceptable area
             if self.__trigger_enter:
                 self.source('Global', label='fuel', acceptable=True)
                 self.__trigger_enter = False
                 self.__trigger_leave = True
+                self.components['text'].text_colour = 'black'
         else:
             #print("out", lim, self.fuel)
             if self.__trigger_leave:
                 self.source('Global', label='fuel', acceptable=False)
                 self.__trigger_leave = False
                 self.__trigger_enter = True
+                self.components['text'].text_colour = 'red'
 
 class FuelTankInfinite(FuelTank):
 
@@ -262,7 +263,7 @@ class Wing(CanvasWidget):
         ftw_large = ftw_small * 2
 
         fth = height / 3
-        margin = 0.05 #using padding here is a bit too tricky, maybe update TODO
+        margin = 0.08 #using padding here is a bit too tricky, maybe update TODO
 
 
         self.components['link'] = BoxComponent(canvas, x=fts, y=margin + fth/2 + fth/3, width=2 * fts, height=height-2*margin - fth - fth/3, outline_thickness=OUTLINE_WIDTH)
@@ -277,7 +278,12 @@ class Wing(CanvasWidget):
 
         self.components[small_tank_name] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, small_tank_name, highlight, **config[small_tank_name])
         self.components[med_tank_name] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, med_tank_name, highlight, **config[med_tank_name])
-        self.components[big_tank_name] = FuelTankMain(canvas, 2 * fts - ftw_large/2, margin, ftw_large, fth, big_tank_name, highlight, **config[big_tank_name])
+        
+        btx, bty = 2 * fts - ftw_large/2, margin
+        self.components[big_tank_name] = FuelTankMain(canvas, btx, bty, ftw_large, fth, big_tank_name, highlight, **config[big_tank_name])
+
+
+
 
         self.tanks = {small_tank_name:self.components[small_tank_name], med_tank_name:self.components[med_tank_name], big_tank_name:self.components[big_tank_name]}
 
@@ -345,8 +351,8 @@ class FuelWidget(CanvasWidget):
 
         w,h = self.wing_left.components['pump21'].size
 
-        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], "<", highlight=highlight)
-        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], ">", highlight=highlight)
+        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], ">", highlight=highlight)
+        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], "<", highlight=highlight)
 
         self.pumps[self.components['pumpAB'].name] = self.components['pumpAB']
         self.pumps[self.components['pumpBA'].name] = self.components['pumpBA']

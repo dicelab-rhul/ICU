@@ -437,10 +437,26 @@ class TextComponent(BaseComponent):
     
     def __init__(self, canvas, x, y, text, colour='black', bold=False):
         super(TextComponent, self).__init__(canvas, x=x, y=y)
-        self.component = canvas.create_text((x,y), text=text)
+        self.component = canvas.create_text((x,y), fill=colour, text=str(text))
         if bold:
             self.bold()
     
+    @property
+    def text_colour(self):
+        return self.canvas.itemcget(self.component, 'fill')
+
+    @text_colour.setter
+    def text_colour(self, value):
+        return self.canvas.itemconfigure(self.component, fill=value)
+
+    @property
+    def text(self):
+        return self.canvas.itemcget(self.component, 'text')
+    
+    @text.setter
+    def text(self, value):
+        self.canvas.itemconfigure(self.component, text=value)
+
     def resize(self, dw, dh):
         pass
 

@@ -75,7 +75,7 @@ class ExternalEventSource:
             timestamp (float, optional): floating point number expressed in seconds since the epoch, in UTC (see time.time()). Defaults to the current time (on event instantiation).
         """
         event = Event(src, dst, timestamp=timestamp, **data)
-        print("EXTERNAL-{0}: {1}".format(os.getpid(), event))
+        #print("EXTERNAL-{0}: {1}".format(os.getpid(), event))
         self.__buffer.put(event)
 
     def empty(self):
@@ -208,7 +208,7 @@ class GlobalEventCallback:
         def _trigger():
             for source in self.external_sources.values():
                 for event in _event_iterator(source):
-                    print(" -- EXTERNAL:", event)
+                    #print(" -- EXTERNAL:", event)
                     if event is not None and event.dst in self.sinks:
                         self.sinks[event.dst].sink(event)
             event_scheduler.after(sleep, _trigger)
