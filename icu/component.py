@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
+import math
 
 class Component(ABC): #TODO refactor this, probably it can be in BaseComponent
 
@@ -150,6 +151,7 @@ def bounding_box(*v): #find a simple bounding box (along x and y)
 
 def center(*v):
     x, y = v[::2], v[1::2]
+
     return sum(x) / len(x), sum(y) / len(y)
 
 def add(v, s):
@@ -364,10 +366,25 @@ class PolyComponent(BaseComponent):
         
         BaseComponent.__all_components__[self.component] = self
 
-        #print(self.position, self.size, self.coords)
-        #self.size = (self.width + 10, self.height + 10)
-        #print(self.position, self.size, self.coords)
+    def rotate(self, angle, center=(0,0)):
+        points = self.lcoords
+        angle = math.radians(angle)
+        cos_val = math.cos(angle)
+        sin_val = math.sin(angle)
+        cx, cy = center
+        new_points = []
+        for x_old, y_old in zip(points[::2], points[1::2]):
+            x_old -= cx
+            y_old -= cy
+            x_new = x_old * cos_val - y_old * sin_val
+            y_new = x_old * sin_val + y_old * cos_val
+            new_points.extend([self.x + x_new + cx, self.y + y_new + cy])
 
+        #TODO inherit all properties???
+        old_component = self.__component
+        self.__component = self.canvas.create_polygon(new_points, fill='red', width=0,
+                                state=self.canvas.itemcget(old_component, "state"))
+        self.canvas.delete(old_component)
 
     @property
     def coords(self):
@@ -375,8 +392,8 @@ class PolyComponent(BaseComponent):
 
     @property
     def lcoords(self): #local coordinates
-        coords = self.coords()
-        return sub(coords, center(coords))
+        coords = self.coords
+        return sub(coords, center(*coords))
     
     @property
     def center(self):
@@ -389,7 +406,7 @@ class PolyComponent(BaseComponent):
     def move(self, dx, dy):
         self.canvas.move(self.component, dx, dy)
         self.canvas.move(self.__debug, dx, dy)
-
+        
     def resize(self, dw, dh):
         sx, sy = self.width / (self.width - dw), self.height / (self.height - dh) 
         self.canvas.scale(self.component, *self.position, sx, sy)
@@ -404,10 +421,6 @@ class PolyComponent(BaseComponent):
     def is_hidden(self):
         return self.canvas.itemcget(self.component, "state") == 'hidden'
     
-    #def bind(self, event, callback):
-    #    self.canvas.tag_bind(self.component, event, callback)
-    #    self.canvas.tag_bind(self.__debug, event, callback)
-
     def front(self):
         self.canvas.tag_raise(self.component)
 

@@ -20,15 +20,16 @@ class Overlay(EventCallback, Component, PolyComponent):
 
         EventCallback.register(self, name)
         Component.register(self, name) 
-        
+
     def sink(self, event):
-        #print(event)
         if event.data.label == 'place':
             self.x = event.data.x
             self.y = event.data.y
         elif event.data.label == 'move':
             self.x += event.data.dx
             self.y += event.data.dy
+        elif event.data.label == 'rotate':
+            self.rotate(event.data.angle)
         elif event.data.label == 'saccade':
             self.x = event.data.x
             self.y = event.data.y
@@ -37,6 +38,7 @@ class Overlay(EventCallback, Component, PolyComponent):
             self.x = event.data.x
             self.y = event.data.y
             self.show()
+
 
 
 

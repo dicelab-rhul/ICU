@@ -181,10 +181,8 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
             def highlight_event_generator():
                 import random
                 while True:
-                    dst = random.choice(list(highlight.all_highlights().keys()))
-                    print("highlight")
-                    yield event.Event('highlight_generator', dst, label='highlight', value=random.choice([True,False]))
-            #event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([1000]))
+                    yield event.Event('highlight_generator', "Overlay:0", label='rotate', angle=5)
+            event.event_scheduler.schedule(highlight_event_generator(), sleep=cycle([100]))
 
             if config.overlay['arrow']:
                 #TODO the arrow should rotate

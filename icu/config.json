@@ -37,7 +37,7 @@
         "mouse" : true,
         "keyboard" : true,
         "joystick" : false,
-        "eye_tracker" : false
+        "eye_tracker" : true
     },
 
     "task" : {

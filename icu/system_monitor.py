@@ -80,7 +80,6 @@ class Scale(EventCallback, Component, CanvasWidget):
             self.slide(event.data.slide)
 
     def click_callback(self, *args):
-        #print("click_callback scale")
         self.slide(self.__size // 2 - self.__state)
 
 
