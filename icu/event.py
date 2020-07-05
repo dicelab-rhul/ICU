@@ -176,6 +176,7 @@ class GlobalEventCallback:
             self.logger.log(event)
 
     def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed
+        #print("EXTERNAL: ", event)
         for sink in self.external_sinks.values():
             sink._ExternalEventSink__buffer.put(copy.deepcopy(event))
 

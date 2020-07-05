@@ -14,15 +14,24 @@ class EventGenerator:
         return self
 
 class ScaleEventGenerator(EventGenerator):
+    """
+        Event generator for scales (moves scale up/down)
+    """
 
     def __init__(self, scale):
         self.__scale = scale
        
     def __next__(self):
         y = random.randint(0, 1) * 2 - 1 #slide+- 1
-        return Event(self.__class__.__name__, self.__scale, label=C.EVENT_LABEL_SLIDE, slide=y)
         
+        e = Event(self.__class__.__name__, self.__scale, label=C.EVENT_LABEL_SLIDE, slide=y)
+        return e
+
+
 class WarningLightEventGenerator(EventGenerator):
+    """
+        Event generator for warning lights, switches them on/off.
+    """
 
     def __init__(self, warning_light):
         self.__warning_light = warning_light

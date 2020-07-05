@@ -29,21 +29,6 @@ Y_SCALE = 1/8
 X_SCALE = 1/2
 PADDING = 20
 
-def ScaleEventGenerator():
-    scales = Scale.all_components()
-    while True:
-        r = random.randint(0, len(scales)-1) #choose a random slider
-        y = random.randint(0, 1) * 2 - 1 #+-1
-        yield Event('scale_event_generator', scales[r], label=EVENT_NAME_SLIDE, slide=y)
-
-def WarningLightEventGenerator():
-    import time
-    
-    warning_lights = WarningLight.all_components()
-    while True:
-        r = random.randint(0, len(warning_lights)-1)
-        yield Event('warning_light_event_generator', warning_lights[r], label=EVENT_NAME_SWITCH)
-
 class Scale(EventCallback, Component, CanvasWidget):
 
     __scale_components__ = [] #just names
@@ -97,7 +82,6 @@ class Scale(EventCallback, Component, CanvasWidget):
     def click_callback(self, *args):
         #print("click_callback scale")
         self.slide(self.__size // 2 - self.__state)
-        self.source('Global', label='click', value=self.__state) #notify global
 
 
 class WarningLight(EventCallback, Component, BoxComponent):

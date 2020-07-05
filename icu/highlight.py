@@ -33,9 +33,6 @@ class Highlight(EventCallback):
             if not state:
                 self.off()
 
-            if hasattr(component, 'click_callback'):
-                pass #self.__box.bind("<Button-1>", component.click_callback) #bind mouse events - otherwise they are blocked!
-
             Highlight.__all_highlights__[self.name] = self
 
     def sink(self, event):

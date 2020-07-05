@@ -61,7 +61,7 @@ class MainPanel(tk.Canvas, EventCallback):
         bound = BaseComponent.bound(MOUSE_BIND)
         for overlap in overlapping:
             if overlap in bound:
-                print("BOUND: ", bound[overlap])
+                #print("BOUND: ", bound[overlap])
                 clickable = bound[overlap]
                 self.source(clickable.name, label="click", x=event.x, y=event.y)
 
