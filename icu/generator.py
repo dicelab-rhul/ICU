@@ -1,5 +1,11 @@
 import random
-import time
+
+from sys import version_info
+
+if version_info.major + version_info.minor / 10 < 3.7:
+    from time import time
+else:
+    from time import time_ns as time
 
 from . import constants as C
 from .event import Event
@@ -66,7 +72,7 @@ class TargetEventGenerator2(EventGenerator):
     def __init__(self, target, speed=10, **kwargs):
         self.__target = target
         self.__speed = speed
-        self.__time = time.time()
+        self.__time = time()
 
     def unit_vector(self):
         v = (random.gauss(0, 1), random.gauss(0,1))
@@ -74,7 +80,7 @@ class TargetEventGenerator2(EventGenerator):
         return (v[0]/m,v[1]/m)
         
     def __next__(self):
-        ctime = time.time()
+        ctime = time()
         dt = ctime - self.__time
         self.__time = ctime
         s = self.__speed * dt

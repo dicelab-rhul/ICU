@@ -11,7 +11,15 @@ from collections import deque
 
 from threading import Thread
 import random
-import time
+
+from time import sleep
+
+from sys import version_info
+
+if version_info.major + version_info.minor / 10 < 3.7:
+    from time import time
+else:
+    from time import time_ns as time
 
 from .. import event
 
@@ -122,10 +130,10 @@ class EyeTrackerStub(EyeTrackerBase):
         """
         while not self.closed.is_set():
             self.__time += 1
-            time.sleep(1. / self.sample_rate)
+            sleep(1. / self.sample_rate)
             #self.source('Overlay:Overlay', label='move', dx=random.randint(0,10), dy=random.randint(0,10), timestamp=self.__time)
             #if self._p_mouse_x != self._n_mouse_x or self._p_mouse_y != self._n_mouse_y:
-            self.source(time.time(), self._n_mouse_x, self._n_mouse_y)
+            self.source(time(), self._n_mouse_x, self._n_mouse_y)
             
             self._p_mouse_x = self._n_mouse_x
             self._p_mouse_y = self._n_mouse_y
