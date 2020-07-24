@@ -1,6 +1,11 @@
-import time
 import copy
-import os
+
+from sys import version_info
+
+if version_info.major + version_info.minor / 10 < 3.7:
+    from time import time
+else:
+    from time import time_ns as time
 
 from types import SimpleNamespace
 from json import dumps
@@ -26,7 +31,7 @@ class Event:
         self.data = SimpleNamespace(**data)
         self.timestamp = timestamp
         if timestamp is None:
-            self.timestamp = time.time()
+            self.timestamp = time()
 
     def __str__(self):
         return "{0}:{1} - ({2}->{3}): {4}".format(self.name, self.timestamp, self.src, self.dst, self.data.__dict__)
