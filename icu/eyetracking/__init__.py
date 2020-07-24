@@ -133,7 +133,8 @@ class EyeTrackerStub(EyeTrackerBase):
             sleep(1. / self.sample_rate)
             #self.source('Overlay:Overlay', label='move', dx=random.randint(0,10), dy=random.randint(0,10), timestamp=self.__time)
             #if self._p_mouse_x != self._n_mouse_x or self._p_mouse_y != self._n_mouse_y:
-            self.source(time(), self._n_mouse_x, self._n_mouse_y)
+            #print(time(), self._n_mouse_x, self._n_mouse_y)
+            self.source(x=self._n_mouse_x, y=self._n_mouse_y, timestamp=time())
             
             self._p_mouse_x = self._n_mouse_x
             self._p_mouse_y = self._n_mouse_y
