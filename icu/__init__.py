@@ -220,7 +220,7 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
         eyetracker = None
         if config.input['eye_tracker']:
             filter = eyetracking.filter.TobiiFilter(10, 70) #some default thing...
-            eyetracker = eyetracking.eyetracker(root, filter=filter, sample_rate=100, stub=True)
+            eyetracker = eyetracking.eyetracker(root, filter=filter, sample_rate=100, calibrate=True)
             eyetracker.start()
 
         #pprint(event.get_event_sinks()) #TODO remove

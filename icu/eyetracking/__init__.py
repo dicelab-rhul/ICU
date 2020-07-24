@@ -12,6 +12,7 @@ from collections import deque
 from threading import Thread
 import random
 import time
+import traceback
 
 from .. import event
 
@@ -33,30 +34,29 @@ class EyeTrackingError(Exception):
 class EyeTrackerBase(event.EventCallback, threading.Thread):
 
     def __init__(self, filter=None, **kwargs):
+
         super(EyeTrackerBase, self).__init__(**kwargs)
+        if filter is None:
+            filter =lambda t,x,y:dict(timestamp=t,x=x,y=y,label="place")
+            
         self.__filter = filter
 
-    def source(self, t, x, y):
-        if self.__filter is not None:
-            e = self.__filter(t, x, y)
-            if e is not None:
-                d = dict(label='place', x=x, y=x, timestamp=t)
-                d.update(e)
-                #print(e)
-                super().source('Overlay:0', **d) #TODO change Overlay if we want to event to go elsewhere
-        else:
-            super().source('Overlay:0', label='place', x=x, y=x, timestamp=t)
+    def source(self, x, y, timestamp=None):
+        e = self.__filter(timestamp,x,y)
+        #transform to screen window coordinates
+        if e is not None:
+            super().source('Overlay:0', **e)
 
 class EyeTracker(EyeTrackerBase):
 
-    def __init__(self, filter=None, sample_rate = 300, calibrate_system=True):
+    def __init__(self, filter=None, sample_rate = 300, calibrate=True):
         super(EyeTracker, self).__init__(filter)
         self.daemon = True #??? TODO any issue with this closing down psychopy?
         #https://stackoverflow.com/questions/40391812/running-code-when-closing-a-python-daemon
         try:
             from psychopy.iohub import launchHubServer
         except Exception as e:
-            raise EyeTrackingError("required import failed.", cause=e)
+            raise EyeTrackingError("IMPORT FAILED.", cause=e)
 
         #self.io = connect_eyetracker(sample_rate = sample_rate)
     
@@ -66,19 +66,20 @@ class EyeTracker(EyeTrackerBase):
         self.tracker = self.io.devices.tracker
         self.sample_rate = sample_rate
         
-        if calibrate_system:
+        if calibrate:
             if not self.tracker.runSetupProcedure():
-                raise EyeTrackingError("failed to calibrate eyetracker.")
+                print("WARNING: EYETRACKER CALIBRATION FAILED")
         
         self.closed = threading.Event()
         name = "{0}:{1}".format(EyeTracker.__name__, str(0))
         self.register(name)
             
     def run(self):
+    
         self.tracker.setRecordingState(True) #what is this?
         while not self.closed.is_set():
             for e in self.tracker.getEvents(asType='dict'): #this might cause the thread to hang... TODO fix it!
-                pass #TODO #self.source('TODO', label='place', x=e['left_gaze_x'], y=e['left_gaze_y'], timestamp=e['time'])
+                self.source(x=e['left_gaze_x'], y=e['left_gaze_y'], timestamp=e['time'])
         self.io.quit()
     
     def close(self):
@@ -136,23 +137,24 @@ class EyeTrackerStub(EyeTrackerBase):
         """
         self.closed.set()
 
-def eyetracker(root, filter=None, sample_rate=300, calibrate_system=True, stub=False):
+def eyetracker(root, filter=None, sample_rate=300, calibrate=True, stub=False):
     """ Creates a new Eyetracker (there should only ever be one).
-    
     Args:
         root (tk): tk root window.
         filter: a filter for x,y - averaging, gaze points etc (see eyetracker.filter)
         sample_rate (int, optional): number of samples (events) per second. Defaults to 300.
-        calibrate_system (bool, optional): calibrate the eyetracker. Defaults to True.
+        calibrate (bool, optional): calibrate the eyetracker. Defaults to True.
         stub (bool, optional): use a stub class (see StubEyeTracker) if hardware is not available. Defaults to False.
     
     Returns:
-        EyeTracker, StubEyeTracker: The new EyeTracker.
-    """
+        (EyeTracker): The new EyeTracker.
+    """ 
     if not stub:
-        eyetracker = EyeTracker(filter=filter, sample_rate=sample_rate, calibrate_system=calibrate_system)
-    else:
-        eyetracker = EyeTrackerStub(root, filter=filter, sample_rate=sample_rate)
-    return eyetracker
-
+        try:
+            return EyeTracker(filter=filter, sample_rate=sample_rate, calibrate=calibrate)
+        except:
+            print("FAILED TO INITIALISE EYE TRACKER DUE TO:")
+            traceback.print_exc()
+            print(" ---- USING STUB EYETRACKER (MOUSE COORDINATE)")
+    return EyeTrackerStub(root, filter=filter, sample_rate=sample_rate)
 

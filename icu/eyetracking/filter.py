@@ -52,7 +52,6 @@ class IVTFilter:
             dy = self.data_y[0 % l] - self.data_y[1 % l]
             
             v = math.sqrt(dx **2 + dy ** 2) / abs(dt)
-            #print(dx, dy, v)
 
             if v > self.threshold:
                 return dict(label='saccade', x=x, y=y, timestamp=t)
