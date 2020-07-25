@@ -156,7 +156,7 @@ class Pump(EventCallback, Component, CanvasWidget):
         name = "{0}{1}".format(tank1.name.split(':')[1], tank2.name.split(':')[1])
         name = "{0}:{1}".format(Pump.__name__, name)
         
-        default_config = configuration.default_pump_config()
+        default_config = configuration.default_pumps() #TODO remove
         config = config.get(name, default_config)
 
         self.flow_rate = config.get('flow_rate', default_config['flow_rate'])

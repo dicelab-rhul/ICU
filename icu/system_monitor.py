@@ -108,6 +108,7 @@ class WarningLight(EventCallback, Component, BoxComponent):
     def update(self):
         self.__state = int(not bool(self.__state))
         self.colour = self.__state_colours[self.__state]
+        #print("updated warning light:", self.name, self.__state, self.colour)
 
     def sink(self, event):
         if event.data.label == EVENT_NAME_CLICK:
@@ -137,7 +138,7 @@ class SystemMonitorWidget(CanvasWidget):
         options = dict(on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR)
         options.update(config.get(name, {}))
         self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
-                            state=1, highlight=highlight, **options)
+                                                                             highlight=highlight, **options)
         self.warning_lights[name] = self.warning_light_widget.components['warning_right']
 
 
@@ -145,7 +146,7 @@ class SystemMonitorWidget(CanvasWidget):
         options = dict(on_colour=COLOUR_RED,  off_colour=BACKGROUND_COLOUR)
         options.update(config.get(name, {}))
         self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
-                           state=0, highlight=highlight, **options)
+                                                                            highlight=highlight, **options)
         self.warning_lights[name] = self.warning_light_widget.components['warning_left']
 
         self.layout_manager.fill('warning_light_widget', 'X')

@@ -52,9 +52,6 @@ def default_event_schedule():
             "WarningLight:1" :  default_warning_light_schedule(),
             "Target:0" :      default_target_schedule()}
 
-def default_pump_config():
-    return dict(flow_rate = 10, event_rate = 10)
-
 def default_event_generator():
     return {"ScaleComponent" : "ScaleEventGenerator"}
 
@@ -70,11 +67,41 @@ def default_pump_schedule():
 def default_target_schedule():
     return cycle([300])
 
+# TODO config should contain everything --- create a default for all widgets!
+def default_scales():
+    return {"Scale:0" : default_scale(),
+            "Scale:1" : default_scale(),
+            "Scale:2" : default_scale(),
+            "Scale:3" : default_scale()}
+
+def default_scale():
+    return {'size':11, 'position':5}
+
+def default_warning_lights():
+    return {'WarningLight:0' : {'state':1}, 'WarningLight:1' : {'state':0}}
+
+def  default_tanks():
+    return {
+        "FuelTank:A" : {"capacity":2000, "fuel":1000, "accept_position":0.5, "accept_proportion":0.2},
+        "FuelTank:B" : {"capacity":2000, "fuel":1000, "accept_position":0.5, "accept_proportion":0.2},
+        "FuelTank:C" : {"capacity":1000, "fuel":100},
+        "FuelTank:D" : {"capacity":1000, "fuel":100},
+        "FuelTank:E" : {"capacity":1000, "fuel":1000},
+        "FuelTank:F" : {"capacity":1000, "fuel":1000}}
+
+def default_pumps():
+    return dict(flow_rate = 20, event_rate = 10)
+
+def default_tracking():
+    return {} #TODO
+
+
 def default_overlay():
     return dict(enable=True, transparent=True, outline=True, arrow=True)
 
 def default_config():
-    return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay())
+    return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay(),
+                **default_scales(), **default_warning_lights(), **default_tanks(), **default_pumps(), **default_tracking())
 
 ScreenOptions = SimpleNamespace(**{k:k for k in default_config_screen().keys()})
 # TODO other options
@@ -272,6 +299,17 @@ options = dict(
             highlight_colour    = Option('overlay', is_type(str))
     )
 
+
+import collections.abc
+
+def update(d, u): #recursive dictionary update
+    for k, v in u.items():
+        if isinstance(v, collections.abc.Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
 class Validator:
 
     def validate_iter(k, v):
@@ -324,13 +362,18 @@ class Validator:
         # ====== POST PROCESSING ====== # 
         #TOOD move this somewhere more suitable
         result = default_config()
-        result.update(config)
+        result = update(result, config)
+        from pprint import pprint
+        pprint(result)
 
         result['screen_size'] = (result.get('screen_width', result['screen_size'][0]), result.get('screen_height', result['screen_size'][1]))
         result['screen_position'] = (result.get('screen_x', result['screen_position'][0]), result.get('screen_y', result['screen_position'][1]))
         result['screen_width'], result['screen_height'] = result['screen_size']
         result['screen_x'], result['screen_y'] = result['screen_position']
         return result
+
+
+
 
 validate = Validator()
 

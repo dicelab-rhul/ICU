@@ -1,23 +1,23 @@
 {
     "schedule":{
-        "Scale:0" : "normal(0,1000)",
-        "Scale:1" : 1500,
-        "Scale:2":  2000,
-        "Scale:3":  2500,
+        "Scale:0" : [[1000]],
+        "Scale:1" : [[1000]],
+        "Scale:2":  [[1000]],
+        "Scale:3":  [[1000]],
         "Target:0": [[1000]]
     },
 
-    "Scale:0" : {"size":11, "position":0},
-    "Scale:1" : {"size":11, "position":-1},
-    "Scale:2" : {"size":11, "position":20},
-    "Scale:3" : {"size":11},
+    "Scale:0" : {},
+    "Scale:1" : {"size":11, "position":5},
+    "Scale:2" : {"size":11, "position":5},
+    "Scale:3" : {"size":11, "position":5},
 
     "Target:0" : { "step" : 10 , "invert" : true},
 
     "Pump:0" : { "flow_rate": 10, "event_rate": 1},
     "Pump:1" : { "flow_rate": 10, "event_rate": 1}, 
 
-    "FuelTank:A" : {"capacity":100, "fuel":100, "accept_position":0.5, "accept_proportion":0.1},
+    "FuelTank:A" : {},
     "FuelTank:B" : {},
     "FuelTank:C" : {},
     "FuelTank:D" : {},

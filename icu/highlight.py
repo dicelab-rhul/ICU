@@ -40,6 +40,8 @@ class Highlight(EventCallback):
             (self.off, self.on)[int(event.data.value)]() #love it
         else:
             self.flip()
+        #print("SINK: ", event)
+        self.source('Global', label='highlight', value=self.is_on) # emit a global event (for external systems)
     
     def to_dict(self):
         return dict(state=self.is_on(), highlight_thickness=self.highlight_thickness, highlight_colour=self.highlight_colour)

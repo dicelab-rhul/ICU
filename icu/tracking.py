@@ -3,7 +3,7 @@ import random
 
 from .constants import TRACKING_LINE_COLOUR, TRACKING_TARGET_SPEED, BACKGROUND_COLOUR
 from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
-from .constants import EVENT_LABEL_MOVE
+from .constants import EVENT_LABEL_MOVE, EVENT_LABEL_KEY
 
 
 from .event import Event, EventCallback
@@ -15,22 +15,19 @@ from .highlight import Highlight
 
 def KeyEventGenerator(keyhandler):
     trackingwidget = Tracking.all_components()[0]
-    dx = 0
-    dy = 0
     while True:
+        key = []
         if keyhandler.isPressed('Left'):
-            dx -= 1
+           key.append('Left')
         if keyhandler.isPressed('Right'):
-            dx += 1
+            key.append('Right')
         if keyhandler.isPressed('Up'):
-            dy -= 1
+            key.append('Up')
         if keyhandler.isPressed('Down'):
-            dy += 1
+            key.append('Down')
         
-        if dx != 0 or dy != 0:
-            yield Event('key_event_generator', trackingwidget, label=EVENT_LABEL_MOVE, dx=dx, dy=dy)
-            dx = 0
-            dy = 0
+        if len(key) > 0:
+            yield Event('key_event_generator', trackingwidget, label=EVENT_LABEL_KEY, key=key)
         else:
             yield None
     
@@ -70,6 +67,8 @@ class Tracking(EventCallback, Component, CanvasWidget):
 
         target = Target(canvas, ts, ts/10)
         target.position = (size/2 - ts, size/2 - ts)
+
+        self.key_events = {'Left':(-1,0), 'Right':(1,0), 'Up':(0,-1), 'Down':(0,1)}
 
         add(target=target)
         #four corners
@@ -127,18 +126,35 @@ class Tracking(EventCallback, Component, CanvasWidget):
         self.step = config[name].get('step', 1)
 
     def sink(self, event):
-        dx = event.data.dx * self.invert[0]
-        dy = event.data.dy * self.invert[1]
         x, y = self.components['target'].position
         w, h = self.components['target'].size
         rx, ry = self.position
         rw, rh = self.components['background'].size #TODO fix the aspect ratio code - e.g. use content_size?
+
+        sx, sy = rw / 200, rh / 200 #the default speed (relative to he size of the widget)
+
+        if event.data.label == EVENT_LABEL_KEY:
+            dx, dy = 0, 0
+            for key in event.data.key:
+                dx += self.key_events[key][0]
+                dy += self.key_events[key][1]
+            dx, dy = sx * dx * self.invert[0], sy * dy * self.invert[1]
+
+        else:
+            #TODO speed here?
+            dx = event.data.dx * self.invert[0]
+            dy = event.data.dy * self.invert[1]
+
+        
         nx, ny = x + dx, y + dy
         #clip bounds
         nx = max(rx, min(rx + rw - w, nx))
         ny = max(ry, min(ry + rh - h, ny))
 
         self.components['target'].position = (nx, ny)
+
+        cx, cy = nx - rx - rw/2 + w/2, ny - ry - rh/2 + h/2 #centered (relative) position of the target
+        self.source('Global', label=EVENT_LABEL_MOVE, dx=dx, dy=dy, x=cx, y=cy)
 
 
     # keep aspect ratio TODO move all this to a layout manager or special widget

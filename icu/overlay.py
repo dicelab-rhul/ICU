@@ -22,7 +22,7 @@ class Overlay(EventCallback, Component, PolyComponent):
         Component.register(self, name) 
 
     def sink(self, event):
-        print(event)
+        #print(event)
         if event.data.label == 'place':
             self.x = event.data.x
             self.y = event.data.y

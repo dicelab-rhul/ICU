@@ -213,8 +213,6 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
         #event.event_scheduler.schedule(tracking.TrackingEventGenerator(), sleep=config.schedule_tracking)
 
-       
-
         # ================= EYE TRACKING ================= 
 
         eyetracker = None

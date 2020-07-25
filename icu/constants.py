@@ -19,6 +19,7 @@ EVENT_LABEL_REPAIR = 'repair'
 EVENT_LABEL_FAIL = 'fail'
 EVENT_LABEL_TRANSFER = 'transfer'
 EVENT_LABEL_BURN = 'burn'
+EVENT_LABEL_KEY = 'key'
 
 # GENERAL
 
