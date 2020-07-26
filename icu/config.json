@@ -14,10 +14,8 @@
 
     "Target:0" : { "step" : 10 , "invert" : true},
 
-    "Pump:0" : { "flow_rate": 10, "event_rate": 1},
-    "Pump:1" : { "flow_rate": 10, "event_rate": 1}, 
 
-    "FuelTank:A" : {},
+    "FuelTank:A" : {"fuel":10},
     "FuelTank:B" : {},
     "FuelTank:C" : {},
     "FuelTank:D" : {},

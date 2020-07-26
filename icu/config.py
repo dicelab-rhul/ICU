@@ -82,15 +82,23 @@ def default_warning_lights():
 
 def  default_tanks():
     return {
-        "FuelTank:A" : {"capacity":2000, "fuel":1000, "accept_position":0.5, "accept_proportion":0.2},
-        "FuelTank:B" : {"capacity":2000, "fuel":1000, "accept_position":0.5, "accept_proportion":0.2},
+        "FuelTank:A" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
+        "FuelTank:B" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
         "FuelTank:C" : {"capacity":1000, "fuel":100},
         "FuelTank:D" : {"capacity":1000, "fuel":100},
         "FuelTank:E" : {"capacity":1000, "fuel":1000},
         "FuelTank:F" : {"capacity":1000, "fuel":1000}}
 
 def default_pumps():
-    return dict(flow_rate = 20, event_rate = 10)
+    return {"Pump:AB" : { "flow_rate": 10, "event_rate": 10, "state": 1},
+            "Pump:BA" : { "flow_rate": 10, "event_rate": 10, "state": 1}, 
+            "Pump:FD" : { "flow_rate": 10, "event_rate": 10, "state": 1},
+            "Pump:EA" : { "flow_rate": 10, "event_rate": 10, "state": 1},
+            "Pump:CA" : { "flow_rate": 10, "event_rate": 10, "state": 1},
+            "Pump:EC" : { "flow_rate": 10, "event_rate": 10, "state": 1},
+            "Pump:DB" : { "flow_rate": 10, "event_rate": 10, "state": 1},
+            "Pump:FB" : { "flow_rate": 10, "event_rate": 10, "state": 1}}
+    
 
 def default_tracking():
     return {} #TODO

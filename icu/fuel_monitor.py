@@ -56,7 +56,7 @@ class FuelTank(EventCallback, Component, CanvasWidget):
     @fuel.setter
     def fuel(self, value):
         self.__fuel = value
-        self.components['text'].text = value
+        self.components['text'].text = "{:.2f}".format(self.__fuel)
 
     def sink(self, event):
         pass #updates are handled by pump events
@@ -150,23 +150,26 @@ class Pump(EventCallback, Component, CanvasWidget):
     FAIL_COLOUR = COLOUR_RED
     COLOURS = [ON_COLOUR, OFF_COLOUR, FAIL_COLOUR]
 
-    def __init__(self, canvas, config, x, y, width, height, tank1, tank2, direction, state=1, highlight={}):
-        super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[state], outline_thickness=OUTLINE_WIDTH)
-
+    def __init__(self, canvas, config, x, y, width, height, tank1, tank2, direction, options, highlight={}):
+        #TODO refactor (options will be passed differently at some point)
         name = "{0}{1}".format(tank1.name.split(':')[1], tank2.name.split(':')[1])
         name = "{0}:{1}".format(Pump.__name__, name)
+        self.__state = options[name]['state']
+        super(Pump, self).__init__(canvas, x=x, y=y, width=width, height=height, background_colour=Pump.COLOURS[self.__state], outline_thickness=OUTLINE_WIDTH)
+
+      
         
         default_config = configuration.default_pumps() #TODO remove
         config = config.get(name, default_config)
 
-        self.flow_rate = config.get('flow_rate', default_config['flow_rate'])
-        self.event_rate = config.get('event_rate', default_config['event_rate'])
+        self.flow_rate = options[name]['flow_rate']
+        self.event_rate = options[name]['event_rate']
 
         EventCallback.register(self, name)
         Component.register(self, name)
 
         #parent.pumps[self.name] = self
-        self.__state = state
+        
         self.tank1 = tank1
         self.tank2 = tank2
 
@@ -269,12 +272,12 @@ class Wing(CanvasWidget):
         self.components['link'] = BoxComponent(canvas, x=fts, y=margin + fth/2 + fth/3, width=2 * fts, height=height-2*margin - fth - fth/3, outline_thickness=OUTLINE_WIDTH)
 
         #TODO refactor?
-        config[small_tank_name]['capacity']  = config[small_tank_name].get('capacity', 1000)
-        config[med_tank_name]['capacity']    = config[med_tank_name].get('capacity', 2000)
-        config[big_tank_name]['capacity']    = config[big_tank_name].get('capacity', 3000)
-        config[small_tank_name]['fuel']  = config[small_tank_name].get('fuel', 100)
-        config[med_tank_name]['fuel']    = config[med_tank_name].get('fuel', 1000)
-        config[big_tank_name]['fuel']    = config[big_tank_name].get('fuel', 1000)
+        #config[small_tank_name]['capacity']  = config[small_tank_name].get('capacity', 1000)
+        #config[med_tank_name]['capacity']    = config[med_tank_name].get('capacity', 2000)
+        #config[big_tank_name]['capacity']    = config[big_tank_name].get('capacity', 3000)
+        #config[small_tank_name]['fuel']  = config[small_tank_name].get('fuel', 100)
+        #config[med_tank_name]['fuel']    = config[med_tank_name].get('fuel', 1000)
+        #config[big_tank_name]['fuel']    = config[big_tank_name].get('fuel', 1000)
 
         self.components[small_tank_name] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, small_tank_name, highlight, **config[small_tank_name])
         self.components[med_tank_name] = FuelTankInfinite(canvas, 3 * fts - ftw_med/2, height - margin - fth, ftw_med, fth, med_tank_name, highlight, **config[med_tank_name])
@@ -296,9 +299,10 @@ class Wing(CanvasWidget):
         pw = width / 16
         ph = height / 20
 
-        self.components['pump21'] = Pump(canvas, config, ecx - pw/2, ecy - ph/2, pw, ph, self.components[med_tank_name], self.components[small_tank_name], "<", highlight=highlight)
-        self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components[small_tank_name], self.components[big_tank_name], "^", highlight=highlight)
-        self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components[med_tank_name], self.components[big_tank_name], "^", highlight=highlight)
+        #TODO refact config argument (just pass what is needed)
+        self.components['pump21'] = Pump(canvas, config, ecx - pw/2, ecy - ph/2, pw, ph, self.components[med_tank_name], self.components[small_tank_name], "<", config, highlight=highlight)
+        self.components['pump13'] = Pump(canvas, config, fts - pw/2, height/2 - ph/2, pw, ph, self.components[small_tank_name], self.components[big_tank_name], "^", config, highlight=highlight)
+        self.components['pump23'] = Pump(canvas, config, 3 * fts - pw/2, height /2 - ph/2, pw, ph, self.components[med_tank_name], self.components[big_tank_name], "^", config, highlight=highlight)
        
         self.pumps = {p.name:p for k,p in self.components.items() if 'pump' in k}
 
@@ -351,8 +355,10 @@ class FuelWidget(CanvasWidget):
 
         w,h = self.wing_left.components['pump21'].size
 
-        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], ">", highlight=highlight)
-        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], "<", highlight=highlight)
+
+        #TODO refactor config (pass only what is needed)
+        self.components['pumpAB'] = Pump(canvas, config, (ax+bx)/2, ay-ah/6 - h/2, w, h, self.tanks[tank_a_name], self.tanks[tank_b_name], ">", config, highlight=highlight)
+        self.components['pumpBA'] = Pump(canvas, config, (ax+bx)/2, ay+ah/6 - h/2, w, h, self.tanks[tank_b_name], self.tanks[tank_a_name], "<", config, highlight=highlight)
 
         self.pumps[self.components['pumpAB'].name] = self.components['pumpAB']
         self.pumps[self.components['pumpBA'].name] = self.components['pumpBA']
