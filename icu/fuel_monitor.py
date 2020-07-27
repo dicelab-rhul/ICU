@@ -231,9 +231,9 @@ class Pump(EventCallback, Component, CanvasWidget):
         if value == 0:
             self.start()
 
-    def highlight(self, state):
-        self.highlight_state = state
-        self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
+    #def highlight(self, state): #TODO REMOVE
+    #    self.highlight_state = state
+    #    self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
 
     def click_callback(self):
         if self.state != 2: #the pump has failed
