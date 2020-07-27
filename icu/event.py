@@ -2,14 +2,10 @@ import copy
 
 from sys import version_info
 
-if version_info.major + version_info.minor / 10 < 3.7:
-    from time import time
-else:
-    from time import time_ns as time
-
 from types import SimpleNamespace
 from json import dumps
 from multiprocessing import Queue
+from time import time
 
 global finish
 finish = False

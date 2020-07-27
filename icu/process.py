@@ -2,12 +2,7 @@ import multiprocessing
 #multiprocessing.set_start_method('spawn')
 from multiprocessing import Process, Queue, JoinableQueue, Event
 
-from sys import version_info
-
-if version_info.major + version_info.minor / 10 < 3.7:
-    from time import time
-else:
-    from time import time_ns as time
+from time import time
 
 import os
 

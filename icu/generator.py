@@ -2,10 +2,7 @@ import random
 
 from sys import version_info
 
-if version_info.major + version_info.minor / 10 < 3.7:
-    from time import time
-else:
-    from time import time_ns as time
+from time import time
 
 from . import constants as C
 from .event import Event
