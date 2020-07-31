@@ -90,14 +90,14 @@ def  default_tanks():
         "FuelTank:F" : {"capacity":1000, "fuel":1000}}
 
 def default_pumps():
-    return {"Pump:AB" : { "flow_rate": 10, "event_rate": 10, "state": 1},
-            "Pump:BA" : { "flow_rate": 10, "event_rate": 10, "state": 1}, 
-            "Pump:FD" : { "flow_rate": 10, "event_rate": 10, "state": 1},
-            "Pump:EA" : { "flow_rate": 10, "event_rate": 10, "state": 1},
-            "Pump:CA" : { "flow_rate": 10, "event_rate": 10, "state": 1},
-            "Pump:EC" : { "flow_rate": 10, "event_rate": 10, "state": 1},
-            "Pump:DB" : { "flow_rate": 10, "event_rate": 10, "state": 1},
-            "Pump:FB" : { "flow_rate": 10, "event_rate": 10, "state": 1}}
+    return {"Pump:AB" : { "flow_rate": 100, "event_rate": 10, "state": 1},
+            "Pump:BA" : { "flow_rate": 100, "event_rate": 10, "state": 1}, 
+            "Pump:FD" : { "flow_rate": 100, "event_rate": 10, "state": 1},
+            "Pump:EA" : { "flow_rate": 100, "event_rate": 10, "state": 1},
+            "Pump:CA" : { "flow_rate": 100, "event_rate": 10, "state": 1},
+            "Pump:EC" : { "flow_rate": 100, "event_rate": 10, "state": 1},
+            "Pump:DB" : { "flow_rate": 100, "event_rate": 10, "state": 1},
+            "Pump:FB" : { "flow_rate": 100, "event_rate": 10, "state": 1}}
     
 
 def default_tracking():

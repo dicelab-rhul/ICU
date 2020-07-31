@@ -59,7 +59,7 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         self.components['text'].text = "{:.2f}".format(self.__fuel)
 
     def sink(self, event):
-        pass #updates are handled by pump events
+        raise NotImplemented("Tank events are handled by pumps?")
 
     def update(self, dfuel):
         self.fuel = min(max(self.fuel + dfuel, 0), self.capacity)
@@ -101,6 +101,7 @@ class FuelTankMain(FuelTank):
     def __burn(self):
         while True:
             dfuel = self.burn_rate / self.event_rate
+            dfuel = min(dfuel, self.fuel)
             if self.fuel > 0:
                 self.update(-dfuel)
                 yield event.Event(self.name, 'Global', label=EVENT_LABEL_BURN, value=-dfuel)
@@ -209,9 +210,12 @@ class Pump(EventCallback, Component, CanvasWidget):
             return None #no event...
 
         flow = self.flow_rate / self.event_rate
+        flow = min(flow, self.tank1.fuel) #if one tank is nearly empty, only transfer the fuel that is left
+        flow = min(flow, self.tank2.capacity - self.tank2.fuel) #if the other tank is nearly full, only transfer fuel that fills it
+
         self.tank1.update(-flow)
         self.tank2.update(flow)
-        return Event(self.name, 'Global', label=EVENT_LABEL_TRANSFER, value=flow) #has no effect
+        return Event(self.name, 'Global', label=EVENT_LABEL_TRANSFER, value=flow) #notify global of the tank update
 
     def to_dict(self):
         return dict(state=self.state, highlight=self.highlight.to_dict())
