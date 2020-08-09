@@ -6,6 +6,7 @@
 """
 
 import threading
+import traceback
 
 from collections import deque
 
@@ -49,7 +50,7 @@ class EyeTrackerBase(event.EventCallback, threading.Thread):
 
 class EyeTracker(EyeTrackerBase):
 
-    def __init__(self, filter=None, sample_rate = 300, calibrate=True):
+    def __init__(self, root, filter=None, sample_rate = 300, calibrate=True):
         super(EyeTracker, self).__init__(filter)
         self.daemon = True #??? TODO any issue with this closing down psychopy?
         #https://stackoverflow.com/questions/40391812/running-code-when-closing-a-python-daemon
@@ -65,7 +66,13 @@ class EyeTracker(EyeTrackerBase):
         self.io = launchHubServer(**iohub_config)    
         self.tracker = self.io.devices.tracker
         self.sample_rate = sample_rate
-        
+        self.tk_root = root
+        self.tk_root.bind("<Configure>", self.tk_update)
+
+        # transform eye tracking coordinates to tk window coordinates
+        self.tk_position = (self.tk_root.winfo_x(), self.tk_root.winfo_y())
+        self.tk_screen_size2 = (root.winfo_screenwidth()/2, root.winfo_screenheight()/2) #psychopy coordinate system is 0,0 screen center
+
         if calibrate:
             if not self.tracker.runSetupProcedure():
                 print("WARNING: EYETRACKER CALIBRATION FAILED")
@@ -73,13 +80,19 @@ class EyeTracker(EyeTrackerBase):
         self.closed = threading.Event()
         name = "{0}:{1}".format(EyeTracker.__name__, str(0))
         self.register(name)
+    
+    def tk_update(self, event):
+        self.tk_position = (self.tk_root.winfo_x(), self.tk_root.winfo_y()) #(event.x, event.y) using the event information has some issues?
+
+    def transform(self, x, y):
+        return x - self.tk_position[0] + self.tk_screen_size2[0], -y - self.tk_position[1] + self.tk_screen_size2[1]
             
     def run(self):
-    
         self.tracker.setRecordingState(True) #what is this?
         while not self.closed.is_set():
             for e in self.tracker.getEvents(asType='dict'): #this might cause the thread to hang... TODO fix it!
-                self.source(x=e['left_gaze_x'], y=e['left_gaze_y'], timestamp=e['time'])
+                x,y = self.transform(e['left_gaze_x'], e['left_gaze_y']) # convert to tk coordinats
+                self.source(x=x,y=y, timestamp=e['time'])
         self.io.quit()
     
     def close(self):
@@ -138,6 +151,7 @@ class EyeTrackerStub(EyeTrackerBase):
         """
         self.closed.set()
 
+
 def eyetracker(root, filter=None, sample_rate=300, calibrate=True, stub=False):
     """ Creates a new Eyetracker (there should only ever be one).
     Args:
@@ -152,7 +166,7 @@ def eyetracker(root, filter=None, sample_rate=300, calibrate=True, stub=False):
     """ 
     if not stub:
         try:
-            return EyeTracker(filter=filter, sample_rate=sample_rate, calibrate=calibrate)
+            return EyeTracker(root, filter=filter, sample_rate=sample_rate, calibrate=calibrate)
         except:
             print("FAILED TO INITIALISE EYE TRACKER DUE TO:")
             traceback.print_exc()
