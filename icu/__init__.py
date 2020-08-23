@@ -186,7 +186,8 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
             if config.overlay['arrow']:
                 #TODO the arrow should rotate
-                arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
+                arrow = main.create_oval(-20,-20,20,20, fill="red", width=0)
+                #arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
                 main.overlay(arrow)
 
         main.pack()
@@ -217,12 +218,9 @@ def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0
 
         eyetracker = None
         if config.input['eye_tracker']:
-            filter = eyetracking.filter.TobiiFilter(10, 70) #some default thing...
+            filter = eyetracking.filter.TobiiFilter(5, 200) #some default thing...
             eyetracker = eyetracking.eyetracker(root, filter=filter, sample_rate=100, calibrate=False)
             eyetracker.start()
-
-        #pprint(event.get_event_sinks()) #TODO remove
-  
 
         atexit.register(exit_handler) 
 

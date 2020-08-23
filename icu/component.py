@@ -361,7 +361,7 @@ class PolyComponent(BaseComponent):
             component = canvas.create_rectangle(0,0,0,0)
         self.__component = component
         (x1,y1), (x2,y2) = bounding_box(*canvas.coords(component))
-        self.__debug = canvas.create_rectangle(x1, y1, x2, y2, outline="pink")
+        #self.__debug = canvas.create_rectangle(x1, y1, x2, y2, outline="pink")
         super(PolyComponent, self).__init__(canvas, x=x1, y=y1, width=x2-x1, height=y2-y1, padding=padding)
         
         BaseComponent.__all_components__[self.component] = self
@@ -405,12 +405,12 @@ class PolyComponent(BaseComponent):
 
     def move(self, dx, dy):
         self.canvas.move(self.component, dx, dy)
-        self.canvas.move(self.__debug, dx, dy)
+        #self.canvas.move(self.__debug, dx, dy)
         
     def resize(self, dw, dh):
         sx, sy = self.width / (self.width - dw), self.height / (self.height - dh) 
         self.canvas.scale(self.component, *self.position, sx, sy)
-        self.canvas.scale(self.__debug, *self.position, sx, sy)
+        #self.canvas.scale(self.__debug, *self.position, sx, sy)
 
     def show(self):
         self.canvas.itemconfigure(self.component, state='normal')

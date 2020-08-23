@@ -7,6 +7,7 @@
 
 import threading
 import traceback
+import math
 
 from collections import deque
 
@@ -67,7 +68,7 @@ class EyeTracker(EyeTrackerBase):
         self.tracker = self.io.devices.tracker
         self.sample_rate = sample_rate
         self.tk_root = root
-        self.tk_root.bind("<Configure>", self.tk_update)
+        #self.tk_root.bind("<Configure>", self.tk_update) #TODO some thought here, cannot bind multiple <Configure>..?
 
         # transform eye tracking coordinates to tk window coordinates
         self.tk_position = (self.tk_root.winfo_x(), self.tk_root.winfo_y())
@@ -85,14 +86,18 @@ class EyeTracker(EyeTrackerBase):
         self.tk_position = (self.tk_root.winfo_x(), self.tk_root.winfo_y()) #(event.x, event.y) using the event information has some issues?
 
     def transform(self, x, y):
-        return x - self.tk_position[0] + self.tk_screen_size2[0], -y - self.tk_position[1] + self.tk_screen_size2[1]
+        return x - self.tk_root.winfo_x() + self.tk_screen_size2[0], -y - self.tk_root.winfo_y() + self.tk_screen_size2[1] #TODO update when <Configure> is avaliable...
+        
+        #return x - self.tk_position[0] + self.tk_screen_size2[0], -y - self.tk_position[1] + self.tk_screen_size2[1]
             
     def run(self):
         self.tracker.setRecordingState(True) #what is this?
         while not self.closed.is_set():
             for e in self.tracker.getEvents(asType='dict'): #this might cause the thread to hang... TODO fix it!
-                x,y = self.transform(e['left_gaze_x'], e['left_gaze_y']) # convert to tk coordinats
-                self.source(x=x,y=y, timestamp=e['time'])
+                x,y = e['left_gaze_x'], e['left_gaze_y']
+                if not (math.isnan(x) or math.isnan(y)):
+                    x,y = self.transform(x,y) # convert to tk coordinates
+                    self.source(x=x,y=y, timestamp=e['time'])
         self.io.quit()
     
     def close(self):

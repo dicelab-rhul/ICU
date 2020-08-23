@@ -48,8 +48,8 @@ EventCallback.source = track #monkey patch for testing
 
 #repeat(100, lambda : update(px + 1, py + 1))
 calibrate = False
-filter_n = 5
-filter_threshold = 70
+filter_n = 10
+filter_threshold = 100
 
 et = eyetracker(root, filter=filter.TobiiFilter(filter_n, filter_threshold), calibrate=calibrate)
 et.start()
