@@ -72,21 +72,21 @@ def start(sinks=[], sources=[]):
 
     return p, receive
 
-global config
-config = None
+#global config
+#config = None
 
-def run(shared=None, sinks=[], sources=[], config_file=os.path.split(__file__)[0]):
+def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__file__)[0], 'config.json')):
     """ Starts the ICU system. Call blocks until the GUI is closed.
 
     Args:
         shared: shared memory - one end of a pipe that can receive data, used to expose various useful attributes in ICU.
         sinks (list, optional): A list of external sinks, used to receive events from the ICU system. Defaults to [].
         sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
+        config (str): Path of configuration file.
     """
-    print("USING CONFIG FILE: {0}".format(config_file))
-
-    global config # this is used in other places and should be accessible
-    config = SimpleNamespace(**configuration.load(config_file)) #load local config file
+    
+    #global config # this is used in other places and needs to be accessible TODO fix it...
+    config = SimpleNamespace(**configuration.load(config)) #load config file
     
     pprint(config.__dict__)
 

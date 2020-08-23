@@ -408,10 +408,12 @@ def load(path):
     Returns:
         dict: a dictionary containing loaded config
     """
+    path = os.path.abspath(path)
     if not path.endswith('config.json'):
         path = os.path.join(path, 'config.json')
     if not os.path.exists(path):
         raise FileNotFoundError("Could not find config file at location: {0}".format(path))
+    print("USING CONFIG FILE: {0}".format(path))
     with open(path, 'r') as f: 
         data = json.load(f)
         result = validate(**data)

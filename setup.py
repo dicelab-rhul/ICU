@@ -9,7 +9,7 @@ Created on Sun Jun  2 21:22:31 2019
 import setuptools
 
 setuptools.setup(name='icu',
-      version='0.0.1',
+      version='0.0.1a',
       description='',
       url='https://github.com/dicelab-rhul/ICU',
       author='Benedict Wilkins',
