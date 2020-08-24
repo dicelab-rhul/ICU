@@ -1,4 +1,4 @@
-## Integrated Cognative User assistance (ICU)
+## Integrated Cognitive User assistance (ICU)
 
 An implementation of [MATBII](https://matb.larc.nasa.gov/) in Python 3.7+ with additional user assistance features.
 
