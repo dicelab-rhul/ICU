@@ -71,16 +71,16 @@ def default_target_schedule():
 
 # TODO config should contain everything --- create a default for all widgets!
 def default_scales():
-    return {"Scale:0" : default_scale(),
-            "Scale:1" : default_scale(),
-            "Scale:2" : default_scale(),
-            "Scale:3" : default_scale()}
+    return {"Scale:0" : default_scale("<F1>"),
+            "Scale:1" : default_scale("<F2>"),
+            "Scale:2" : default_scale("<F3>"),
+            "Scale:3" : default_scale("<F4>")}
 
-def default_scale():
-    return {'size':11, 'position':5}
+def default_scale(key):
+    return {'size':11, 'position':5, 'key':key}
 
 def default_warning_lights():
-    return {'WarningLight:0' : {'state':1}, 'WarningLight:1' : {'state':0}}
+    return {'WarningLight:0' : {'state':1, 'key':"<F5>"}, 'WarningLight:1' : {'state':0, 'key':"<F6>"}}
 
 def  default_tanks():
     return {
@@ -246,6 +246,8 @@ target_options = dict(
 )
 
 warninglight_options = dict(
+    key                 = Option('warning_light', is_type(str)),
+    state               = Option('warning_light', is_type(int)),
     on_colour           = Option('warning_light', is_type(str)),
     off_colour          = Option('warning_light', is_type(str)),
     outline_colour      = Option('warning_light', is_type(str)),
@@ -253,6 +255,7 @@ warninglight_options = dict(
 )
 
 scale_options = dict(
+    key                 = Option('warning_light', is_type(str)),
     size                = Option('scale', is_type(int)),
     position            = Option('scale', is_type(int)),
     background_colour   = Option('scale', is_type(str)),

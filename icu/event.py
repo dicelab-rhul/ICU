@@ -306,18 +306,21 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             self.after(sleep, GLOBAL_EVENT_CALLBACK.trigger, next(generator))
             return
 
-        #repeated event - sleep is a generator (or iterable)
-        self.after(next(sleep), self.__trigger_repeat, generator, sleep)
+        try:
+            #repeated event - sleep is a generator (or iterable)
+            self.after(next(sleep), self.__trigger_repeat, generator, sleep)
+        except StopIteration:
+            pass
 
     def __trigger_repeat(self, generator, sleep):
         try:
             GLOBAL_EVENT_CALLBACK.trigger(next(generator))
         except StopIteration:
-            pass
+            return
         try:
             self.after(next(sleep), self.__trigger_repeat, generator, sleep)
         except StopIteration:
-            pass 
+            pass
 
     def after(self, sleep, fun, *args):
         self.tk_root.after(int(sleep), fun, *args)

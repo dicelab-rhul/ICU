@@ -12,7 +12,7 @@
     "Scale:2" : {"size":11, "position":5},
     "Scale:3" : {"size":11, "position":5},
 
-    "Target:0" : { "step" : 10 , "invert" : true},
+    "Target:0" : { "step" : 1 , "invert" : true},
 
     "FuelTank:A" : {"fuel":10},
     "FuelTank:B" : {},

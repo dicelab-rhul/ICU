@@ -198,6 +198,7 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
         #system_monitor_widget.debug()
         #fuel_monitor_widget.debug()
 
+        global_key_handler = keyhandler.KeyHandler(root)
 
         # ==================== SYSTEM MONITOR EVENT SCHEDULES ==================== #
         if task.system:
@@ -207,11 +208,10 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
         if task.track:
             task_tracking(config)
             # EVENT SCHEDULER FOR KEYBOARD INPUT (checks every 50ms whether a key is pressed)
+            input_handler = global_key_handler
             if config.input['joystick']:
-                global_key_hander = keyhandler.JoyStickHandler(root)
-            else:
-                global_key_handler = keyhandler.KeyHandler(root)
-            event.event_scheduler.schedule(tracking.KeyEventGenerator(global_key_handler), sleep=cycle([50]))
+                input_handler = keyhandler.JoyStickHandler(root)
+            #event.event_scheduler.schedule(tracking.KeyEventGenerator(input_handler), sleep=cycle([50]))
 
         # ==================== FULE MONITOR EVENT SCHEDULES   ==================== #
         if task.fuel:
@@ -269,9 +269,6 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
         traceback.print_exc()
     finally:
         exit_handler()
-
-
-
 
 def task_system_monitor(config):
     """ Set up system monitoring task event schedules

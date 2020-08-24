@@ -45,7 +45,7 @@ class WarningLightEventGenerator(EventGenerator):
 
 class TargetEventGenerator(EventGenerator):
     """ 
-        Event generator for target movement events, computes (dx,dy) for a move based on speed. DEPRECATED.
+        Event generator for target movement events, computes (dx,dy) for a move based on speed.
     """
 
     def __init__(self, target, step=2, **kwargs):
@@ -98,3 +98,4 @@ class PumpEventGenerator(EventGenerator):
     def __next__(self):
         self.__failed = not self.__failed
         return Event(self.__class__.__name__, self.__pump, label=(C.EVENT_LABEL_REPAIR, C.EVENT_LABEL_FAIL)[int(self.__failed)]) 
+

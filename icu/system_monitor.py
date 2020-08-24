@@ -10,6 +10,7 @@ from . import panel
 from .constants import BACKGROUND_COLOUR, OUTLINE_WIDTH, OUTLINE_COLOUR, COLOUR_LIGHT_BLUE, COLOUR_BLUE
 from .constants import SYSTEM_MONITOR_SCALE_POSITIONS, COLOUR_GREEN, COLOUR_RED
 from .constants import WARNING_OUTLINE_COLOUR, WARNING_OUTLINE_WIDTH
+from .constants import EVENT_LABEL_CLICK, EVENT_LABEL_KEY
 
 
 #from .constants import WARNING_LIGHT_MIN_HEIGHT, WARNING_LIGHT_MIN_WIDTH
@@ -19,8 +20,7 @@ from .event import Event, EventCallback, get_event_sinks
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
 from .highlight import Highlight
 
-
-EVENT_NAME_CLICK = 'click'
+#TODO refactor (constants)
 EVENT_NAME_SLIDE = 'slide'
 EVENT_NAME_SWITCH = 'switch'
 EVENT_NAME_HIGHTLIGHT = 'highlight'
@@ -36,7 +36,7 @@ class Scale(EventCallback, Component, CanvasWidget):
     def all_components():
         return copy.deepcopy(Scale.__scale_components__)
 
-    def __init__(self, canvas, name, width=1., height=1., size=11, position=None, highlight={}, 
+    def __init__(self, canvas, name, width=1., height=1., size=11, position=None, highlight={}, key=None,
                     background_colour=COLOUR_LIGHT_BLUE, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR, 
                     slider_colour = COLOUR_BLUE, **kwargs):
         super(Scale, self).__init__(canvas, width=width, height=height, background_colour=background_colour, 
@@ -54,6 +54,11 @@ class Scale(EventCallback, Component, CanvasWidget):
         block =  BoxComponent(canvas, height=1/self.__size, outline_colour=outline_colour, 
                                 outline_thickness=outline_thickness, colour=slider_colour)
         block.bind("<Button-1>")
+        if key is not None:
+            if not key.startswith("<"): #TODO check regex or something keys should be given in <SYMKEY> format (tkinter)
+                key = "<{0}>".format(key)
+            self.bind(key)
+
         block.__dict__['name'] = name #hacky...! TODO make less hacky, see Component.bind
         self.components['block'] = block
 
@@ -73,10 +78,11 @@ class Scale(EventCallback, Component, CanvasWidget):
         self.components['block'].y = self.y + inc * self.__state
 
     def sink(self, event):
-        if event.data.label == EVENT_NAME_CLICK:
+        if event.data.label == EVENT_LABEL_CLICK:
             self.click_callback()
-        else:
-            #TODO validate event?
+        elif event.data.label == EVENT_LABEL_KEY and event.data.action == 'press':
+            self.click_callback()
+        elif event.data.label == EVENT_NAME_SLIDE:
             self.slide(event.data.slide)
 
     def click_callback(self, *args):
@@ -90,7 +96,10 @@ class WarningLight(EventCallback, Component, BoxComponent):
     def all_components():
         return WarningLight.__all_components__
 
-    def __init__(self, canvas, name, width=1., height=1., state=0, prefered_state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR, highlight={}):
+    def __init__(self, canvas, name, width=1., height=1., state=0, prefered_state=0, key=None, 
+                on_colour=COLOUR_GREEN, off_colour=COLOUR_RED, outline_thickness=OUTLINE_WIDTH,
+                outline_colour=OUTLINE_COLOUR, highlight={}):
+
         self.__state_colours = [off_colour, on_colour]
         self.__state = state
         self.__prefered_state = prefered_state #which state is good for the user
@@ -100,25 +109,28 @@ class WarningLight(EventCallback, Component, BoxComponent):
         EventCallback.register(self, name)
         Component.register(self, name)
 
-        self.bind("<Button-1>") #, self.click_callback)
+        self.bind("<Button-1>")
+        if key is not None:
+            if not key.startswith("<"): #TODO check regex or something keys should be given in <SYMKEY> format (tkinter)
+                key = "<{0}>".format(key)
+            self.bind(key)
 
         self.highlight = Highlight(canvas, self, **highlight)
         WarningLight.__all_components__.append(self.name)
 
-    def update(self, state=None):
-        if state is None:
-            state = int(not bool(self.__state))
+    def update(self, state):
         self.__state = state
         self.colour = self.__state_colours[self.__state]
         #print("updated warning light:", self.name, self.__state, self.colour)
 
     def sink(self, event):
-        if event.data.label == EVENT_NAME_CLICK:
+        #print(event)
+        if event.data.label == EVENT_LABEL_CLICK:
             self.update(self.__prefered_state)
-        else: #TODO
-            self.update()
-
-
+        elif event.data.label == EVENT_LABEL_KEY and event.data.action == 'press':
+            self.update(self.__prefered_state)
+        elif event.data.label == EVENT_NAME_SWITCH:
+            self.update(int(not bool(self.__state)))
 
 class SystemMonitorWidget(CanvasWidget):
 
@@ -136,17 +148,17 @@ class SystemMonitorWidget(CanvasWidget):
         self.warning_lights = {}
 
         name = "{0}:{1}".format(WarningLight.__name__, str(0))
-        options = dict(on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, prefered_state=1)
+        options = dict(on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, prefered_state=1, key="<F5>")
         options.update(config.get(name, {}))
-        self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
+        self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=name, width=1/3, height=3/5, 
                                                                              highlight=highlight, **options)
         self.warning_lights[name] = self.warning_light_widget.components['warning_right']
 
 
         name = "{0}:{1}".format(WarningLight.__name__, str(1))
-        options = dict(on_colour=COLOUR_RED,  off_colour=BACKGROUND_COLOUR, prefered_state=0)
+        options = dict(on_colour=COLOUR_RED,  off_colour=BACKGROUND_COLOUR, prefered_state=0, key="<F6>")
         options.update(config.get(name, {}))
-        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3, height=3/5, 
+        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
                                                                             highlight=highlight, **options)
         self.warning_lights[name] = self.warning_light_widget.components['warning_left']
 

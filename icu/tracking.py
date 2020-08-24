@@ -132,7 +132,14 @@ class Tracking(EventCallback, Component, CanvasWidget):
             self.invert = (1,1)
         self.step = config[name].get('step', 1)
 
+        self.bind("<Left>")
+        self.bind("<Right>")
+        self.bind("<Up>")
+        self.bind("<Down>")
+
+
     def sink(self, event):
+        #print(event)
         x, y = self.components['target'].position
         w, h = self.components['target'].size
         rx, ry = self.position
@@ -142,9 +149,10 @@ class Tracking(EventCallback, Component, CanvasWidget):
 
         if event.data.label == EVENT_LABEL_KEY:
             dx, dy = 0, 0
-            for key in event.data.key:
-                dx += self.key_events[key][0]
-                dy += self.key_events[key][1]
+            key = event.data.key
+            #for key in event.data.key:
+            dx += self.key_events[key][0]
+            dy += self.key_events[key][1]
             dx, dy = sx * dx * self.invert[0], sy * dy * self.invert[1]
 
         else:
