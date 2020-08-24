@@ -11,25 +11,6 @@ from .component import Component
 
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, BaseComponent
 from .highlight import Highlight
-
-
-def KeyEventGenerator(keyhandler):
-    trackingwidget = Tracking.all_components()[0]
-    while True:
-        key = []
-        if keyhandler.isPressed('Left'):
-           key.append('Left')
-        if keyhandler.isPressed('Right'):
-            key.append('Right')
-        if keyhandler.isPressed('Up'):
-            key.append('Up')
-        if keyhandler.isPressed('Down'):
-            key.append('Down')
-        
-        if len(key) > 0:
-            yield Event('key_event_generator', trackingwidget, label=EVENT_LABEL_KEY, key=key)
-        else:
-            yield None
     
 class Target(CanvasWidget):
 

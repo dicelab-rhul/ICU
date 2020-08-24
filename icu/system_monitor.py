@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import copy
+import time
 from types import SimpleNamespace
 
 from . import panel
@@ -98,7 +99,7 @@ class WarningLight(EventCallback, Component, BoxComponent):
 
     def __init__(self, canvas, name, width=1., height=1., state=0, prefered_state=0, key=None, 
                 on_colour=COLOUR_GREEN, off_colour=COLOUR_RED, outline_thickness=OUTLINE_WIDTH,
-                outline_colour=OUTLINE_COLOUR, highlight={}):
+                outline_colour=OUTLINE_COLOUR, highlight={}, grace=1):
 
         self.__state_colours = [off_colour, on_colour]
         self.__state = state
@@ -118,6 +119,9 @@ class WarningLight(EventCallback, Component, BoxComponent):
         self.highlight = Highlight(canvas, self, **highlight)
         WarningLight.__all_components__.append(self.name)
 
+        self.grace = grace # the light will wait atleast 1 second before switching off after the user interacts
+        self.last_interacted = 0
+
     def update(self, state):
         self.__state = state
         self.colour = self.__state_colours[self.__state]
@@ -125,12 +129,13 @@ class WarningLight(EventCallback, Component, BoxComponent):
 
     def sink(self, event):
         #print(event)
-        if event.data.label == EVENT_LABEL_CLICK:
+        if event.data.label == EVENT_LABEL_CLICK or (event.data.label == EVENT_LABEL_KEY and event.data.action == 'press'):
+            self.last_interacted = time.time()
             self.update(self.__prefered_state)
-        elif event.data.label == EVENT_LABEL_KEY and event.data.action == 'press':
-            self.update(self.__prefered_state)
+
         elif event.data.label == EVENT_NAME_SWITCH:
-            self.update(int(not bool(self.__state)))
+            if time.time() - self.grace > self.last_interacted: #only switch the light off if the user hasnt just turned it on!
+                self.update(int(not bool(self.__prefered_state)))
 
 class SystemMonitorWidget(CanvasWidget):
 

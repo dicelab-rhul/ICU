@@ -80,7 +80,7 @@ def default_scale(key):
     return {'size':11, 'position':5, 'key':key}
 
 def default_warning_lights():
-    return {'WarningLight:0' : {'state':1, 'key':"<F5>"}, 'WarningLight:1' : {'state':0, 'key':"<F6>"}}
+    return {'WarningLight:0' : {'state':1, 'key':"<F5>", 'grace':2}, 'WarningLight:1' : {'state':0, 'key':"<F6>", 'grace':2}}
 
 def  default_tanks():
     return {
@@ -246,6 +246,7 @@ target_options = dict(
 )
 
 warninglight_options = dict(
+    grace               = Option('warning_light', is_type(int, float)),
     key                 = Option('warning_light', is_type(str)),
     state               = Option('warning_light', is_type(int)),
     on_colour           = Option('warning_light', is_type(str)),
