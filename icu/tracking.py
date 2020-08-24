@@ -70,6 +70,8 @@ class Tracking(EventCallback, Component, CanvasWidget):
 
         self.key_events = {'Left':(-1,0), 'Right':(1,0), 'Up':(0,-1), 'Down':(0,1)}
 
+        edge = 0 #TODO remove edge...
+
         add(target=target)
         #four corners
         #NW
@@ -110,12 +112,17 @@ class Tracking(EventCallback, Component, CanvasWidget):
         add(M14=LineComponent(canvas, -edge + 7*size/8, size/2 + line_size/2, -edge + 7*size/8, size/2 - line_size/2, colour=TRACKING_LINE_COLOUR, thickness=line_thickness))
 
         #middle rectangle
-        #TODO
-        #add(B=BoxComponent(canvas, edge + 3*size/8, edge + 3*size/8, -edge + 5*size/8, -edge + 5*size/8, outline_colour=TRACKING_LINE_COLOUR, outline_thickness=line_thickness))
+        #add(B=BoxComponent(canvas, edge + 3*size/8, edge + 3*size/8, -edge + 2*size/8, -edge + 2*size/8, outline_colour=TRACKING_LINE_COLOUR, outline_thickness=line_thickness, dash=(4,2)))
+        dash = (4,8)
+        add(B1=LineComponent(canvas, edge + 3*size/8, edge + 3*size/8, edge + 5*size/8, edge + 3*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness, dash=dash))
+        add(B2=LineComponent(canvas, edge + 3*size/8, edge + 5*size/8, edge + 5*size/8, edge + 5*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness, dash=dash))
+        add(B3=LineComponent(canvas, edge + 3*size/8, edge + 3*size/8, edge + 3*size/8, edge + 5*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness, dash=dash))
+        add(B4=LineComponent(canvas, edge + 5*size/8, edge + 3*size/8, edge + 5*size/8, edge + 5*size/8, colour=TRACKING_LINE_COLOUR, thickness=line_thickness, dash=dash))
 
         #self.c.size = (size-200, size-50) #test resize
         highlight = config['overlay']
         self.highlight = Highlight(canvas, self, **highlight)
+        
         assert Tracking.__instance__ is None #there can only be one tracking widget
         Tracking.__instance__ = self
         

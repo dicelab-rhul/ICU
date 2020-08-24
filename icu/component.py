@@ -431,8 +431,8 @@ class PolyComponent(BaseComponent):
 
 class LineComponent(SimpleComponent):
 
-    def __init__(self, canvas, x1,y1,x2,y2, colour='black', thickness=None):
-        line = canvas.create_line(x1,y1,x2,y2,fill=colour, width=thickness)
+    def __init__(self, canvas, x1,y1,x2,y2, colour='black', thickness=None, **kwargs):
+        line = canvas.create_line(x1,y1,x2,y2,fill=colour, width=thickness, **kwargs)
         super(LineComponent, self).__init__(canvas, line)
 
         #print("LINE: ", self.position, self.size)
@@ -584,9 +584,6 @@ class CanvasWidget(BaseComponent):
             c = self.components[component]
             c.position = (c.x + dx, c.y + dy)
 
-        if self.__debug is not None:
-            self.__debug.position = (self.__debug.x + dx, self.__debug.y + dy)
-
     def resize(self, dw, dh):
         pw, ph = self.width - dw, self.height - dh
 
@@ -602,11 +599,7 @@ class CanvasWidget(BaseComponent):
         #self.canvas.coords(self.components['background'].component, x1, y1, x1 + width, y1 + height)
  
 
-    def debug(self):
-        if self.__debug is not None:
-            raise NotImplementedError()
-            #TODO remove component
-
+    def debug(self):        
         self.__debug = SimpleComponent(self.canvas, self.canvas.create_rectangle(self.x, self.y, self.x+self.width, self.y+self.height, width=1, outline='red'))
 
         

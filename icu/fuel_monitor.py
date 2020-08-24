@@ -81,9 +81,11 @@ class FuelTankMain(FuelTank):
         self.burn_rate = burn_rate #fuel per second
         self.event_rate = 10 #TODO config? 10 events per second
 
-        py = height*self.accept_position  - height*(self.accept_proportion/2)
+        py = height*(1-self.accept_position) - height*(self.accept_proportion/2)
         lx, ly, lw = x-0.1*width, y + py, width + width/5
         lh = height * self.accept_proportion
+        
+        #TODO accept box can go out of bounds of the tank...
 
         self.components['limit_box'] = BoxComponent(canvas, x=lx, y=ly, width=lw, height=lh, colour=COLOUR_LIGHT_BLUE, outline_thickness=0)
         self.components['limit_line'] = LineComponent(canvas, lx, ly + lh/2, lx + lw, ly + lh/2, colour=COLOUR_BLUE, thickness=3)

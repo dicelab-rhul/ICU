@@ -1,7 +1,7 @@
 import tkinter as tk
 
 from . import panel
-from .constants import MAIN_BANNER_COLOUR, MAIN_BANNER_HEIGHT, BACKGROUND_COLOUR
+from .constants import MAIN_BANNER_COLOUR, MAIN_BANNER_HEIGHT
 
 from .component import BaseComponent, CanvasWidget, SimpleLayoutManager, EmptyComponent
 
@@ -14,8 +14,8 @@ MOUSE_BIND = "<Button-1>"
 
 class MainPanel(tk.Canvas, EventCallback):
 
-    def __init__(self, parent, width, height):
-        super(MainPanel, self).__init__(parent, width=width, height=height, bg='blue')
+    def __init__(self, parent, width, height, background_colour='blue'):
+        super(MainPanel, self).__init__(parent, width=width, height=height, bg=background_colour)
         
         EventCallback.register(self, "Canvas")
         

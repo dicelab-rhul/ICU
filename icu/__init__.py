@@ -88,8 +88,7 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
     #global config # this is used in other places and needs to be accessible TODO fix it...
     config = SimpleNamespace(**configuration.load(config)) #load config file
     
-    pprint(config.__dict__)
-
+    #pprint(config.__dict__)
 
     config_schedule = SimpleNamespace(**config.schedule)
     window_properties = {}
@@ -143,10 +142,8 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
   
         event.tk_event_schedular(root) #initial global event schedular
         
-        main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height)
+        main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height, background_colour=config.background_colour)
         root.bind("<Configure>", main.resize) #for resizing the window
-
-        # ==================== SYSTEM MONITOR WIDGET ==================== #
 
         task = SimpleNamespace(**config.task)
 
@@ -156,16 +153,21 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
             main.top_frame.layout_manager.fill('system_monitor', 'Y')
             main.top_frame.layout_manager.split('system_monitor', 'X', 250/800)
 
-            #main.top_frame.components['top_padding'] = component.EmptyComponent()
-            #main.top_frame.layout_manager.split('top_padding', 'X', prop=0.3)
+            main.top_frame.components['top_padding1'] = component.EmptyComponent()
+            main.top_frame.layout_manager.split('top_padding1', 'X', prop=100/800)
 
         if task.track:
             tracking_widget = tracking.Tracking(main, copy.deepcopy(config.__dict__), size=config.screen_height/2) #scaled anyway
             main.top_frame.components['tracking'] = tracking_widget
+            #main.components["top_sep"] = component.EmptyComponent()
+
             main.top_frame.layout_manager.fill('tracking', 'Y')
-            main.top_frame.layout_manager.split('tracking', 'X', 550/800)
-            #tracking_widget.debug()
-            main.top_frame.layout_manager.anchor('tracking', 'E')
+            main.top_frame.layout_manager.split('tracking', 'X', 350/800)
+
+            main.top_frame.components['top_padding2'] = component.EmptyComponent()
+            main.top_frame.layout_manager.split('top_padding2', 'X', prop=100/800)
+            
+            #main.top_frame.layout_manager.anchor('tracking', 'E')
 
         if task.fuel:
             main.bottom_frame.components['coms'] = component.EmptyComponent()
@@ -192,6 +194,11 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
 
         main.pack()
 
+        #tracking_widget.debug()
+        #system_monitor_widget.debug()
+        #fuel_monitor_widget.debug()
+
+
         # ==================== SYSTEM MONITOR EVENT SCHEDULES ==================== #
         if task.system:
             task_system_monitor(config)
@@ -216,10 +223,11 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
 
         # ================= EYE TRACKING ================= 
 
-        eyetracker = None
-        if config.input['eye_tracker']:
+        et_config = config.input['eyetracker']
+        if et_config.get('enabled', False):
+            eyetracker = None
             filter = eyetracking.filter.TobiiFilter(5, 200) #some default thing...
-            eyetracker = eyetracking.eyetracker(root, filter=filter, sample_rate=100, calibrate=False)
+            eyetracker = eyetracking.eyetracker(root, filter=filter, **et_config)
             eyetracker.start()
 
         atexit.register(exit_handler) 
@@ -261,11 +269,6 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
         traceback.print_exc()
     finally:
         exit_handler()
-
-        #save state
-        import pickle
-
-
 
 
 

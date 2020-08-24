@@ -38,7 +38,8 @@ def default_config_screen():
                 screen_max_size=(2000,2000),
                 screen_full=False,
                 screen_resizable=True,
-                screen_aspect=None)
+                screen_aspect=None,
+                background_colour='grey')
 
 def default_task_options():
     return   {"system" : True, "track" : True,"fuel" : True}
@@ -50,7 +51,7 @@ def default_event_schedule():
             "Scale:3" :         default_scale_schedule(),
             "WarningLight:0" :  default_warning_light_schedule(),
             "WarningLight:1" :  default_warning_light_schedule(),
-            "Target:0" :      default_target_schedule()}
+            "Target:0" :        default_target_schedule()}
 
 def default_event_generator():
     return {"ScaleComponent" : "ScaleEventGenerator"}
@@ -82,7 +83,7 @@ def default_warning_lights():
 
 def  default_tanks():
     return {
-        "FuelTank:A" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
+        "FuelTank:A" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.0, "accept_proportion":0.3},
         "FuelTank:B" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
         "FuelTank:C" : {"capacity":1000, "fuel":100},
         "FuelTank:D" : {"capacity":1000, "fuel":100},
@@ -103,12 +104,23 @@ def default_pumps():
 def default_tracking():
     return {} #TODO
 
+def default_input():
+    return {"mouse" : True,
+            "keyboard" : True,
+            "joystick" : False,
+            "eyetracker" : {
+                "stub" : True,
+                "enabled" : True,
+                "sample_rate" : 100,
+                "calibrate" : False
+            }}
+
 
 def default_overlay():
     return dict(enable=True, transparent=True, outline=True, arrow=True)
 
 def default_config():
-    return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay(),
+    return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay(), input=default_input(),
                 **default_scales(), **default_warning_lights(), **default_tanks(), **default_pumps(), **default_tracking())
 
 ScreenOptions = SimpleNamespace(**{k:k for k in default_config_screen().keys()})
@@ -259,6 +271,13 @@ tank_options = dict(
     outline_thickness   = Option('tank', is_type(int)),
 )
 
+eyetracker_options = dict(
+    enabled             = Option('eyetracker', is_type(bool)),
+    stub                = Option('eyetracker', is_type(bool)),
+    calibrate           = Option('eyetracker', is_type(bool)),
+    sample_rate         = Option('eyetracker', is_type(int)),
+)
+
 options = dict(
 
             main            = Option('-', validate_options('main')),
@@ -282,6 +301,7 @@ options = dict(
             screen_aspect          = Option('main', is_coord()),
             screen_min_size        = Option('main', is_coord()),
             screen_max_size        = Option('main', is_coord()),
+            background_colour       = Option('main', is_type(str)),
             
             schedule        = Option('main', lambda **kwargs: {k:Validator.is_schedule(**{k:v}) for k,v in next(iter(kwargs.values())).items()}),
             
@@ -294,7 +314,8 @@ options = dict(
             mouse           = Option('input', is_type(bool)),
             keyboard        = Option('input', is_type(bool)),
             joystick        = Option('input', is_type(bool)),
-            eye_tracker     = Option('input', is_type(bool)),
+
+            eyetracker      = Option('input', validate_options('eyetracker', _options=eyetracker_options)),
 
             generators      = Option('main', lambda **kwargs: None), #TODO
 
@@ -304,7 +325,8 @@ options = dict(
             transparent         = Option('overlay', is_type(bool)),
             outline             = Option('overlay', is_type(bool)),
             highlight_thickness = Option('overlay', is_type(int)),
-            highlight_colour    = Option('overlay', is_type(str))
+            highlight_colour    = Option('overlay', is_type(str)),
+
     )
 
 

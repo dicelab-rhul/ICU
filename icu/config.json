@@ -34,7 +34,9 @@
         "mouse" : true,
         "keyboard" : true,
         "joystick" : false,
-        "eye_tracker" : true
+        "eyetracker" : {
+            "stub" : true
+        }
     },
 
     "task" : {
@@ -43,6 +45,7 @@
         "fuel" : true
     },
 
+    "background_colour":"blue",
     "screen_full": false,
     "screen_height": 700,
     "screen_width": 800,

@@ -157,7 +157,7 @@ class EyeTrackerStub(EyeTrackerBase):
         self.closed.set()
 
 
-def eyetracker(root, filter=None, sample_rate=300, calibrate=True, stub=False):
+def eyetracker(root, filter=None, sample_rate=300, calibrate=True, stub=False, **kwargs):
     """ Creates a new Eyetracker (there should only ever be one).
     Args:
         root (tk): tk root window.
