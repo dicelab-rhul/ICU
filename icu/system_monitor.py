@@ -130,12 +130,14 @@ class WarningLight(EventCallback, Component, BoxComponent):
     def sink(self, event):
         #print(event)
         if event.data.label == EVENT_LABEL_CLICK or (event.data.label == EVENT_LABEL_KEY and event.data.action == 'press'):
-            self.last_interacted = time.time()
-            self.update(self.__prefered_state)
-
+            if self.__state != self.__prefered_state:
+                self.update(self.__prefered_state)
+                self.last_interacted = time.time()
         elif event.data.label == EVENT_NAME_SWITCH:
             if time.time() - self.grace > self.last_interacted: #only switch the light off if the user hasnt just turned it on!
                 self.update(int(not bool(self.__prefered_state)))
+            else:
+                print("wait", self)
 
 class SystemMonitorWidget(CanvasWidget):
 
