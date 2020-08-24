@@ -2,6 +2,7 @@ import json
 import os
 import re
 import random
+import copy
 
 from types import SimpleNamespace
 from collections import defaultdict
@@ -83,7 +84,7 @@ def default_warning_lights():
 
 def  default_tanks():
     return {
-        "FuelTank:A" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.0, "accept_proportion":0.3},
+        "FuelTank:A" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
         "FuelTank:B" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
         "FuelTank:C" : {"capacity":1000, "fuel":100},
         "FuelTank:D" : {"capacity":1000, "fuel":100},
@@ -91,14 +92,16 @@ def  default_tanks():
         "FuelTank:F" : {"capacity":1000, "fuel":1000}}
 
 def default_pumps():
-    return {"Pump:AB" : { "flow_rate": 100, "event_rate": 10, "state": 1},
-            "Pump:BA" : { "flow_rate": 100, "event_rate": 10, "state": 1}, 
-            "Pump:FD" : { "flow_rate": 100, "event_rate": 10, "state": 1},
-            "Pump:EA" : { "flow_rate": 100, "event_rate": 10, "state": 1},
-            "Pump:CA" : { "flow_rate": 100, "event_rate": 10, "state": 1},
-            "Pump:EC" : { "flow_rate": 100, "event_rate": 10, "state": 1},
-            "Pump:DB" : { "flow_rate": 100, "event_rate": 10, "state": 1},
-            "Pump:FB" : { "flow_rate": 100, "event_rate": 10, "state": 1}}
+    default_pump = { "flow_rate": 100, "event_rate": 10, "state": 1}
+
+    return {"Pump:AB" : copy.deepcopy(default_pump),
+            "Pump:BA" : copy.deepcopy(default_pump), 
+            "Pump:FD" : copy.deepcopy(default_pump),
+            "Pump:EA" : copy.deepcopy(default_pump),
+            "Pump:CA" : copy.deepcopy(default_pump),
+            "Pump:EC" : copy.deepcopy(default_pump),
+            "Pump:DB" : copy.deepcopy(default_pump),
+            "Pump:FB" : copy.deepcopy(default_pump)}
     
 
 def default_tracking():
@@ -233,8 +236,8 @@ class Option:
 
 pump_options = dict(
     flow_rate           = Option('pump', is_type(int)),
-    event_rate          = Option('pump', is_type(int))
-
+    event_rate          = Option('pump', is_type(int)),
+    scale               = Option('pump', is_type(float))
 )
 
 target_options = dict(
@@ -393,17 +396,14 @@ class Validator:
         #TOOD move this somewhere more suitable
         result = default_config()
         result = update(result, config)
-        from pprint import pprint
-        pprint(result)
+        #from pprint import pprint
+        #pprint(result)
 
         result['screen_size'] = (result.get('screen_width', result['screen_size'][0]), result.get('screen_height', result['screen_size'][1]))
         result['screen_position'] = (result.get('screen_x', result['screen_position'][0]), result.get('screen_y', result['screen_position'][1]))
         result['screen_width'], result['screen_height'] = result['screen_size']
         result['screen_x'], result['screen_y'] = result['screen_position']
         return result
-
-
-
 
 validate = Validator()
 

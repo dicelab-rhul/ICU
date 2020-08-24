@@ -90,9 +90,10 @@ class WarningLight(EventCallback, Component, BoxComponent):
     def all_components():
         return WarningLight.__all_components__
 
-    def __init__(self, canvas, name, width=1., height=1., state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR, highlight={}):
+    def __init__(self, canvas, name, width=1., height=1., state=0, prefered_state=0, on_colour=COLOUR_GREEN, off_colour=COLOUR_RED, outline_thickness=OUTLINE_WIDTH, outline_colour=OUTLINE_COLOUR, highlight={}):
         self.__state_colours = [off_colour, on_colour]
         self.__state = state
+        self.__prefered_state = prefered_state #which state is good for the user
         colour = self.__state_colours[self.__state]
         super(WarningLight, self).__init__(canvas, width=width, height=height, colour=colour, outline_thickness=outline_thickness, outline_colour=OUTLINE_COLOUR)
         
@@ -101,18 +102,19 @@ class WarningLight(EventCallback, Component, BoxComponent):
 
         self.bind("<Button-1>") #, self.click_callback)
 
-
         self.highlight = Highlight(canvas, self, **highlight)
         WarningLight.__all_components__.append(self.name)
 
-    def update(self):
-        self.__state = int(not bool(self.__state))
+    def update(self, state=None):
+        if state is None:
+            state = int(not bool(self.__state))
+        self.__state = state
         self.colour = self.__state_colours[self.__state]
         #print("updated warning light:", self.name, self.__state, self.colour)
 
     def sink(self, event):
         if event.data.label == EVENT_NAME_CLICK:
-            self.update()
+            self.update(self.__prefered_state)
         else: #TODO
             self.update()
 
@@ -133,9 +135,8 @@ class SystemMonitorWidget(CanvasWidget):
         self.components['warning_light_widget'] = self.warning_light_widget
         self.warning_lights = {}
 
-
         name = "{0}:{1}".format(WarningLight.__name__, str(0))
-        options = dict(on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR)
+        options = dict(on_colour=COLOUR_GREEN, off_colour=BACKGROUND_COLOUR, prefered_state=1)
         options.update(config.get(name, {}))
         self.warning_light_widget.components['warning_right'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
                                                                              highlight=highlight, **options)
@@ -143,9 +144,9 @@ class SystemMonitorWidget(CanvasWidget):
 
 
         name = "{0}:{1}".format(WarningLight.__name__, str(1))
-        options = dict(on_colour=COLOUR_RED,  off_colour=BACKGROUND_COLOUR)
+        options = dict(on_colour=COLOUR_RED,  off_colour=BACKGROUND_COLOUR, prefered_state=0)
         options.update(config.get(name, {}))
-        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3, height=3/5,
+        self.warning_light_widget.components['warning_left'] = WarningLight(canvas, name=name, width=1/3, height=3/5, 
                                                                             highlight=highlight, **options)
         self.warning_lights[name] = self.warning_light_widget.components['warning_left']
 
