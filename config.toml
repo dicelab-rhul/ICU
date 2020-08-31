@@ -1,0 +1,5 @@
+baseURL = "https://dicelab-rhul.github.io/ICU/"
+languageCode = "en-us"
+title = "Integrated Cognitive User Assistance (ICU)"
+theme = "paper"
+publishDir = "docs"
