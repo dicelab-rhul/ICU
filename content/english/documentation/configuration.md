@@ -39,7 +39,7 @@ The above configuration will disable both the tracking and fuel monitoring tasks
 
 <hr>
 
-## Task: Tracking
+## Task: Tracking {#tracking}
 
 ### Options
 * `step` : distance in pixels moved by the tracking target after each (non-user action) event.
@@ -53,7 +53,7 @@ In the above configuration, the target will move 2 pixels per `move` event and a
 
 <hr>
 
-## Task: Fuel Monitoring
+## Task: Fuel Monitoring {#fuel-monitoring}
 
 ### Options
 
@@ -92,7 +92,8 @@ For the above configuration for pump AB, 1 `transfer` event is triggered every s
 
 <hr>
 
-## System Monitoring
+## Task: System Monitoring {#system-monitoring}
+
 ### Options: 
 * `size` : the size (number of possible slider positions) of a scale (default 11)
 * `position` : the initial position of the slider (default 5) 
@@ -170,6 +171,8 @@ Takes the form `uniform(a,b)` where `a` and `b` are the lower and upper bounds (
 #### Normal Distribution
 Takes the form `normal(mu, sigma)` where `mu` and `sigma` are the mean and standard deviation of a Gaussian distribution, `"Scale:0" : "normal(1000,100)"`, will trigger events at random intervals centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).
 
+-------------------------------
+
 ## Cosmetic Options
 
 Many of the display properties of widgets in ICU can be configured, common options include:
@@ -179,9 +182,8 @@ Many of the display properties of widgets in ICU can be configured, common optio
 
 All colour options may be specified as a string e.g. `"red"` (see the [full list](http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter)) or as a hexadecimal string e.g. `"#ff0000"`.
 
-A number of widgets have specific cosmetic options, below is a comprehensive list.
-* `"WarningLight:0" : {"on_colour":"blue", "off_colour":"white", "outline_colour":"green", "outline_thickness":10}`
-* `"Scale:0" : {"background_colour":"blue", "outline_colour":"green", "outline_thickness":10, "slider_colour":"white"}`
+A number of widgets have specific cosmetic options, a detailed list will be provided soon (until then, check the source `config.py`). 
+
 
 
 
