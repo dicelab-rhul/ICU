@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en-us"><head>
+  <meta charset="utf-8">
+  <title>Documentation</title>
+
+  <!-- mobile responsive meta -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="This is meta description">
+  <meta name="author" content="Themefisher">
+  <meta name="generator" content="Hugo 0.74.3" />
+
+  <!-- plugins -->
+  
+  <link rel="stylesheet" href="https://dicelab-rhul.github.io/ICU/plugins/bootstrap/bootstrap.min.css">
+  
+  <link rel="stylesheet" href="https://dicelab-rhul.github.io/ICU/plugins/Ionicons/css/ionicons.min.css">
+  
+  <link rel="stylesheet" href="https://dicelab-rhul.github.io/ICU/plugins/magnific-popup/magnific-popup.css">
+  
+  <link rel="stylesheet" href="https://dicelab-rhul.github.io/ICU/plugins/slick/slick.css">
+  
+
+  <!-- Main Stylesheet -->
+  
+  <link rel="stylesheet" href="https://dicelab-rhul.github.io/ICU/scss/style.min.css" media="screen">
+
+  <!--Favicon-->
+  <link rel="shortcut icon" href="https://dicelab-rhul.github.io/ICU/images/favicon.png" type="image/x-icon">
+  <link rel="icon" href="https://dicelab-rhul.github.io/ICU/images/favicon.png" type="image/x-icon">
+
+</head><body>
+<!-- preloader start -->
+<div class="preloader">
+  
+</div>
+<!-- preloader end -->
+
+<header class="navigation">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        
+        <nav class="navbar">
+          
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/ICU">
+              <img src="https://dicelab-rhul.github.io/ICU/images/logo.png" alt="Integrated Cognitive User Assistance (ICU)" class="img-responsive">
+            </a>
+          </div>
+          
+          <div class="collapse navbar-collapse" id="navigation">
+            <ul class="nav navbar-nav navbar-right">
+              
+              
+              <li><a href="/ICU/">Home</a></li>
+              
+              
+              
+              <li><a href="/ICU/about">About</a></li>
+              
+              
+              
+              <li><a href="/ICU/documentation">Documentation</a></li>
+              
+              
+              
+              <li><a href="/ICU/download">Download</a></li>
+              
+              
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="page-title bg-2" style="background-image: url('https://dicelab-rhul.github.io/ICU/');">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="block">
+          <h1>Documentation</h1>
+          <p></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+<div class="page-wrapper">
+  <div class="container">
+	<div class="row">
+		
+		  	<h3><a href="https://dicelab-rhul.github.io/ICU/documentation/start/">1. Getting Started</a></h3>
+			 
+        
+		  	<h3><a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">2. Configuration</a></h3>
+			 
+        
+	</div>
+	
+	<hr> 
+    <div class="row">
+        
+        
+        <div class="post">
+          <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/start/">Getting Started</a></h3>
+          <div class="post-content">
+            <p><p><a href="https://dicelab-rhul.github.io/ICU/download/" class="btn btn-main"> Download &amp; Install </a></p>
+<p>You can verify your installation by running ICU with the following command:</p>
+<pre><code>python -m ICU
+</code></pre><p>This will run the system with the default configuration.</p>
+<h2 id="options">Options</h2>
+<p>To see all available command line options: <code>python -m icu -help</code></p>
+<h2 id="specifying-a-configuration-file">Specifying a Configuration file</h2>
+<p>ICU uses a configuration file to allow users to modified many aspects of the system. The configuration file can be specified with the <code>-c</code> option.</p>
+<pre><code>python -m icu -c config.json
+</code></pre><p>For details on configuring ICU see <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a> below.</p>
+</p>
+		  </div>
+		  <hr>
+		
+        <div class="post">
+          <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a></h3>
+          <div class="post-content">
+            <p><p>Many aspects of the ICU can be configured in the <code>config.json</code> file.</p>
+<h2 id="general-configuration">General Configuration</h2>
+<ul>
+<li><code>screen_full (bool)</code> - full screen the ICU window (ignores other screen options). Default: False</li>
+<li><code>screen_aspect (tuple)</code> - fix the aspect ratio of the ICU window. Default: None</li>
+<li><code>screen_resizable (bool)</code> - can the ICU window be resized. Default: True.</li>
+<li><code>screen_height (int)</code> - height of the ICU window. Default: 700.</li>
+<li><code>screen_width (int)</code> - width of the ICU window. Default: 800.</li>
+<li><code>screen_size (tuple)</code> - size of the ICU window. Default [800, 700].</li>
+<li><code>screen_min_size (tuple)</code> - minimum size of the ICU window (ignores aspect ratio). Default: [100,100].</li>
+<li><code>screen_max_size (tuple)</code> - maximum size of the ICU window (ignores aspect ratio). Default: [2000,2000].</li>
+<li><code>screen_x (int)</code> - x position of the ICU window. Default: 0.</li>
+<li><code>screen_y (int)</code> - y position of the ICU window. Default: 0.</li>
+<li><code>screen_position (tuple)</code> - position of the ICU window. Default [0,0].</li>
+</ul>
+<hr>
+<h2 id="task-configuration">Task Configuration</h2>
+<p>Tasks can be enabled/disabled using the <code>task</code> configuration options:</p>
+<pre><code>&quot;task&quot; : {
+    &quot;system&quot; : true,
+    &quot;track&quot; : false,
+    &quot;fuel&quot; : false
+}
+</code></pre><p>The above configuration will disable both the tracking and fuel monitoring tasks, leaving the system monitoring task. All tasks are enabled by default.</p>
+<hr>
+<h2 id="task-tracking">Task: Tracking</h2>
+<h3 id="options">Options</h3>
+<ul>
+<li><code>step</code> : distance in pixels moved by the tracking target after each (non-user action) event.</li>
+<li><code>invert</code> : invert controls (true/false).</li>
+</ul>
+<h3 id="example-1---target">Example (1) - Target</h3>
+<pre><code>&quot;Target:0&quot; : { &quot;step&quot; : 2 }
+</code></pre><p>In the above configuration, the target will move 2 pixels per <code>move</code> event and according to its movement schedule.</p>
+<hr>
+<h2 id="task-fuel-monitoring">Task: Fuel Monitoring</h2>
+<h3 id="options-1">Options</h3>
+<p>The fuel monitoring task involves tanks and pumps, each have their own configuration options. Pumps move fuel between their associated tanks.</p>
+<h4 id="tank">Tank</h4>
+<p>Tanks: FuelTank:A, FuelTank:B, FuelTank:C, FuelTank:D, FuelTank:E, FuelTank:F</p>
+<ul>
+<li><code>capacity</code> : the capacity of a tank.</li>
+<li><code>fuel</code> : the initial amount of fuel in a tank.</li>
+<li><code>burn_rate</code> : burn of fuel (units per second) of a main tank.</li>
+<li><code>accept_position</code> : the ideal fuel level for a main tank [0-1].</li>
+<li><code>accept_proportion</code> : the range of fuel values that are acceptable, centered around the ideal fuel value [0-1].</li>
+</ul>
+<h4 id="pump">Pump</h4>
+<p>Pumps: Pump:AB, Pump:BA, Pump:FD, Pump:EA, Pump:CA, Pump:EC, Pump:DB, Pump:FB</p>
+<ul>
+<li><code>flow_rate</code> : flow of fuel (units per second) for a pump.</li>
+<li><code>event_rate</code> : frequency of transfer events for a pump.</li>
+</ul>
+<h3 id="example-1---tank-options">Example (1) - Tank Options</h3>
+<pre><code>&quot;FuelTank:A&quot; : {&quot;capacity&quot;:2000, &quot;fuel&quot;:1000, &quot;burn_rate&quot;:10}
+</code></pre><p>In the above configuration, tank A will have a maximum capacity of 2000 units of fuel and start with 1000 units of fuel and burn 10 units of fuel per second. Note that only the main tanks (<code>FuelTank:A</code> and <code>FuelTank:B</code>) can burn fuel.</p>
+<h3 id="example-2---pump-options">Example (2) - Pump Options</h3>
+<pre><code>&quot;Pump:AB&quot; : { &quot;flow_rate&quot;: 10, &quot;event_rate&quot;: 1}
+</code></pre><p>For the above configuration for pump AB, 1 <code>transfer</code> event is triggered every second, each event transferring 10 units of fuel from tank A to tank B. Increasing the event rate to 10 would have the effect of 10 events being triggered (uniformly over a 1 second) with each event transferring 1 unit of fuel. Note that higher event rates lead to a smoother fuel animation but at the cost of many more events being generated.</p>
+<hr>
+<h2 id="system-monitoring">System Monitoring</h2>
+<h3 id="options-2">Options:</h3>
+<ul>
+<li><code>size</code> : the size (number of possible slider positions) of a scale (default 11)</li>
+<li><code>position</code> : the initial position of the slider (default 5)</li>
+</ul>
+<h3 id="example-1---scale-options">Example (1) - Scale Options</h3>
+<pre><code>&quot;Scale:0&quot; : {&quot;size&quot;:11, &quot;position&quot;:0},
+</code></pre><p>In the above configuration, scale 0 will have 11 possible slider position and the slider will start at position 0 (at the top of the scale).</p>
+<hr>
+<h2 id="overlay-configuration">Overlay Configuration</h2>
+<p>ICU provides support for an overlay, including highlighting widgets, displaying warnings etc. The following options are available under <code>overlay</code>.</p>
+<h4 id="options-3">Options</h4>
+<ul>
+<li><code>transparent (bool)</code> : transparency value of a highlight box (true for transparent).</li>
+<li><code>highlight_colour (bool)</code> : colour value of a highlight box.</li>
+<li><code>highlight_thickness (int)</code> : thickness of the highlight box outline.</li>
+<li><code>outline (bool)</code> : use an outline for the highlight box.</li>
+<li><code>arrow (bool)</code> : TODO</li>
+<li><code>arrow_colour (colour)</code> : TODO</li>
+<li><code>arrow_scale (float)</code> : TODO</li>
+</ul>
+<hr>
+<h2 id="event-configuration">Event Configuration</h2>
+<p>Internal ICU events can be triggered according to schedules defined in the configuration. There are four kinds of schedules that can be specified, single, multi, repeating, and custom. Schedules are specified in the <code>&quot;schedule</code>&rdquo; section of the <code>config.json</code> file, for example:</p>
+<pre><code>{ 
+   &quot;schedule&quot;:{
+        &quot;Scale:0&quot; : 1000,
+        &quot;Scale:1&quot; : 1500,
+        &quot;Scale:2&quot;: 2000,
+        &quot;Scale:3&quot;: 2500
+   }
+}
+
+</code></pre><h3 id="single-event-schedule">Single-Event Schedule</h3>
+<p>A single event schedule is specified simply as an integer, <code>&quot;Scale:0&quot; : 1000</code> will cause an event to happen 1000ms after ICU begins.</p>
+<pre><code>t: 0 ------ 1000 ------ 2000 ------ 3000 ---
+e: ---------- | ---------------------------- 
+</code></pre><h3 id="multi-event-schedule">Multi-Event Schedule</h3>
+<p>Multiple events can be schedules using a list of integer values, specified with square brackets <code>[ ]</code>, <code>&quot;Scale:0&quot; : [1000, 2000]</code> will trigger an event at 1000ms then wait 2000ms before triggering a second event.</p>
+<pre><code>t: 0 ------ 1000 ------ 2000 ------ 3000 ---
+e: ---------- | --------------------- | ---- 
+</code></pre><h3 id="repeating-event-schedule">Repeating-Event Schedule</h3>
+<p>Events schedules can be repeated by enclosing a list in a second pair of square brackets, <code>&quot;Scale:0&quot; : [[500, 1000]]</code>.</p>
+<pre><code>t: 0 ------- 1000 ------- 2000 ------- 3000 ---
+e: ---- | ---------- | ---- | ---------- | ---- 
+</code></pre><h3 id="custom-event-schedule">Custom-Event Schedule</h3>
+<p>More complex schedules can be specified programmatically by subclassing <code>icu.config.Distribution</code>, subclasses will automatically be registered with the config module. Custom schedule are specified in <code>config.json</code> as <code>&lt;name&gt;(&lt;arg1&gt;, &lt;arg2&gt;, ...,&lt;argn&gt;)</code> where <code>&lt;name&gt;</code> is the class name and <code>&lt;argi&gt;</code> is an argument for the <code>__init__</code> method. Arguments should be parsed by the class. The method <code>sample(self) -&gt; int</code> should be defined, which when called returns the time to wait before triggering the next event.</p>
+<p>Some common distributions have been defined for convenience.</p>
+<h4 id="uniform-distribution">Uniform Distribution</h4>
+<p>Takes the form <code>uniform(a,b)</code> where <code>a</code> and <code>b</code> are the lower and upper bounds (int &gt; 0) of the domain, <code>&quot;Scale:0&quot; : &quot;uniform(0, 1000)&quot;</code>, will trigger an event at random intervals between 0 and 1 second.</p>
+<h4 id="normal-distribution">Normal Distribution</h4>
+<p>Takes the form <code>normal(mu, sigma)</code> where <code>mu</code> and <code>sigma</code> are the mean and standard deviation of a Gaussian distribution, <code>&quot;Scale:0&quot; : &quot;normal(1000,100)&quot;</code>, will trigger events at random intervals centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).</p>
+<h2 id="cosmetic-options">Cosmetic Options</h2>
+<p>Many of the display properties of widgets in ICU can be configured, common options include:</p>
+<ul>
+<li><code>background_colour</code> : set the background colour of a widget.</li>
+<li><code>outline_colour</code>    : set the outline colour of a widget. (default black)</li>
+<li><code>outline_thickness</code> : set the outline thickness of a widget (default 3)</li>
+</ul>
+<p>All colour options may be specified as a string e.g. <code>&quot;red&quot;</code> (see the <a href="http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter">full list</a>) or as a hexadecimal string e.g. <code>&quot;#ff0000&quot;</code>.</p>
+<p>A number of widgets have specific cosmetic options, below is a comprehensive list.</p>
+<ul>
+<li><code>&quot;WarningLight:0&quot; : {&quot;on_colour&quot;:&quot;blue&quot;, &quot;off_colour&quot;:&quot;white&quot;, &quot;outline_colour&quot;:&quot;green&quot;, &quot;outline_thickness&quot;:10}</code></li>
+<li><code>&quot;Scale:0&quot; : {&quot;background_colour&quot;:&quot;blue&quot;, &quot;outline_colour&quot;:&quot;green&quot;, &quot;outline_thickness&quot;:10, &quot;slider_colour&quot;:&quot;white&quot;}</code></li>
+</ul>
+</p>
+		  </div>
+		  <hr>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="footer-manu">
+					<ul>
+            
+            <li><a href="https://dicelab-rhul.github.io/ICU/contact">Contact</a></li>
+            
+					</ul>
+				</div>
+				<p class="copyright">Copyright © 2020 <a href="https://themefisher.com">Themefisher</a> All Rights Reserved</p>
+			</div>
+		</div>
+	</div>
+</footer>
+
+
+
+
+
+
+<script src="https://dicelab-rhul.github.io/ICU/plugins/jQuery/jquery.min.js"></script>
+
+<script src="https://dicelab-rhul.github.io/ICU/plugins/bootstrap/bootstrap.min.js"></script>
+
+<script src="https://dicelab-rhul.github.io/ICU/plugins/slick/slick.min.js"></script>
+
+<script src="https://dicelab-rhul.github.io/ICU/plugins/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+<script src="https://dicelab-rhul.github.io/ICU/plugins/shuffle/shuffle.min.js"></script>
+
+<script src="https://dicelab-rhul.github.io/ICU/plugins/google-map/gmap.js"></script>
+
+
+
+
+<script src="https://dicelab-rhul.github.io/ICU/js/script.min.js"></script>
+
+
+</body>
+
+</html>

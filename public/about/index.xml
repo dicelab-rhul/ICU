@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>About on Integrated Cognitive User Assistance (ICU)</title>
+    <link>https://dicelab-rhul.github.io/ICU/about/</link>
+    <description>Recent content in About on Integrated Cognitive User Assistance (ICU)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Copyright &amp;copy; 2020 [Themefisher](https://themefisher.com) All Rights Reserved</copyright>
+    
+	<atom:link href="https://dicelab-rhul.github.io/ICU/about/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Szonya Durant</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>Kostas Stathis</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>Benedict Wilkins</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</guid>
+      <description>Computer Science PhD Student (2018-2021) at DiceLab Royal Holloway University of London.
+Research interests: Artifical Intelligence, Representation Learning, Reinforcement Learning, Intelligent Agents, Multi-agent Systems
+Projects:  Anomaly Detection in Video Games Teleo-reactive Programing Languages Multi-Agent Simulation Systems &amp;ndash; PyStarWorlds  </description>
+    </item>
+    
+    <item>
+      <title>Emanuele Uliana</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>Callum Woods</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/callum-woods/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/callum-woods/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+  </channel>
+</rss>

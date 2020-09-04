@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Integrated Cognitive User Assistance (ICU)</title>
+    <link>https://dicelab-rhul.github.io/ICU/</link>
+    <description>Recent content on Integrated Cognitive User Assistance (ICU)</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Copyright &amp;copy; 2020 [Themefisher](https://themefisher.com) All Rights Reserved</copyright>
+    <lastBuildDate>Mon, 24 Sep 2018 11:07:10 +0600</lastBuildDate>
+    
+	<atom:link href="https://dicelab-rhul.github.io/ICU/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Getting Started</title>
+      <link>https://dicelab-rhul.github.io/ICU/documentation/start/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/documentation/start/</guid>
+      <description>Download &amp;amp; Install 
+You can verify your installation by running ICU with the following command:
+python -m ICU This will run the system with the default configuration.
+Options To see all available command line options: python -m icu -help</description>
+    </item>
+    
+    <item>
+      <title>Szonya Durant</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>Configuration</title>
+      <link>https://dicelab-rhul.github.io/ICU/documentation/configuration/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/documentation/configuration/</guid>
+      <description>Many aspects of the ICU can be configured in the config.json file.
+General Configuration  screen_full (bool) - full screen the ICU window (ignores other screen options). Default: False screen_aspect (tuple) - fix the aspect ratio of the ICU window.</description>
+    </item>
+    
+    <item>
+      <title>Kostas Stathis</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>Benedict Wilkins</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</guid>
+      <description>Computer Science PhD Student (2018-2021) at DiceLab Royal Holloway University of London.
+Research interests: Artifical Intelligence, Representation Learning, Reinforcement Learning, Intelligent Agents, Multi-agent Systems
+Projects:  Anomaly Detection in Video Games Teleo-reactive Programing Languages Multi-Agent Simulation Systems &amp;ndash; PyStarWorlds  </description>
+    </item>
+    
+    <item>
+      <title>Emanuele Uliana</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>Callum Woods</title>
+      <link>https://dicelab-rhul.github.io/ICU/about/callum-woods/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/about/callum-woods/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
+    </item>
+    
+    <item>
+      <title>How To Wear Bright Shoes</title>
+      <link>https://dicelab-rhul.github.io/ICU/blog/blog-post-1/</link>
+      <pubDate>Mon, 24 Sep 2018 11:07:10 +0600</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/blog/blog-post-1/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</description>
+    </item>
+    
+    <item>
+      <title>How To Wear Bright Shoes</title>
+      <link>https://dicelab-rhul.github.io/ICU/blog/blog-post-2/</link>
+      <pubDate>Mon, 24 Sep 2018 11:07:10 +0600</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/blog/blog-post-2/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</description>
+    </item>
+    
+    <item>
+      <title>How To Wear Bright Shoes</title>
+      <link>https://dicelab-rhul.github.io/ICU/blog/blog-post-3/</link>
+      <pubDate>Mon, 24 Sep 2018 11:07:10 +0600</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/blog/blog-post-3/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</description>
+    </item>
+    
+    <item>
+      <title>How To Wear Bright Shoes</title>
+      <link>https://dicelab-rhul.github.io/ICU/blog/blog-post-4/</link>
+      <pubDate>Mon, 24 Sep 2018 11:07:10 +0600</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/blog/blog-post-4/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</description>
+    </item>
+    
+    <item>
+      <title>How To Wear Bright Shoes</title>
+      <link>https://dicelab-rhul.github.io/ICU/blog/blog-post-5/</link>
+      <pubDate>Mon, 24 Sep 2018 11:07:10 +0600</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/blog/blog-post-5/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</description>
+    </item>
+    
+    <item>
+      <title>How To Wear Bright Shoes</title>
+      <link>https://dicelab-rhul.github.io/ICU/blog/blog-post-6/</link>
+      <pubDate>Mon, 24 Sep 2018 11:07:10 +0600</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/blog/blog-post-6/</guid>
+      <description>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem ipsum dolor sit amet, consectetur adipisicing elit.</description>
+    </item>
+    
+    <item>
+      <title>Rio Furniture</title>
+      <link>https://dicelab-rhul.github.io/ICU/project/rio-furniture-1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/project/rio-furniture-1/</guid>
+      <description>Behance Website Redesign Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas officiis cumque, harum dicta necessitatibus reprehenderit, delectus molestiae, impedit alias adipisci distinctio voluptas. Tempora modi amet voluptate at provident soluta consequatur.</description>
+    </item>
+    
+    <item>
+      <title>Rio Furniture</title>
+      <link>https://dicelab-rhul.github.io/ICU/project/rio-furniture-2/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/project/rio-furniture-2/</guid>
+      <description>Behance Website Redesign Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas officiis cumque, harum dicta necessitatibus reprehenderit, delectus molestiae, impedit alias adipisci distinctio voluptas. Tempora modi amet voluptate at provident soluta consequatur.</description>
+    </item>
+    
+    <item>
+      <title>Rio Furniture</title>
+      <link>https://dicelab-rhul.github.io/ICU/project/rio-furniture-3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/project/rio-furniture-3/</guid>
+      <description>Behance Website Redesign Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas officiis cumque, harum dicta necessitatibus reprehenderit, delectus molestiae, impedit alias adipisci distinctio voluptas. Tempora modi amet voluptate at provident soluta consequatur.</description>
+    </item>
+    
+    <item>
+      <title>Rio Furniture</title>
+      <link>https://dicelab-rhul.github.io/ICU/project/rio-furniture-4/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/project/rio-furniture-4/</guid>
+      <description>Behance Website Redesign Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas officiis cumque, harum dicta necessitatibus reprehenderit, delectus molestiae, impedit alias adipisci distinctio voluptas. Tempora modi amet voluptate at provident soluta consequatur.</description>
+    </item>
+    
+    <item>
+      <title>Rio Furniture</title>
+      <link>https://dicelab-rhul.github.io/ICU/project/rio-furniture-5/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/project/rio-furniture-5/</guid>
+      <description>Behance Website Redesign Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas officiis cumque, harum dicta necessitatibus reprehenderit, delectus molestiae, impedit alias adipisci distinctio voluptas. Tempora modi amet voluptate at provident soluta consequatur.</description>
+    </item>
+    
+    <item>
+      <title>Rio Furniture</title>
+      <link>https://dicelab-rhul.github.io/ICU/project/rio-furniture-6/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/project/rio-furniture-6/</guid>
+      <description>Behance Website Redesign Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas officiis cumque, harum dicta necessitatibus reprehenderit, delectus molestiae, impedit alias adipisci distinctio voluptas. Tempora modi amet voluptate at provident soluta consequatur.</description>
+    </item>
+    
+  </channel>
+</rss>

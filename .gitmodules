@@ -1,3 +1,12 @@
 [submodule "themes/paper"]
 	path = themes/paper
 	url = https://github.com/nanxiaobei/hugo-paper
+[submodule "themes/syna"]
+	path = themes/syna
+	url = git@github.com:okkur/syna.git
+[submodule "themes/airspace"]
+	path = themes/airspace
+	url = git@github.com:themefisher/airspace-hugo.git
+[submodule "themes/airspace-hugo"]
+	path = themes/airspace-hugo
+	url = git@github.com:dicelab-rhul/airspace-hugo.git
