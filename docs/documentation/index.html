@@ -107,6 +107,12 @@
 		  	<h3><a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">2. Configuration</a></h3>
 			 
         
+		  	<h3><a href="https://dicelab-rhul.github.io/ICU/documentation/events/">3. Events</a></h3>
+			 
+        
+		  	<h3><a href="https://dicelab-rhul.github.io/ICU/documentation/advanced/">4. Advanced</a></h3>
+			 
+        
 	</div>
 	
 	<hr> 
@@ -114,24 +120,46 @@
         
         
         <div class="post">
-          <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/start/">Getting Started</a></h3>
+		  <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/start/">Getting Started</a></h1>
           <div class="post-content">
             <p><p><a href="https://dicelab-rhul.github.io/ICU/download/" class="btn btn-main"> Download &amp; Install </a></p>
 <p>You can verify your installation by running ICU with the following command:</p>
 <pre><code>python -m ICU
 </code></pre><p>This will run the system with the default configuration.</p>
+<hr>
 <h2 id="options">Options</h2>
 <p>To see all available command line options: <code>python -m icu -help</code></p>
+<hr>
 <h2 id="specifying-a-configuration-file">Specifying a Configuration file</h2>
 <p>ICU uses a configuration file to allow users to modified many aspects of the system. The configuration file can be specified with the <code>-c</code> option.</p>
 <pre><code>python -m icu -c config.json
 </code></pre><p>For details on configuring ICU see <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a> below.</p>
+<hr>
+<h1 id="tasks">Tasks</h1>
+<p>There are three main tasks for participants in the ICU system designed to test participants attention and task mangagment skills. The tasks are based on a subset of the original MATBII tasks with some slight variations. Each task is described in detail below.</p>
+<hr>
+<h2 id="task-system-monitoring">Task: System Monitoring</h2>
+<h3 id="monitoring-warning-lights">Monitoring Warning Lights</h3>
+<p>Participants are tasked with keeping <code>WarningLight:0</code> (1) in the on (green) state by clicking when it turns off (grey). At the same time, the second warning light <code>WarningLight:1</code> (2) should be kept off (grey) by clicking when it turns on (red). Warning Lights are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
+<h3 id="monitoring-scales">Monitoring Scales</h3>
+<p>Participants are tasked with keeping the slider in the middle of each scale (2). The slider will move up or down at pre-set time intervals. Clicking on the slider will reset it to the middle position. Scales are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
+<hr>
+<h2 id="task-fuel-monitoring">Task: Fuel Monitoring</h2>
+<h3 id="fuel-tanks">Fuel Tanks</h3>
+<p>Participants are tasked with keeping the fuel level of the two main tanks,<code>FuelTank:A</code> and <code>FuelTank:B</code> (1), within a given range by interacting with the necessary pumps. The fuel in the main, and auxillary (3) tanks will deplete over time. Two of the tanks (3) contain unlimited fuel and can always be used to refill the others. The acceptable fuel range is indicated by the light blue box at each main tank. The main fuel tank values will turn red when the fuel level is out of the acceptable range. Fuel tanks are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
+<h3 id="pumps">Pumps</h3>
+<p>Pumps are used to move fuel between their associated tanks. With the aim of keeping the main tank fuel levels within the acceptable range, participants should attempt to transfer fuel from the infinite tanks to the main tanks. Clicking on a pump will toggle on/off. Pumps periodically fail and become unusable and stop pumping fuel, after a set period they will be repaired and become useable again starting in the off state. A pump <code>Pump&lt;ij&gt;</code> will move fuel from <code>FuelTank&lt;i&gt;</code> to <code>FuelTank&lt;j&gt;</code>. Pumps are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
+<hr>
+<h2 id="task-tracking">Task: Tracking</h2>
+<p>Participants are tasked with keeping the target (1) in the central box (2) using the keyboard or joy stick. The target will slowly drift away from the central box over time.</p>
+<p>The target is <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#tracking">configurable</a>.</p>
+<h1 id="todo-demo-images">TODO demo images</h1>
 </p>
 		  </div>
 		  <hr>
 		
         <div class="post">
-          <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a></h3>
+		  <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a></h1>
           <div class="post-content">
             <p><p>Many aspects of the ICU can be configured in the <code>config.json</code> file.</p>
 <h2 id="general-configuration">General Configuration</h2>
@@ -158,7 +186,7 @@
 }
 </code></pre><p>The above configuration will disable both the tracking and fuel monitoring tasks, leaving the system monitoring task. All tasks are enabled by default.</p>
 <hr>
-<h2 id="task-tracking">Task: Tracking</h2>
+<h2 id="tracking">Task: Tracking</h2>
 <h3 id="options">Options</h3>
 <ul>
 <li><code>step</code> : distance in pixels moved by the tracking target after each (non-user action) event.</li>
@@ -168,7 +196,7 @@
 <pre><code>&quot;Target:0&quot; : { &quot;step&quot; : 2 }
 </code></pre><p>In the above configuration, the target will move 2 pixels per <code>move</code> event and according to its movement schedule.</p>
 <hr>
-<h2 id="task-fuel-monitoring">Task: Fuel Monitoring</h2>
+<h2 id="fuel-monitoring">Task: Fuel Monitoring</h2>
 <h3 id="options-1">Options</h3>
 <p>The fuel monitoring task involves tanks and pumps, each have their own configuration options. Pumps move fuel between their associated tanks.</p>
 <h4 id="tank">Tank</h4>
@@ -193,7 +221,7 @@
 <pre><code>&quot;Pump:AB&quot; : { &quot;flow_rate&quot;: 10, &quot;event_rate&quot;: 1}
 </code></pre><p>For the above configuration for pump AB, 1 <code>transfer</code> event is triggered every second, each event transferring 10 units of fuel from tank A to tank B. Increasing the event rate to 10 would have the effect of 10 events being triggered (uniformly over a 1 second) with each event transferring 1 unit of fuel. Note that higher event rates lead to a smoother fuel animation but at the cost of many more events being generated.</p>
 <hr>
-<h2 id="system-monitoring">System Monitoring</h2>
+<h2 id="system-monitoring">Task: System Monitoring</h2>
 <h3 id="options-2">Options:</h3>
 <ul>
 <li><code>size</code> : the size (number of possible slider positions) of a scale (default 11)</li>
@@ -246,6 +274,7 @@ e: ---- | ---------- | ---- | ---------- | ----
 <p>Takes the form <code>uniform(a,b)</code> where <code>a</code> and <code>b</code> are the lower and upper bounds (int &gt; 0) of the domain, <code>&quot;Scale:0&quot; : &quot;uniform(0, 1000)&quot;</code>, will trigger an event at random intervals between 0 and 1 second.</p>
 <h4 id="normal-distribution">Normal Distribution</h4>
 <p>Takes the form <code>normal(mu, sigma)</code> where <code>mu</code> and <code>sigma</code> are the mean and standard deviation of a Gaussian distribution, <code>&quot;Scale:0&quot; : &quot;normal(1000,100)&quot;</code>, will trigger events at random intervals centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).</p>
+<hr>
 <h2 id="cosmetic-options">Cosmetic Options</h2>
 <p>Many of the display properties of widgets in ICU can be configured, common options include:</p>
 <ul>
@@ -254,11 +283,163 @@ e: ---- | ---------- | ---- | ---------- | ----
 <li><code>outline_thickness</code> : set the outline thickness of a widget (default 3)</li>
 </ul>
 <p>All colour options may be specified as a string e.g. <code>&quot;red&quot;</code> (see the <a href="http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter">full list</a>) or as a hexadecimal string e.g. <code>&quot;#ff0000&quot;</code>.</p>
-<p>A number of widgets have specific cosmetic options, below is a comprehensive list.</p>
+<p>A number of widgets have specific cosmetic options, a detailed list will be provided soon (until then, check the source <code>config.py</code>).</p>
+</p>
+		  </div>
+		  <hr>
+		
+        <div class="post">
+		  <h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/events/">Events</a></h1>
+          <div class="post-content">
+            <p><h1 id="todo-this-needs-updating">TODO this needs updating</h1>
+<p>An event is a small packet of data that when processed causes some change in state.</p>
+<p>All events have the following attributes:</p>
 <ul>
-<li><code>&quot;WarningLight:0&quot; : {&quot;on_colour&quot;:&quot;blue&quot;, &quot;off_colour&quot;:&quot;white&quot;, &quot;outline_colour&quot;:&quot;green&quot;, &quot;outline_thickness&quot;:10}</code></li>
-<li><code>&quot;Scale:0&quot; : {&quot;background_colour&quot;:&quot;blue&quot;, &quot;outline_colour&quot;:&quot;green&quot;, &quot;outline_thickness&quot;:10, &quot;slider_colour&quot;:&quot;white&quot;}</code></li>
+<li><code>id  (str)</code> : the unique id of the event.</li>
+<li><code>src (str)</code> : the source of the event (unique id).</li>
+<li><code>dst (str)</code> : the destination of the event (unique id).</li>
+<li><code>time (float)</code> : current time.</li>
+<li><code>data (dict)</code> : a collection of additional values that may be used in processing the event.</li>
 </ul>
+<h2 id="widget-events">Widget Events</h2>
+<p>A widget displays part of the internal state to a user, they may also receive events.
+Events are generated by the various event sources in the ICU system, and may be generated by an interfacing external system. Each internal event source can be set up in the config.json file, for more details see <a href="https://github.com/dicelab-rhul/ICU/wiki/Configuration">Configuration</a>.</p>
+<p>Internal events will change the state of ICU and may trigger a widget to update.</p>
+<h3 id="system-monitoring">System Monitoring</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event('&lt;src&gt;', 'WarningLight:&lt;i&gt;', label='switch')</code></td>
+<td>switch warning light <code>i</code> on/off</td>
+</tr>
+<tr>
+<td><code>event('&lt;src&gt;', 'WarningLight:&lt;i&gt;', label='click')</code></td>
+<td>switch warning light <code>i</code> on/off</td>
+</tr>
+<tr>
+<td><code>event('&lt;src&gt;', 'Scale:&lt;i&gt;', label='slide', slide=&lt;n&gt;)</code></td>
+<td>slide a scale up or down by (+, -) n units</td>
+</tr>
+<tr>
+<td><code>event('&lt;src&gt;', 'Scale:&lt;i&gt;', label='click')</code></td>
+<td>resets the position of the scale slider</td>
+</tr>
+</tbody>
+</table>
+<h3 id="fuel-monitoring">Fuel Monitoring</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event('&lt;src&gt;', 'Pump:&lt;ij&gt;', label='transfer', flow=&lt;f&gt;)</code></td>
+<td>transform f fuel from tank i to tank j</td>
+</tr>
+<tr>
+<td><code>event('&lt;src&gt;', 'Pump:&lt;ij&gt;', label='fail')</code></td>
+<td>cause the pump to fail</td>
+</tr>
+<tr>
+<td><code>event('&lt;src&gt;', 'Pump:&lt;ij&gt;', label='repair')</code></td>
+<td>repair the pump (switch to normal operation)</td>
+</tr>
+<tr>
+<td><code>event('&lt;src&gt;', 'Pump:&lt;ij&gt;', label='click')</code></td>
+<td>switch pump on/off</td>
+</tr>
+<tr>
+<td><code>event('FuelTankMain:&lt;i&gt;', 'Global', label='fuel', acceptable=&lt;a&gt;)</code></td>
+<td>generated by a fuel tank when the fuel reaches and acceptable/unacceptable level.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tracking">Tracking</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event('&lt;src&gt;', 'Tracking:0', label='move', dx=&lt;dx&gt;, dy=&lt;dy&gt;)</code></td>
+<td>move the tracking widget target by (dx,dy)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="highlight">Highlight</h3>
+<p>All widgets have an associated highlighter which may receive highlight events. The id of a highlighter is derived from it associated widget <code>Highlight:&lt;Widget ID&gt;</code>, for example, <code>Highlight:WarningLight:0</code>.
+| Event | Description |
+| &mdash;&ndash; | &mdash;&mdash;&mdash;&ndash; |
+| <code>event('&lt;src&gt;', 'Highlight:&lt;widget id&gt;', label='highlight')</code> | turn on/off the highlight of the given widget. |</p>
+<h3 id="overlay">Overlay</h3>
+<p>The overlay widget can display graphics on top of other widgets.
+| Event | Description |
+| &mdash;&ndash; | &mdash;&mdash;&mdash;&ndash; |
+| <code>event('&lt;src&gt;', 'Overlay:Overlay', label='overlay', x=&lt;x&gt;, y=&lt;y&gt;, text='&lt;text&gt;', graphic='&lt;graphic_label&gt;')</code> | Overlay text or predefined graphic at location (x,y) - pixel coordinates |</p>
+<p>Custom overlay graphics must be registered with the overlay to associate a label (TODO). Text formatting options should also be specified as part of the <a href="https://github.com/dicelab-rhul/ICU/wiki/Configuration">configuration</a>.</p>
+<h2 id="global-events">Global Events</h2>
+<p>Global events are generated by ICU for use outside the system and are typically the result of user input, or an internal state change. Global events always have the <code>Global</code> event destination and are sent to all external sinks.</p>
+<h2 id="system-monitoring-1">System Monitoring</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event('WarningLight:&lt;i&gt;', 'Global', label='click')</code></td>
+<td>the user clicked a warning light</td>
+</tr>
+<tr>
+<td><code>event('Scale:&lt;i&gt;', 'Global', label='click')</code></td>
+<td>the user clicked a scale.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="fuel-monitoring-1">Fuel Monitoring</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>event('FuelTank:&lt;i&gt;', 'Global', label='fuel', acceptable=&lt;a&gt;)</code></td>
+<td>generated by a fuel tank when the fuel reaches an acceptable/unacceptable level (<code>&lt;a&gt; = True/False</code> respectively).</td>
+</tr>
+<tr>
+<td><code>event( 'Pump:&lt;ij&gt;', 'Global', label='click')</code></td>
+<td>the user clicked a pump.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tracking-1">Tracking</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Description</th>
+</tr>
+</thead>
+</table>
+<h1 id="external-events">External Events</h1>
+<p>Events are generated by event <em>sources</em> and received by event <em>sinks</em>, all widgets are both a source and sink. Events can be generated and sent automatically to ICU by sub-classing the <code>event.ExternalEventSource</code> class and received by a sub-class of <code>event.ExternalEventSink</code>.</p>
 </p>
 		  </div>
 		  <hr>
@@ -271,6 +452,49 @@ e: ---- | ---------- | ---- | ---------- | ----
 		
 		
 		
+		<nav class="text-center">
+			<ul class="pagination post-pagination">
+				
+				
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<li class=" active ">
+						<a href="/ICU/documentation/">
+							1
+						</a>
+					</li>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					<li class="">
+						<a href="/ICU/documentation/page/2/">
+							2
+						</a>
+					</li>
+					
+					
+					
+					
+					<li>
+						<a href="/ICU/documentation/page/2/">Next</a>
+					</li>
+					
+				</ul>
+			</nav>
+			
       </div>
     </div>
   </div>

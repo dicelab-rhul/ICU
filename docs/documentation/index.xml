@@ -20,7 +20,7 @@
       <description>Download &amp;amp; Install 
 You can verify your installation by running ICU with the following command:
 python -m ICU This will run the system with the default configuration.
-Options To see all available command line options: python -m icu -help</description>
+ Options To see all available command line options: python -m icu -help</description>
     </item>
     
     <item>
@@ -31,6 +31,27 @@ Options To see all available command line options: python -m icu -help</descript
       <guid>https://dicelab-rhul.github.io/ICU/documentation/configuration/</guid>
       <description>Many aspects of the ICU can be configured in the config.json file.
 General Configuration  screen_full (bool) - full screen the ICU window (ignores other screen options). Default: False screen_aspect (tuple) - fix the aspect ratio of the ICU window.</description>
+    </item>
+    
+    <item>
+      <title>Events</title>
+      <link>https://dicelab-rhul.github.io/ICU/documentation/events/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/documentation/events/</guid>
+      <description>TODO this needs updating An event is a small packet of data that when processed causes some change in state.
+All events have the following attributes:
+ id (str) : the unique id of the event.</description>
+    </item>
+    
+    <item>
+      <title>Advanced</title>
+      <link>https://dicelab-rhul.github.io/ICU/documentation/advanced/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://dicelab-rhul.github.io/ICU/documentation/advanced/</guid>
+      <description>It is possible to interact with ICU via process communication. An external (Python) process can communicate with ICU via events and a shared memory object.
+Inter-process Communication TODO - for now see the file test/test_external.</description>
     </item>
     
   </channel>

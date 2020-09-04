@@ -82,43 +82,41 @@
 </header>
 
 <section class="page-title bg-2" style="background-image: url('https://dicelab-rhul.github.io/ICU/');">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="block">
-          <h1>Configuration</h1>
-          <p></p>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="block">
+            
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
 <section class="page-wrapper">
 	<div class="container">
 		<div class="row">
-			<div class="col-md-8">
-				<div class="post post-single">
-					<h2 class="post-title">Configuration</h2>
-					<div class="post-meta">
-						<ul>
-              <li><i class="ion-calendar"></i> January 1, 0001</li>
-              <li><i class="ion-android-people"></i>
-                Posted By
-                
-                <a class="text-primary" href="/ICU/author/"></a>
-                
-              </li>
-              <li><i class="ion-pricetags"></i> 
-                
-              </li>
-            </ul>
-					</div>
-					<div class="post-thumb">
-						<img class="img-responsive" src="/ICU/" alt="Configuration">
-					</div>
-					<div class="post-content post-excerpt">
-						<p>Many aspects of the ICU can be configured in the <code>config.json</code> file.</p>
+			
+				  <h3><a href="https://dicelab-rhul.github.io/ICU/documentation/start/">1. Getting Started</a></h3>
+				 
+			
+				  <h3><a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">2. Configuration</a></h3>
+				 
+			
+				  <h3><a href="https://dicelab-rhul.github.io/ICU/documentation/events/">3. Events</a></h3>
+				 
+			
+				  <h3><a href="https://dicelab-rhul.github.io/ICU/documentation/advanced/">4. Advanced</a></h3>
+				 
+			
+		</div>
+		
+		<hr> 
+		<div class="row">
+			<div class="post">
+				<h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a></h1>
+				<div class="post-content">
+					<p><p>Many aspects of the ICU can be configured in the <code>config.json</code> file.</p>
 <h2 id="general-configuration">General Configuration</h2>
 <ul>
 <li><code>screen_full (bool)</code> - full screen the ICU window (ignores other screen options). Default: False</li>
@@ -143,7 +141,7 @@
 }
 </code></pre><p>The above configuration will disable both the tracking and fuel monitoring tasks, leaving the system monitoring task. All tasks are enabled by default.</p>
 <hr>
-<h2 id="task-tracking">Task: Tracking</h2>
+<h2 id="tracking">Task: Tracking</h2>
 <h3 id="options">Options</h3>
 <ul>
 <li><code>step</code> : distance in pixels moved by the tracking target after each (non-user action) event.</li>
@@ -153,7 +151,7 @@
 <pre><code>&quot;Target:0&quot; : { &quot;step&quot; : 2 }
 </code></pre><p>In the above configuration, the target will move 2 pixels per <code>move</code> event and according to its movement schedule.</p>
 <hr>
-<h2 id="task-fuel-monitoring">Task: Fuel Monitoring</h2>
+<h2 id="fuel-monitoring">Task: Fuel Monitoring</h2>
 <h3 id="options-1">Options</h3>
 <p>The fuel monitoring task involves tanks and pumps, each have their own configuration options. Pumps move fuel between their associated tanks.</p>
 <h4 id="tank">Tank</h4>
@@ -178,7 +176,7 @@
 <pre><code>&quot;Pump:AB&quot; : { &quot;flow_rate&quot;: 10, &quot;event_rate&quot;: 1}
 </code></pre><p>For the above configuration for pump AB, 1 <code>transfer</code> event is triggered every second, each event transferring 10 units of fuel from tank A to tank B. Increasing the event rate to 10 would have the effect of 10 events being triggered (uniformly over a 1 second) with each event transferring 1 unit of fuel. Note that higher event rates lead to a smoother fuel animation but at the cost of many more events being generated.</p>
 <hr>
-<h2 id="system-monitoring">System Monitoring</h2>
+<h2 id="system-monitoring">Task: System Monitoring</h2>
 <h3 id="options-2">Options:</h3>
 <ul>
 <li><code>size</code> : the size (number of possible slider positions) of a scale (default 11)</li>
@@ -231,6 +229,7 @@ e: ---- | ---------- | ---- | ---------- | ----
 <p>Takes the form <code>uniform(a,b)</code> where <code>a</code> and <code>b</code> are the lower and upper bounds (int &gt; 0) of the domain, <code>&quot;Scale:0&quot; : &quot;uniform(0, 1000)&quot;</code>, will trigger an event at random intervals between 0 and 1 second.</p>
 <h4 id="normal-distribution">Normal Distribution</h4>
 <p>Takes the form <code>normal(mu, sigma)</code> where <code>mu</code> and <code>sigma</code> are the mean and standard deviation of a Gaussian distribution, <code>&quot;Scale:0&quot; : &quot;normal(1000,100)&quot;</code>, will trigger events at random intervals centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).</p>
+<hr>
 <h2 id="cosmetic-options">Cosmetic Options</h2>
 <p>Many of the display properties of widgets in ICU can be configured, common options include:</p>
 <ul>
@@ -239,84 +238,10 @@ e: ---- | ---------- | ---- | ---------- | ----
 <li><code>outline_thickness</code> : set the outline thickness of a widget (default 3)</li>
 </ul>
 <p>All colour options may be specified as a string e.g. <code>&quot;red&quot;</code> (see the <a href="http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter">full list</a>) or as a hexadecimal string e.g. <code>&quot;#ff0000&quot;</code>.</p>
-<p>A number of widgets have specific cosmetic options, below is a comprehensive list.</p>
-<ul>
-<li><code>&quot;WarningLight:0&quot; : {&quot;on_colour&quot;:&quot;blue&quot;, &quot;off_colour&quot;:&quot;white&quot;, &quot;outline_colour&quot;:&quot;green&quot;, &quot;outline_thickness&quot;:10}</code></li>
-<li><code>&quot;Scale:0&quot; : {&quot;background_colour&quot;:&quot;blue&quot;, &quot;outline_colour&quot;:&quot;green&quot;, &quot;outline_thickness&quot;:10, &quot;slider_colour&quot;:&quot;white&quot;}</code></li>
-</ul>
-
-					</div>
-					<div class="post-comments">
-						
-					</div>
+<p>A number of widgets have specific cosmetic options, a detailed list will be provided soon (until then, check the source <code>config.py</code>).</p>
+</p>
 				</div>
 			</div>
-      <div class="col-md-4">
-        <aside class="sidebar"><div class="widget widget-latest-post">
-    <h4 class="widget-title">Latest Posts</h4>
-    
-    <div class="media">
-      <a class="pull-left" href="https://dicelab-rhul.github.io/ICU/blog/blog-post-1/">
-        <img class="media-object" src="/ICU/images/blog/blog-post-1.jpg" alt="How To Wear Bright Shoes">
-      </a>
-      <div class="media-body">
-        <h4 class="media-heading"><a href="https://dicelab-rhul.github.io/ICU/blog/blog-post-1/">How To Wear Bright Shoes</a></h4>
-        <p>Lorem ipsum dolor sit amet, consectetur …</p>
-      </div>
-    </div>
-    
-    <div class="media">
-      <a class="pull-left" href="https://dicelab-rhul.github.io/ICU/blog/blog-post-2/">
-        <img class="media-object" src="/ICU/images/blog/blog-post-2.jpg" alt="How To Wear Bright Shoes">
-      </a>
-      <div class="media-body">
-        <h4 class="media-heading"><a href="https://dicelab-rhul.github.io/ICU/blog/blog-post-2/">How To Wear Bright Shoes</a></h4>
-        <p>Lorem ipsum dolor sit amet, consectetur …</p>
-      </div>
-    </div>
-    
-    <div class="media">
-      <a class="pull-left" href="https://dicelab-rhul.github.io/ICU/blog/blog-post-3/">
-        <img class="media-object" src="/ICU/images/blog/blog-post-3.jpg" alt="How To Wear Bright Shoes">
-      </a>
-      <div class="media-body">
-        <h4 class="media-heading"><a href="https://dicelab-rhul.github.io/ICU/blog/blog-post-3/">How To Wear Bright Shoes</a></h4>
-        <p>Lorem ipsum dolor sit amet, consectetur …</p>
-      </div>
-    </div>
-    
-    <div class="media">
-      <a class="pull-left" href="https://dicelab-rhul.github.io/ICU/blog/blog-post-4/">
-        <img class="media-object" src="/ICU/images/blog/blog-post-4.jpg" alt="How To Wear Bright Shoes">
-      </a>
-      <div class="media-body">
-        <h4 class="media-heading"><a href="https://dicelab-rhul.github.io/ICU/blog/blog-post-4/">How To Wear Bright Shoes</a></h4>
-        <p>Lorem ipsum dolor sit amet, consectetur …</p>
-      </div>
-    </div>
-    
-  </div><div class="widget widget-category">
-    <h4 class="widget-title">Categories</h4>
-    <ul class="widget-category-list">
-      <li><a href="/ICU/categories/artificial-intelligence">Artificial intelligence</a></li>
-      <li><a href="/ICU/categories/company-news">Company news</a></li>
-      <li><a href="/ICU/categories/legacy-support">Legacy support</a></li>
-    </ul>
-  </div><div class="widget widget-tag">
-    <h4 class="widget-title">Tags</h4>
-    <ul class="widget-tag-list">
-      <li><a href="/ICU/tags/advice">Advice</a></li>
-      <li><a href="/ICU/tags/ai">Ai</a></li>
-      <li><a href="/ICU/tags/android">Android</a></li>
-      <li><a href="/ICU/tags/company">Company</a></li>
-      <li><a href="/ICU/tags/mechine">Mechine</a></li>
-      <li><a href="/ICU/tags/news">News</a></li>
-      <li><a href="/ICU/tags/retro">Retro</a></li>
-      <li><a href="/ICU/tags/technology">Technology</a></li>
-    </ul>
-  </div></aside>
-
-      </div>
 		</div>
 	</div>
 </section>

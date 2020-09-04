@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-us"><head>
   <meta charset="utf-8">
-  <title>Getting Started</title>
+  <title>Advanced</title>
 
   <!-- mobile responsive meta -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -114,40 +114,20 @@
 		<hr> 
 		<div class="row">
 			<div class="post">
-				<h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/start/">Getting Started</a></h1>
+				<h1> <a href="https://dicelab-rhul.github.io/ICU/documentation/advanced/">Advanced</a></h1>
 				<div class="post-content">
-					<p><p><a href="https://dicelab-rhul.github.io/ICU/download/" class="btn btn-main"> Download &amp; Install </a></p>
-<p>You can verify your installation by running ICU with the following command:</p>
-<pre><code>python -m ICU
-</code></pre><p>This will run the system with the default configuration.</p>
-<hr>
-<h2 id="options">Options</h2>
-<p>To see all available command line options: <code>python -m icu -help</code></p>
-<hr>
-<h2 id="specifying-a-configuration-file">Specifying a Configuration file</h2>
-<p>ICU uses a configuration file to allow users to modified many aspects of the system. The configuration file can be specified with the <code>-c</code> option.</p>
-<pre><code>python -m icu -c config.json
-</code></pre><p>For details on configuring ICU see <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/">Configuration</a> below.</p>
-<hr>
-<h1 id="tasks">Tasks</h1>
-<p>There are three main tasks for participants in the ICU system designed to test participants attention and task mangagment skills. The tasks are based on a subset of the original MATBII tasks with some slight variations. Each task is described in detail below.</p>
-<hr>
-<h2 id="task-system-monitoring">Task: System Monitoring</h2>
-<h3 id="monitoring-warning-lights">Monitoring Warning Lights</h3>
-<p>Participants are tasked with keeping <code>WarningLight:0</code> (1) in the on (green) state by clicking when it turns off (grey). At the same time, the second warning light <code>WarningLight:1</code> (2) should be kept off (grey) by clicking when it turns on (red). Warning Lights are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
-<h3 id="monitoring-scales">Monitoring Scales</h3>
-<p>Participants are tasked with keeping the slider in the middle of each scale (2). The slider will move up or down at pre-set time intervals. Clicking on the slider will reset it to the middle position. Scales are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
-<hr>
-<h2 id="task-fuel-monitoring">Task: Fuel Monitoring</h2>
-<h3 id="fuel-tanks">Fuel Tanks</h3>
-<p>Participants are tasked with keeping the fuel level of the two main tanks,<code>FuelTank:A</code> and <code>FuelTank:B</code> (1), within a given range by interacting with the necessary pumps. The fuel in the main, and auxillary (3) tanks will deplete over time. Two of the tanks (3) contain unlimited fuel and can always be used to refill the others. The acceptable fuel range is indicated by the light blue box at each main tank. The main fuel tank values will turn red when the fuel level is out of the acceptable range. Fuel tanks are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
-<h3 id="pumps">Pumps</h3>
-<p>Pumps are used to move fuel between their associated tanks. With the aim of keeping the main tank fuel levels within the acceptable range, participants should attempt to transfer fuel from the infinite tanks to the main tanks. Clicking on a pump will toggle on/off. Pumps periodically fail and become unusable and stop pumping fuel, after a set period they will be repaired and become useable again starting in the off state. A pump <code>Pump&lt;ij&gt;</code> will move fuel from <code>FuelTank&lt;i&gt;</code> to <code>FuelTank&lt;j&gt;</code>. Pumps are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
-<hr>
-<h2 id="task-tracking">Task: Tracking</h2>
-<p>Participants are tasked with keeping the target (1) in the central box (2) using the keyboard or joy stick. The target will slowly drift away from the central box over time.</p>
-<p>The target is <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#tracking">configurable</a>.</p>
-<h1 id="todo-demo-images">TODO demo images</h1>
+					<p><p>It is possible to interact with ICU via process communication. An external (Python) process can communicate with ICU via events and a shared memory object.</p>
+<h1 id="inter-process-communication">Inter-process Communication</h1>
+<p>TODO - for now see the file <code>test/test_external.py</code> for details.</p>
+<h1 id="shared-memory">Shared Memory</h1>
+<p>ICU exposes a shared memory object (which is implemented using process pipes), which other processes may read. The shared memory is created automatically with <code>process, memory = icu.start()</code>. The shared <code>memory</code> exposes the following attributes which can be accessed in the usual way (e.g. <code>memory.event_sinks</code>).</p>
+<ul>
+<li><code>event_sinks</code> - a list of event sink names, valid destinations for any events that be generated by another process.</li>
+<li><code>event_sources</code> - a list of event sources, the sources of events that another process may receive from the ICU process.</li>
+<li><code>window_properties</code> - a dictionary of sizes and positions of the various widgets in the windows coordinate system, as well as the window size and position in screen coordinate system.</li>
+<li><code>config</code> - the ICU configuration options that were specified in the <code>config.json</code> file.</li>
+</ul>
+<p>Accessing the shared memory will block until ICU has completed loading. Also note that currently this memory object is not bi-directional, its purpose is to expose various useful properties of the ICU system.</p>
 </p>
 				</div>
 			</div>
