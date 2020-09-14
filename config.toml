@@ -3,7 +3,7 @@ baseURL = "https://dicelab-rhul.github.io/ICU/"
 title = "Integrated Cognitive User Assistance (ICU)"
 theme = "airspace-hugo"
 # post pagination
-paginate = "3"
+paginate = "1"
 # post excerpt
 summaryLength = "30"
 # disqus short name
@@ -63,7 +63,8 @@ sidebar = ["recent_posts", "taxonomy_category", "taxonomy_tags"]
 
 #################### default parameters ################################
 [params]
-logo = "images/logo.png"
+logorhul = "images/rhul-logo.png"
+logoEPSRC = "images/EPSRC.png"
 # Meta data
 description = "This is meta description"
 author = "Themefisher"

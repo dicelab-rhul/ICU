@@ -50,7 +50,7 @@
               <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/ICU">
-              <img src="https://dicelab-rhul.github.io/ICU/images/logo.png" alt="Integrated Cognitive User Assistance (ICU)" class="img-responsive">
+              
             </a>
           </div>
           
@@ -118,11 +118,11 @@
 				<div class="post-content">
 					<p><p><a href="https://dicelab-rhul.github.io/ICU/download/" class="btn btn-main"> Download &amp; Install </a></p>
 <p>You can verify your installation by running ICU with the following command:</p>
-<pre><code>python -m ICU
+<pre><code>python3 -m ICU
 </code></pre><p>This will run the system with the default configuration.</p>
 <hr>
 <h2 id="options">Options</h2>
-<p>To see all available command line options: <code>python -m icu -help</code></p>
+<p>To see all available command line options: <code>python3 -m icu -help</code></p>
 <hr>
 <h2 id="specifying-a-configuration-file">Specifying a Configuration file</h2>
 <p>ICU uses a configuration file to allow users to modified many aspects of the system. The configuration file can be specified with the <code>-c</code> option.</p>
@@ -132,22 +132,36 @@
 <h1 id="tasks">Tasks</h1>
 <p>There are three main tasks for participants in the ICU system designed to test participants attention and task mangagment skills. The tasks are based on a subset of the original MATBII tasks with some slight variations. Each task is described in detail below.</p>
 <hr>
+<div class="row" style="margin:0px">
+<figure style="float:right; margin:20px">
+<img src="../images/documentation/system-l.png">
+</figure>
 <h2 id="task-system-monitoring">Task: System Monitoring</h2>
 <h3 id="monitoring-warning-lights">Monitoring Warning Lights</h3>
-<p>Participants are tasked with keeping <code>WarningLight:0</code> (1) in the on (green) state by clicking when it turns off (grey). At the same time, the second warning light <code>WarningLight:1</code> (2) should be kept off (grey) by clicking when it turns on (red). Warning Lights are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
+<p>Participants are tasked with keeping warning light (1) in the on state (green)  by clicking when it turns off (grey). At the same time, the second warning light (2) should be kept off (grey) by clicking when it turns on (red). Warning Lights are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
 <h3 id="monitoring-scales">Monitoring Scales</h3>
-<p>Participants are tasked with keeping the slider in the middle of each scale (2). The slider will move up or down at pre-set time intervals. Clicking on the slider will reset it to the middle position. Scales are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
+<p>Participants are tasked with keeping the slider in the middle of the 4 sliders each scale (3). The slider will move up or down at pre-set time intervals. Clicking on the slider will reset it to the middle position as can be seen in the right most scale. Scales are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#system-monitoring">configurable</a>.</p>
+</div>
 <hr>
+<div class="row" style="margin:0px">
 <h2 id="task-fuel-monitoring">Task: Fuel Monitoring</h2>
 <h3 id="fuel-tanks">Fuel Tanks</h3>
-<p>Participants are tasked with keeping the fuel level of the two main tanks,<code>FuelTank:A</code> and <code>FuelTank:B</code> (1), within a given range by interacting with the necessary pumps. The fuel in the main, and auxillary (3) tanks will deplete over time. Two of the tanks (3) contain unlimited fuel and can always be used to refill the others. The acceptable fuel range is indicated by the light blue box at each main tank. The main fuel tank values will turn red when the fuel level is out of the acceptable range. Fuel tanks are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
+<p>Participants are tasked with keeping the fuel level of the two main tanks (1) within a given range by interacting with the necessary pumps. The fuel in the main, and auxillary tanks (2) will deplete over time. Two of the tanks (3) contain unlimited fuel and can always be used to refill the others. The acceptable fuel range is indicated by the light blue box at each main tank. The main fuel tank values will turn red when the fuel level is out of the acceptable range. Fuel tanks are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
 <h3 id="pumps">Pumps</h3>
-<p>Pumps are used to move fuel between their associated tanks. With the aim of keeping the main tank fuel levels within the acceptable range, participants should attempt to transfer fuel from the infinite tanks to the main tanks. Clicking on a pump will toggle on/off. Pumps periodically fail and become unusable and stop pumping fuel, after a set period they will be repaired and become useable again starting in the off state. A pump <code>Pump&lt;ij&gt;</code> will move fuel from <code>FuelTank&lt;i&gt;</code> to <code>FuelTank&lt;j&gt;</code>. Pumps are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
+<p>The eight pumps (4) are used to move fuel between their associated tanks. With the aim of keeping the main tank fuel levels within the acceptable range, participants should attempt to transfer fuel from the infinite tanks to the main tanks. Clicking on a pump will toggle on/off (green/grey). Pumps periodically fail (red), become unusable and stop pumping fuel, after a set period they will be repaired and become useable again starting in the off state. Pumps are <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#fuel-monitoring">configurable</a>.</p>
+<figure style="margin:20px; text-align:center;">
+<img src="../images/documentation/fuel-l.png">
+</figure>
+</div>
 <hr>
+<div class="row" style="margin:0px">
+<figure style="float:right; margin:20px;">
+<img src="../images/documentation/tracking-l.png">
+</figure>
 <h2 id="task-tracking">Task: Tracking</h2>
 <p>Participants are tasked with keeping the target (1) in the central box (2) using the keyboard or joy stick. The target will slowly drift away from the central box over time.</p>
 <p>The target is <a href="https://dicelab-rhul.github.io/ICU/documentation/configuration/#tracking">configurable</a>.</p>
-<h1 id="todo-demo-images">TODO demo images</h1>
+</div>
 </p>
 				</div>
 			</div>

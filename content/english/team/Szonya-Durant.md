@@ -1,7 +1,8 @@
 ---
 title: "Szonya Durant"
-email: "email2@example.org"
-bg_image: ""
+role:  "Principle Investigator"
+email: ""
+photo: "images/team/Szonya-Durant.png"
 draft: false
 weight: 1
 social:
@@ -13,5 +14,4 @@ social:
     link : "#"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet.
-Donec nisi dolor, consequat vel pretium id, auctor in dui. Nam iaculis, neque ac ullamcorper.
+Senior Lecturer in the Department of Psychology at Royal Holloway, University of London.  Visual neuroscientist with expertise in eye tracking and computational approaches for describing human perception and attention. 

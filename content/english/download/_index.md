@@ -76,7 +76,7 @@ pip install ICU
 
 You can verify your installation by running ICU with the following command:
 ```
-python -m ICU
+python3 -m ICU
 ```
 
 This will run the system with the default configuration. If everything is working, head over to [documentation]({{< ref "documentation" >}}) to start configuring the system. 

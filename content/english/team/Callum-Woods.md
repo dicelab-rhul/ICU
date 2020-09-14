@@ -1,5 +1,6 @@
 ---
 title: "Callum Woods"
+role : "Researcher"
 email: "email2@example.org"
 bg_image: "images/featue-bg.jpg"
 draft: false
@@ -13,5 +14,4 @@ social:
     link : "#"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet.
-Donec nisi dolor, consequat vel pretium id, auctor in dui. Nam iaculis, neque ac ullamcorper.
+Doctoral researcher in the Department of Psychology at Royal Holloway University of London. Expertise in eye tracking and machine learning methods.
