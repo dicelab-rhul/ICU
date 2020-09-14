@@ -4,23 +4,18 @@ banner:
   bg_image : ""
   bg_overlay : true
   title : "Integrated Cognitive User assistance (ICU)"
-  content : "--- TODO --- "
+  content : ""
 
 ############################# About #################################
 about:
   enable : true
+
   title : "Project"
-  abstract : "TODO --- write some better abstract/motivation here... 
-  
-  An implementation of [MATBII](https://matb.larc.nasa.gov/) in Python 3.6+ with additional user assistance features. 
-  ICU is implemented as an event system that is easy to interface with. Interface meta data and all internal events are exposed via 
-  a simple event-based python API. ICU includes support for various kinds of user input - mouse, keyboard, joy stick, eye tracking."
-  
-  aims: aims here...
 
-  papers: list of papers?
+  aims : "The aim of this project is to provide user assistance in the multi-tasking example scenario based on the MATBII task space developed by NASA.  The attentional workspace of the user is monitored through their interactions and eye movements by and the underlying agent architecture which in turn is able to deploy highlights and gaze contingent arrows to guide the user’s attention."
 
-  image : ""
+  implementation : "An implementation of MATBII in Python 3.6+ with additional user assistance features. ICU is implemented as an event system that is easy to interface with. Interface meta data and all internal events are exposed via a simple event-based python API. ICU includes support for various kinds of user input - mouse, keyboard, joy stick, eye tracking."
 
+  funding : "This project is supported by a [Human-Like Computing EPSRC Network+](http://hlc.doc.ic.ac.uk/) KIckstart grant"
 
-
+  publications :  ""

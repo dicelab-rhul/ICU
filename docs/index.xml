@@ -26,10 +26,10 @@ python -m ICU This will run the system with the default configuration.
     
     <item>
       <title>Szonya Durant</title>
-      <link>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</link>
+      <link>https://dicelab-rhul.github.io/ICU/team/szonya-durant/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</guid>
+      <guid>https://dicelab-rhul.github.io/ICU/team/szonya-durant/</guid>
       <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
     </item>
     
@@ -45,19 +45,19 @@ General Configuration  screen_full (bool) - full screen the ICU window (ignores 
     
     <item>
       <title>Kostas Stathis</title>
-      <link>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</link>
+      <link>https://dicelab-rhul.github.io/ICU/team/kostas-stathis/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</guid>
+      <guid>https://dicelab-rhul.github.io/ICU/team/kostas-stathis/</guid>
       <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
     </item>
     
     <item>
       <title>Benedict Wilkins</title>
-      <link>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</link>
+      <link>https://dicelab-rhul.github.io/ICU/team/benedict-wilkins/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</guid>
+      <guid>https://dicelab-rhul.github.io/ICU/team/benedict-wilkins/</guid>
       <description>Computer Science PhD Student (2018-2021) at DiceLab Royal Holloway University of London.
 Research interests: Artifical Intelligence, Representation Learning, Reinforcement Learning, Intelligent Agents, Multi-agent Systems
 Projects:  Anomaly Detection in Video Games Teleo-reactive Programing Languages Multi-Agent Simulation Systems &amp;ndash; PyStarWorlds  </description>
@@ -86,19 +86,19 @@ Inter-process Communication TODO - for now see the file test/test_external.</des
     
     <item>
       <title>Emanuele Uliana</title>
-      <link>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</link>
+      <link>https://dicelab-rhul.github.io/ICU/team/emanuele-uliana/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</guid>
+      <guid>https://dicelab-rhul.github.io/ICU/team/emanuele-uliana/</guid>
       <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
     </item>
     
     <item>
       <title>Callum Woods</title>
-      <link>https://dicelab-rhul.github.io/ICU/about/callum-woods/</link>
+      <link>https://dicelab-rhul.github.io/ICU/team/callum-woods/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>https://dicelab-rhul.github.io/ICU/about/callum-woods/</guid>
+      <guid>https://dicelab-rhul.github.io/ICU/team/callum-woods/</guid>
       <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet vulputate augue. Duis auctor lacus id vehicula gravida. Nam suscipit vitae purus et laoreet. Donec nisi dolor, consequat vel pretium id, auctor in dui.</description>
     </item>
     

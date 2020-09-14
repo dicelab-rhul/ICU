@@ -7,7 +7,7 @@
   </url>
   
   <url>
-    <loc>https://dicelab-rhul.github.io/ICU/about/szonya-durant/</loc>
+    <loc>https://dicelab-rhul.github.io/ICU/team/szonya-durant/</loc>
   </url>
   
   <url>
@@ -15,11 +15,11 @@
   </url>
   
   <url>
-    <loc>https://dicelab-rhul.github.io/ICU/about/kostas-stathis/</loc>
+    <loc>https://dicelab-rhul.github.io/ICU/team/kostas-stathis/</loc>
   </url>
   
   <url>
-    <loc>https://dicelab-rhul.github.io/ICU/about/benedict-wilkins/</loc>
+    <loc>https://dicelab-rhul.github.io/ICU/team/benedict-wilkins/</loc>
   </url>
   
   <url>
@@ -31,11 +31,11 @@
   </url>
   
   <url>
-    <loc>https://dicelab-rhul.github.io/ICU/about/emanuele-uliana/</loc>
+    <loc>https://dicelab-rhul.github.io/ICU/team/emanuele-uliana/</loc>
   </url>
   
   <url>
-    <loc>https://dicelab-rhul.github.io/ICU/about/callum-woods/</loc>
+    <loc>https://dicelab-rhul.github.io/ICU/team/callum-woods/</loc>
   </url>
   
   <url>
@@ -144,10 +144,6 @@
   </url>
   
   <url>
-    <loc>https://dicelab-rhul.github.io/ICU/about/</loc>
-  </url>
-  
-  <url>
     <loc>https://dicelab-rhul.github.io/ICU/contact/</loc>
   </url>
   
@@ -193,6 +189,10 @@
   
   <url>
     <loc>https://dicelab-rhul.github.io/ICU/service/</loc>
+  </url>
+  
+  <url>
+    <loc>https://dicelab-rhul.github.io/ICU/team/</loc>
   </url>
   
 </urlset>
