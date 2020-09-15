@@ -14,4 +14,4 @@ social:
     link : "#"
 ---
 
-Doctoral researcher in the Department of Psychology at Royal Holloway University of London. Expertise in eye tracking and machine learning methods.
+Doctoral researcher in the Department of Psychology at Royal Holloway, University of London. Expertise in eye tracking and machine learning methods.

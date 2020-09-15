@@ -14,4 +14,4 @@ social:
     link : "#"
 ---
 
-Doctoral researcher in the Department of Computing at Royal Holloway University of London. Expertise in security and agent systems. 
+Doctoral researcher in the Department of Computing at Royal Holloway, University of London. Expertise in security and agent systems. 
