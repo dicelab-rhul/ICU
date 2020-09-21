@@ -16,6 +16,22 @@ about:
 
   implementation : "An implementation of MATBII in Python 3.6+ with additional user assistance features. ICU is implemented as an event system that is easy to interface with. Interface meta data and all internal events are exposed via a simple event-based python API. ICU includes support for various kinds of user input - mouse, keyboard, joy stick, eye tracking."
 
-  funding : "This project is supported by a [Human-Like Computing EPSRC Network+](http://hlc.doc.ic.ac.uk/) KIckstart grant"
+  funding : "This project is supported by a [Human-Like Computing EPSRC Network+ ](http://hlc.doc.ic.ac.uk/) kickstart grant"
 
   publications :  ""
+
+
+demos: 
+
+  enable : true
+
+  title : "Demos"
+  
+  demos:
+
+    demo1: 
+      video : "fY-B0hj6Qtw"
+      title :  "ICU + Agents - Mouse Based Attention"
+      description : "A demo of the ICU + Agents system with mouse based attention. Mouse movements are classified as gaze/succade and agents are tasked with guiding the users attention by analysising the ICU event stream in real time. 
+                    Warnings (red highlights) are shown by the agents according to a set of rules. In this example a warning is triggered for a particular component is in a undesirable state and the user hasn't recently interacted with component or task."
+
