@@ -234,11 +234,7 @@ class Option:
 
 # CONFIG OPTIONS ARE ALL DEFINED IN THE DICTIONARY BELOW - EACH SHOULD BE VALIDATED
 
-pump_options = dict(
-    flow_rate           = Option('pump', is_type(int)),
-    event_rate          = Option('pump', is_type(int)),
-    scale               = Option('pump', is_type(float))
-)
+
 
 target_options = dict(
     step               = Option('target', is_type(int, float)),
@@ -265,13 +261,20 @@ scale_options = dict(
     slider_colour       = Option('scale', is_type(str))
 )
 
+pump_options = dict(
+    flow_rate           = Option('pump', is_type(int)),
+    event_rate          = Option('pump', is_type(int)),
+    #cosmetic
+    scale               = Option('pump', is_type(float))
+)
+
 tank_options = dict(
     burn_rate           = Option('tank', is_type(int, float)),
     accept_position     = Option('tank', is_type(int, float)),
     accept_proportion   = Option('tank', is_type(int, float)),
     capacity            = Option('tank', is_type(int, float)),
     fuel                = Option('tank', is_type(int, float)),
-
+    # cosmetic
     fuel_colour         = Option('tank', is_type(str)),
     background_colour   = Option('tank', is_type(str)),
     outline_colour      = Option('tank', is_type(str)),

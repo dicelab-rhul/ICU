@@ -1,2 +1,1 @@
 recursive-include *.json
-include res/arrow.png

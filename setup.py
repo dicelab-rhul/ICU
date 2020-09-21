@@ -9,13 +9,13 @@ Created on Sun Jun  2 21:22:31 2019
 import setuptools
 
 setuptools.setup(name='icu',
-      version='0.0.1a',
+      version='0.0.1',
       description='',
       url='https://github.com/dicelab-rhul/ICU',
       author='Benedict Wilkins',
       author_email='benrjw@googlemail.co.uk',
       license='',
-      packages=['icu', 'icu.eyetracking'],
+      packages=setuptools.find_packages(),
       package_data={'': ['*.json']},
       include_package_data=True,
       classifiers=[

@@ -93,14 +93,12 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
     config_schedule = SimpleNamespace(**config.schedule)
     window_properties = {}
                          
-    #os.system('xset r off') #problem with key press/release otherwise
     eyetracker = None #prevent exit errors
 
     #ensure the program exits properly
     def exit_handler():
         if eyetracker is not None:
             eyetracker.close() #close eye tracker if it was used
-        os.system('xset r on') #back to how it was before? TODO find a better fix for this, it is not an issue on windows (test on macos)
         if shared is not None:
             shared.release() #release shared process memory (if it was used)
         event.close() #close all external sources/sink buffers

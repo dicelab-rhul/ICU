@@ -4,7 +4,7 @@
         "Scale:1" : [[1000]],
         "Scale:2":  [[1000]],
         "Scale:3":  [[1000]],
-        "Target:0": [[1000]]
+        "Target:0": [[100]]
     },
 
     "WarningLight:0" : {"grace":2},
