@@ -12,13 +12,10 @@ about:
 
   title : "Project"
 
-  aims : "The aim of this project is to provide user assistance in the multi-tasking example scenario based on the MATBII task space developed by NASA.  The attentional workspace of the user is monitored through their interactions and eye movements by and the underlying agent architecture which in turn is able to deploy highlights and gaze contingent arrows to guide the user’s attention."
-
-  implementation : "An implementation of MATBII in Python 3.6+ with additional user assistance features. ICU is implemented as an event system that is easy to interface with. Interface meta data and all internal events are exposed via a simple event-based python API. ICU includes support for various kinds of user input - mouse, keyboard, joy stick, eye tracking."
-
-  funding : "This project is supported by a [Human-Like Computing EPSRC Network+ ](http://hlc.doc.ic.ac.uk/) kickstart grant"
-
-  publications :  ""
+  sections: 
+    1-Aims : "The aim of this project is to provide user assistance in the multi-tasking example scenario based on the MATBII task space developed by NASA.  The attentional workspace of the user is monitored through their interactions and eye movements by and the underlying agent architecture which in turn is able to deploy highlights and gaze contingent arrows to guide the user’s attention."
+    2-Implementation : "An implementation of MATBII in Python 3.6+ with additional user assistance features. ICU is implemented as an event system that is easy to interface with. Interface meta data and all internal events are exposed via a simple event-based python API. ICU includes support for various kinds of user input - mouse, keyboard, joy stick, eye tracking."
+    3-Funding : "This project is supported by a [Human-Like Computing EPSRC Network+ ](http://hlc.doc.ic.ac.uk/) kickstart grant"
 
 
 demos: 
