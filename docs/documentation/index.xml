@@ -54,16 +54,5 @@ All events have the following attributes:
 Inter-process Communication TODO - for now see the file test/test_external.</description>
     </item>
     
-    <item>
-      <title></title>
-      <link>https://dicelab-rhul.github.io/ICU/documentation/_events/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://dicelab-rhul.github.io/ICU/documentation/_events/</guid>
-      <description>EYETRACKING event(, Overlay:0, label=, x=, y=)
-GENERATOR event(TargetEventGenerator, Target:0, label=move, dx=, dy=) event(PumpEventGenerator, Pump:i, label=&amp;lt;repair/fail&amp;gt;) event(WarningLightEventGenerator, WarningLight:i, label=switch) event(ScaleEventGenerator, Scale:i, label=slide, slide=)
-GLOBAL event(FuelTank:i, Global, label=burn, value=) event(FuelTank:i, Global, label=fuel, acceptable=True/False)</description>
-    </item>
-    
   </channel>
 </rss>
