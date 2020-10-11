@@ -40,7 +40,7 @@ class Tracking(EventCallback, Component, CanvasWidget):
         line_thickness = 3
         edge = line_thickness // 2 + 1
 
-        ts = size/12
+        ts = size/12 # TODO configurable?
 
         def add(**kwargs): #add components
             for k,v in kwargs.items():

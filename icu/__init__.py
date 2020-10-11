@@ -53,7 +53,7 @@ def get_external_event_sinks():
 def get_external_event_sources():
     return event.GLOBAL_EVENT_CALLBACK.external_sources
 
-def start(sinks=[], sources=[]):
+def start(sinks=[], sources=[], **kwargs):
     """ Start ICU as a seperate process. 
     
     Args:
@@ -66,7 +66,7 @@ def start(sinks=[], sources=[]):
     send, receive = PipedMemory(event_sinks=None, event_sources=None, config=None, window_properties=None) #TODO more?
     send.aquire() #this will block the current process from accessing memory attributes until ICU has finished loading
 
-    p = Process(target=run, args=(send, sinks, sources))
+    p = Process(target=run, args=(send, sinks, sources), kwargs=kwargs)
     p.daemon = True 
     p.start()
 
@@ -75,7 +75,7 @@ def start(sinks=[], sources=[]):
 #global config
 #config = None
 
-def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__file__)[0], 'config.json')):
+def run(shared=None, sinks=[], sources=[], config=None):
     """ Starts the ICU system. Call blocks until the GUI is closed.
 
     Args:
@@ -84,6 +84,8 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
         sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
         config (str): Path of configuration file.
     """
+    if config is None:
+        config = os.path.join(os.path.split(__file__)[0], 'config.json')
     
     #global config # this is used in other places and needs to be accessible TODO fix it...
     config = SimpleNamespace(**configuration.load(config)) #load config file
@@ -247,17 +249,19 @@ def run(shared=None, sinks=[], sources=[], config=os.path.join(os.path.split(__f
                                                           size     = (root.winfo_width(), root.winfo_height())))
             if task.track:
                 shared.window_properties['track'] =  dict(position = tracking_widget.position,
-                                                          size     = tuple([min(tracking_widget.size)]*2)), #TODO fix this in tracking widget...?
+                                                          size     = tuple([min(tracking_widget.size)]*2)) #TODO fix this in tracking widget...?
             if task.system:
                 shared.window_properties['system'] = dict(position = system_monitor_widget.position,
                                                         size     = system_monitor_widget.size,
                                                         **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.warning_lights.items()},
-                                                        **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.scales.items()}),
+                                                        **{k:dict(position=v.position, size=v.size) for k,v in system_monitor_widget.scales.items()})
             if task.fuel:
                 shared.window_properties['fuel'] = dict(position = fuel_monitor_widget.position,
                                                         size     = fuel_monitor_widget.size,
                                                         **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.tanks.items()},
                                                         **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.pumps.items()})
+            from pprint import pprint
+            pprint(shared.window_properties)
 
             shared.release() # the parent process can now access attributes in shared memory
         
@@ -297,9 +301,6 @@ def task_tracking(config):
         schedule = config.schedule.get(target, configuration.default_target_schedule())
         event.event_scheduler.schedule(generator.TargetEventGenerator(target, **config.__dict__[target]), sleep=schedule)
 
-
-
-
 def task_fuel_monitor(config):
     """ Set up fuel monitoring task event scheduless
 
@@ -310,5 +311,20 @@ def task_fuel_monitor(config):
     for pump in pumps:
         schedule = config.schedule.get(pump, configuration.default_pump_schedule())
         event.event_scheduler.schedule(generator.PumpEventGenerator(pump, False), sleep=schedule)
+
+def pumps():
+    return list(fuel_monitor.Pump.all_components())
+
+def targets():
+    return list(tracking.Tracking.all_components())
+
+def warning_lights():
+    return list(system_monitor.WarningLight.all_components())
+
+def scales():
+    return list( system_monitor.Scale.all_components())
+
+def tanks():
+    return list(fuel_monitor.FuelTank.all_components())
 
 

@@ -31,6 +31,10 @@ class Event:
 
     def __str__(self):
         return "{0}:{1} - ({2}->{3}): {4}".format(self.name, self.timestamp, self.src, self.dst, self.data.__dict__)
+    
+    def __repr__(self):
+        return str(self)
+
 
     def to_tuple(self):
         return (self.timestamp, self.name, (self.src, self.dst), copy.deepcopy(self.data.__dict__))

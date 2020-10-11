@@ -5,13 +5,17 @@ from sys import version_info
 from time import time
 
 from . import constants as C
-from .event import Event
+from .event import Event, EventCallback
 
 
 from .tracking import Tracking
 
 
-class EventGenerator:
+class EventGenerator(EventCallback): #this is a sink TODO update .event
+
+    def __init__(self, *args, **kwargs):
+        super(EventGenerator, self).__init__(*args, **kwargs)
+        EventCallback.register(self, self.__class__.__name__)
 
     def __iter__(self):
         return self
@@ -22,11 +26,12 @@ class ScaleEventGenerator(EventGenerator):
     """
 
     def __init__(self, scale):
+        super(ScaleEventGenerator, self).__init__()
         self.__scale = scale
+        
        
     def __next__(self):
         y = random.randint(0, 1) * 2 - 1 #slide+- 1
-        
         e = Event(self.__class__.__name__, self.__scale, label=C.EVENT_LABEL_SLIDE, slide=y)
         return e
 
@@ -37,6 +42,7 @@ class WarningLightEventGenerator(EventGenerator):
     """
 
     def __init__(self, warning_light):
+        super(WarningLightEventGenerator, self).__init__()
         self.__warning_light = warning_light
 
     def __next__(self):
@@ -49,6 +55,7 @@ class TargetEventGenerator(EventGenerator):
     """
 
     def __init__(self, target, step=2, **kwargs):
+        super(TargetEventGenerator, self).__init__()
         self.__target = target
         self.__step = step
 
@@ -67,6 +74,7 @@ class TargetEventGenerator2(EventGenerator):
     """
 
     def __init__(self, target, speed=10, **kwargs):
+        super(TargetEventGenerator2, self).__init__()
         self.__target = target
         self.__speed = speed
         self.__time = time()

@@ -28,6 +28,11 @@ from itertools import cycle
 
 class FuelTank(EventCallback, Component, CanvasWidget):
 
+    __components__ = {} #just names
+
+    def all_components():
+        return {k:v for k,v in FuelTank.__components__.items()}
+
     def __init__(self, canvas, x, y, width, height,  name, highlight, capacity=1000, fuel=100, 
                  background_colour=BACKGROUND_COLOUR, outline_thickness=OUTLINE_THICKESS, outline_colour=OUTLINE_COLOUR,
                  fuel_colour=FUEL_COLOUR, **kwargs):
@@ -48,6 +53,9 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         self.highlight = Highlight(canvas, self, **highlight)
         self.components['text'] = TextComponent(canvas, x + width/2, y + height *11/10, self.fuel)
 
+        assert self.name not in FuelTank.__components__
+        FuelTank.__components__[self.name] = self
+        
     
     @property
     def fuel(self):

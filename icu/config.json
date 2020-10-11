@@ -38,7 +38,8 @@
         "keyboard" : true,
         "joystick" : false,
         "eyetracker" : {
-            "stub" : true
+            "enabled" : false,
+            "stub" : false
         }
     },
 

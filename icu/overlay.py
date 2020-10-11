@@ -21,8 +21,8 @@ class Overlay(EventCallback, Component, PolyComponent):
         EventCallback.register(self, name)
         Component.register(self, name) 
 
+
     def sink(self, event):
-        #print(event)
         if event.data.label == 'place':
             self.x = event.data.x 
             self.y = event.data.y 
@@ -39,6 +39,8 @@ class Overlay(EventCallback, Component, PolyComponent):
             self.x = event.data.x - self.width/2
             self.y = event.data.y - self.height/2
             self.show()
+        
+        #self.source('Global', label='highlight', value=self.is_on) # emit a global event (for external systems)
 
 
 
