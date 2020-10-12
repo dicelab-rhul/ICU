@@ -161,6 +161,7 @@ class GlobalEventCallback:
 
         self.sinks = {}
         self.sources = {}
+        self.__closed = False
 
     def close(self):
         for sink in self.external_sinks.values():
@@ -169,19 +170,21 @@ class GlobalEventCallback:
             source.close()
         if self.logger is not None:
             self.logger.close()
+        self.__closed = True
+
+    @property
+    def is_closed(self):
+        return self.__closed
 
     def trigger(self, event): 
         if event is not None:
-            #print(event)
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
-            if event.dst == "Global":
-                pass
             self.__sink_external(event) #send to all external sinks
             self.logger.log(event)
 
     def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed
-        #print("EXTERNAL: ", event)
+        print("EXTERNAL: ", event)
         for sink in self.external_sinks.values():
             sink._ExternalEventSink__buffer.put(copy.deepcopy(event))
 

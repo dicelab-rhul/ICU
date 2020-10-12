@@ -40,7 +40,8 @@ def default_config_screen():
                 screen_full=False,
                 screen_resizable=True,
                 screen_aspect=None,
-                background_colour='grey')
+                background_colour='grey',
+                shutdown = -1)
 
 def default_task_options():
     return   {"system" : True, "track" : True,"fuel" : True}
@@ -328,6 +329,7 @@ options = dict(
             eyetracker      = Option('input', validate_options('eyetracker', _options=eyetracker_options)),
 
             generators      = Option('main', lambda **kwargs: None), #TODO
+            shutdown          = Option('main', is_type(int, float)), # stop the system
 
             overlay             = Option('main',    validate_options('overlay')),
             enable              = Option('overlay', is_type(bool)),
@@ -336,7 +338,7 @@ options = dict(
             outline             = Option('overlay', is_type(bool)),
             highlight_thickness = Option('overlay', is_type(int)),
             highlight_colour    = Option('overlay', is_type(str)),
-
+        
     )
 
 

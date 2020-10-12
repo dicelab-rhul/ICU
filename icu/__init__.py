@@ -97,20 +97,8 @@ def run(shared=None, sinks=[], sources=[], config=None):
                          
     eyetracker = None #prevent exit errors
 
-    #ensure the program exits properly
-    def exit_handler():
-        if eyetracker is not None:
-            eyetracker.close() #close eye tracker if it was used
-        if shared is not None:
-            shared.release() #release shared process memory (if it was used)
-        event.close() #close all external sources/sink buffers
-        print("ICU EXIT") #TODO remove
-
     try:
-        def quit():
-            global finish
-            finish = True
-            root.destroy()
+     
 
         class Fullscreen:
             def __init__(self, root, fullscreen=False):
@@ -119,6 +107,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
                 root.attributes("-fullscreen", self.fullscreen)
                 self.root.bind("<Escape>", self.toggle)
                 self.root.bind("<F11>", self.toggle)
+
             def toggle(self, event):
                 self.fullscreen = not self.fullscreen
                 root.attributes("-fullscreen", self.fullscreen)
@@ -136,12 +125,44 @@ def run(shared=None, sinks=[], sources=[], config=None):
         else:
             root.resizable(0,0)
         
+        class System(event.EventCallback):
+
+            def __init__(self, root, config):
+                super(System, self).__init__()
+                self.root = root
+                event.EventCallback.register(self, "System")
+                if config.shutdown > 0:
+                    root.after(config.shutdown, self.shutdown)
+                    
+            def shutdown(self, *args, **kwargs): # WARNING -- GETS CALLED MULTIPLE TIME (sigterm etc)
+                #print("SHUTDOWN")
+
+                # subvert the usual scheduling mechanism (otherwise it wont trigger as root is destroyed...)
+                if not event.GLOBAL_EVENT_CALLBACK.is_closed: # shutdown has already been called...
+                    e = event.Event(self.name, "Global", label="system", command="shutdown")
+                    event.GLOBAL_EVENT_CALLBACK.trigger(e)
+
+                if eyetracker is not None:
+                    eyetracker.close() #close eye tracker if it was used
+                if shared is not None:
+                    shared.release() #release shared process memory (if it was used)
+                event.close() #close all external sources/sink buffers
+                try: 
+                    root.destroy()
+                except:
+                    pass # ?? 
+
+            def resize(self):
+                raise NotImplementedError("TODO - resize events") # TODO move from main_panel.resize?
+        
+        system = System(root, config) # system commands
+
         root.title("ICU")
-        root.protocol("WM_DELETE_WINDOW", quit)
+        root.protocol("WM_DELETE_WINDOW", system.shutdown)
         root.geometry('%dx%d+%d+%d' % (config.screen_width, config.screen_height, config.screen_x, config.screen_y))
   
         event.tk_event_schedular(root) #initial global event schedular
-        
+         
         main = main_panel.MainPanel(root, width=config.screen_width, height=config.screen_height, background_colour=config.background_colour)
         root.bind("<Configure>", main.resize) #for resizing the window
 
@@ -230,7 +251,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
             eyetracker = eyetracking.eyetracker(root, filter=filter, **et_config)
             eyetracker.start()
 
-        atexit.register(exit_handler) 
+        atexit.register(system.shutdown) 
 
         #add any external event sinks/sources
         for sink in sinks:
@@ -265,12 +286,13 @@ def run(shared=None, sinks=[], sources=[], config=None):
 
             shared.release() # the parent process can now access attributes in shared memory
         
+
         root.mainloop()
 
     except:
         traceback.print_exc()
     finally:
-        exit_handler()
+        system.shutdown() # ensure shutdown properly...
 
 def task_system_monitor(config):
     """ Set up system monitoring task event schedules
