@@ -1,7 +1,8 @@
 ---
 title: "Emanuele Uliana"
 role : "Researcher"
-email: "email2@example.org"
+email: "Emanuele.Uliana.2016@live.rhul.ac.uk"
+photo: "images/team/Emanuele_Uliana.png"
 bg_image: ""
 draft: false
 weight: 4

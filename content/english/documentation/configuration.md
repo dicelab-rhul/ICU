@@ -22,8 +22,7 @@ Many aspects of the ICU can be configured in the `config.json` file.
 * `screen_x (int)` - x position of the ICU window. Default: 0.
 * `screen_y (int)` - y position of the ICU window. Default: 0.
 * `screen_position (tuple)` - position of the ICU window. Default [0,0].
-
-
+* `shutdown (int)` - time after which to close ICU (ms). Default -1 (never close).
 ----------------------------------------- 
 
 ## Task Configuration
@@ -127,8 +126,8 @@ Internal ICU events can be triggered according to schedules defined in the confi
    "schedule":{
         "Scale:0" : 1000,
         "Scale:1" : 1500,
-        "Scale:2": 2000,
-        "Scale:3": 2500
+        "Scale:2" : 2000,
+        "Scale:3" : 2500
    }
 }
 

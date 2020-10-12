@@ -2,7 +2,6 @@
 title: "Benedict Wilkins"
 role : "Researcher"
 email: "benrjw@gmail.com"
-bg_image: ""
 photo: "images/team/Benedict-Wilkins.png"
 draft: false
 weight: 3

@@ -9,6 +9,9 @@ weight: 2
 social:
   - icon : "ion-social-twitter-outline"
     link : "https://twitter.com/dicelab_rhul"
+  - icon : "ion-social-youtube-outline"
+    link : "https://www.youtube.com/channel/UC4YtaKJwtKT9zcwkpI5GL9g"
+  
   - icon : "ion-android-globe"
     link : "https://dicelab-rhul.org/"
 ---
