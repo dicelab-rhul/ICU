@@ -13,7 +13,7 @@ toc : true
 
 You can verify your installation by running ICU with the following command:
 ```
-python3 -m ICU
+python3 -m icu
 ```
 
 This will run the system with the default configuration.

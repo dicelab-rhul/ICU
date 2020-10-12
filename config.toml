@@ -65,6 +65,7 @@ sidebar = ["recent_posts", "taxonomy_category", "taxonomy_tags"]
 [params]
 logorhul = "images/rhul-logo.png"
 logoEPSRC = "images/EPSRC.png"
+logoHLC = "images/HLC_AI.png"
 # Meta data
 description = "Integrated Cognitive User Assistance (ICU)"
 author = "Themefisher"

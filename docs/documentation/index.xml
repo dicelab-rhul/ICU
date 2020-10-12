@@ -19,7 +19,7 @@
       <guid>https://dicelab-rhul.github.io/ICU/documentation/start/</guid>
       <description>Download &amp;amp; Install 
 You can verify your installation by running ICU with the following command:
-python3 -m ICU This will run the system with the default configuration.
+python3 -m icu This will run the system with the default configuration.
  Options To see all available command line options: python3 -m icu -help</description>
     </item>
     

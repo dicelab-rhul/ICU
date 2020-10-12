@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Integrated Cognitive User Assistance (ICU)</title>
+    <title>Integrated Cognitive User assistance (ICU) on Integrated Cognitive User Assistance (ICU)</title>
     <link>https://dicelab-rhul.github.io/ICU/</link>
-    <description>Recent content on Integrated Cognitive User Assistance (ICU)</description>
+    <description>Recent content in Integrated Cognitive User assistance (ICU) on Integrated Cognitive User Assistance (ICU)</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright &amp;copy; 2020 [Themefisher](https://themefisher.com) All Rights Reserved</copyright>
@@ -19,7 +19,7 @@
       <guid>https://dicelab-rhul.github.io/ICU/documentation/start/</guid>
       <description>Download &amp;amp; Install 
 You can verify your installation by running ICU with the following command:
-python3 -m ICU This will run the system with the default configuration.
+python3 -m icu This will run the system with the default configuration.
  Options To see all available command line options: python3 -m icu -help</description>
     </item>
     
