@@ -16,7 +16,7 @@ from .constants import EVENT_LABEL_CLICK, EVENT_LABEL_KEY
 
 #from .constants import WARNING_LIGHT_MIN_HEIGHT, WARNING_LIGHT_MIN_WIDTH
 
-from .event import Event, EventCallback, get_event_sinks
+from .event import Event, EventCallback, get_event_sinks, event_property, etuple
 
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent
 from .highlight import Highlight
@@ -72,13 +72,18 @@ class Scale(EventCallback, Component, CanvasWidget):
 
         self.slide(position)
     
-    def slide(self, y, cause=None):
+    @event_property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, value):
+        self.__state = value
         inc = self.content_height / self.__size
-        self.__state += y
-        self.__state = max(0, min(self.__size-1, self.__state))
         self.components['block'].y = self.y + inc * self.__state
 
-        self.source("Global", label="update", cause=cause, value=self.__state) #TODO add to documentation
+    def slide(self, y, cause=None):
+        self.state = etuple(max(0, min(self.__size-1, self.__state + y)), cause=cause)
 
     def sink(self, event):
         if event.data.label == EVENT_LABEL_CLICK:
@@ -124,22 +129,25 @@ class WarningLight(EventCallback, Component, BoxComponent):
         self.grace = grace # the light will wait atleast 1 second before switching off after the user interacts
         self.last_interacted = 0
 
-    def update(self, state, cause=None):
-        self.__state = state
+    @event_property
+    def state(self):
+        return self.__state
+
+    @state.setter
+    def state(self, value):
+        self.__state = value
         self.colour = self.__state_colours[self.__state]
-        self.source('Global', label='update', value=self.__state, cause=cause) #TODO add to documentation
 
     def sink(self, event):
-        #print(event)
         if event.data.label == EVENT_LABEL_CLICK or (event.data.label == EVENT_LABEL_KEY and event.data.action == 'press'):
             if self.__state != self.__prefered_state:
-                self.update(self.__prefered_state, cause=event)
+                self.state = etuple(self.__prefered_state, cause=event)
+
                 self.last_interacted = time.time()
+
         elif event.data.label == EVENT_NAME_SWITCH:
             if time.time() - self.grace > self.last_interacted: #only switch the light off if the user hasnt just turned it on!
-                self.update(int(not bool(self.__prefered_state)), cause=event)
-            else:
-                print("wait", self)
+                self.state = etuple(int(not bool(self.__prefered_state)), cause=event)
 
 class SystemMonitorWidget(CanvasWidget):
 

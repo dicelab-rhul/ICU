@@ -17,7 +17,7 @@ from .constants import EVENT_LABEL_TRANSFER, EVENT_LABEL_FAIL, EVENT_LABEL_REPAI
 
 from . import event
 
-from .event import Event, EventCallback
+from .event import Event, EventCallback, event_property, etuple
 
 from .component import Component, CanvasWidget, SimpleComponent, BoxComponent, LineComponent, TextComponent, BaseComponent
 from .highlight import Highlight
@@ -56,25 +56,28 @@ class FuelTank(EventCallback, Component, CanvasWidget):
         assert self.name not in FuelTank.__components__
         FuelTank.__components__[self.name] = self
         
-    
-    @property
+    @event_property
     def fuel(self):
         return self.__fuel
 
     @fuel.setter
     def fuel(self, value):
-        self.__fuel = value
+        self.__fuel = min(max(value, 0), self.capacity)
         self.components['text'].text = "{:.2f}".format(self.__fuel)
 
-    def sink(self, event):
-        raise NotImplemented("Tank events are handled by pumps?")
-
-    def update(self, dfuel):
-        self.fuel = min(max(self.fuel + dfuel, 0), self.capacity)
-        
         fh = (self.fuel / self.capacity) * self.height
         self.components['fuel'].y = self.y + self.height - fh
         self.components['fuel'].height = fh
+
+    def sink(self, event):
+        if event.data.label == EVENT_LABEL_BURN:
+            self.fuel = etuple(self.fuel + event.data.value, event)
+        if event.data.label == EVENT_LABEL_TRANSFER:
+            #print(event)
+            self.fuel = etuple(self.fuel + event.data.value, event)
+
+    def update(self, dfuel, event=None):
+        self.fuel = etuple(self.fuel + dfuel, event)
 
     def to_dict(self):
         dict(capacity=self.capacity, fuel=self.fuel, highlight=self.highlight.to_dict())
@@ -113,8 +116,7 @@ class FuelTankMain(FuelTank):
             dfuel = self.burn_rate / self.event_rate
             dfuel = min(dfuel, self.fuel)
             if self.fuel > 0:
-                self.update(-dfuel)
-                yield event.Event(self.name, 'Global', label=EVENT_LABEL_BURN, value=-dfuel)
+                yield event.Event(self.name, self.name, label=EVENT_LABEL_BURN, value=-dfuel)
             else:
                 yield None
 
@@ -123,8 +125,9 @@ class FuelTankMain(FuelTank):
         cy, ch = self.capacity*self.accept_position, self.capacity*(self.accept_proportion/2)
         return cy - ch, cy + ch
 
-    def update(self, dfuel):
-        super(FuelTankMain, self).update(dfuel)
+    @FuelTank.fuel.setter
+    def fuel(self, value):
+        FuelTank.fuel.fset(self, value)
         lim = self.limits
         if self.fuel > lim[0] and self.fuel < lim[1]:
             #within the acceptable area
@@ -146,8 +149,11 @@ class FuelTankInfinite(FuelTank):
     def __init__(self, *args, **kwargs):
         super(FuelTankInfinite, self).__init__(*args, **kwargs)
 
-    def update(self, dfuel):
-        pass
+    def update(self, *args, **kwargs):
+        pass # no updates
+
+    def sink(self, *args, **kwargs): # receives no events
+        pass 
 
 class Pump(EventCallback, Component, CanvasWidget):
 
@@ -223,10 +229,15 @@ class Pump(EventCallback, Component, CanvasWidget):
         flow = min(flow, self.tank1.fuel) #if one tank is nearly empty, only transfer the fuel that is left
         flow = min(flow, self.tank2.capacity - self.tank2.fuel) #if the other tank is nearly full, only transfer fuel that fills it
 
-        self.tank1.update(-flow)
-        self.tank2.update(flow)
-        return Event(self.name, 'Global', label=EVENT_LABEL_TRANSFER, value=flow) #notify global of the tank update
+        # a little hacky... TODO REMOVE
+        #event = Event(self.name, 'Global', label=EVENT_LABEL_TRANSFER, value=flow) #notify global of the tank update
+        #self.tank1.update(-flow, event=event)
+        #self.tank2.update(flow, event=event)
 
+        e1 = Event(self.name, self.tank1.name, label=EVENT_LABEL_TRANSFER, value=-flow)
+        e2 = Event(self.name, self.tank2.name, label=EVENT_LABEL_TRANSFER, value=flow)
+        return e1, e2
+    
     def to_dict(self):
         return dict(state=self.state, highlight=self.highlight.to_dict())
 
@@ -234,7 +245,7 @@ class Pump(EventCallback, Component, CanvasWidget):
     def name(self):
         return self._Component__name
 
-    @property
+    @event_property
     def state(self):
         return self.__state
 
@@ -245,25 +256,20 @@ class Pump(EventCallback, Component, CanvasWidget):
         if value == 0:
             self.start()
 
-    #def highlight(self, state): #TODO REMOVE
-    #    self.highlight_state = state
-    #    self.canvas.itemconfigure(self.highlight_rect, state=('hidden', 'normal')[state])
-
-    def click_callback(self):
+    def click_callback(self, event):
         if self.state != 2: #the pump has failed
-            self.state = abs(self.__state - 1)
+            self.state = etuple(abs(self.__state - 1), cause=event)
 
     def sink(self, event):
         if event.data.label == EVENT_LABEL_TRANSFER: #this may never happen... the event generator is now internal TODO refactor
             self.tank1.update(-event.data.value)
             self.tank2.update(event.data.value)
         elif event.data.label == EVENT_LABEL_FAIL:
-            self.state = 2 # failed (unusable)
+            self.state = etuple(2, cause=event) # failed (unusable)
         elif event.data.label == EVENT_LABEL_REPAIR:
-            self.state = 1 # not transfering (useable)
+            self.state = etuple(1, cause=event) # not transfering (useable)
         elif event.data.label == EVENT_LABEL_CLICK:
-            self.click_callback()
-
+            self.click_callback(event)
 
 class Wing(CanvasWidget):
     
@@ -281,8 +287,7 @@ class Wing(CanvasWidget):
 
         fth = height / 3
         margin = 0.08 #using padding here is a bit too tricky, maybe update TODO
-
-
+        
         self.components['link'] = BoxComponent(canvas, x=fts, y=margin + fth/2 + fth/3, width=2 * fts, height=height-2*margin - fth - fth/3, outline_thickness=OUTLINE_WIDTH)
 
         self.components[small_tank_name] = FuelTank(canvas, fts - ftw_small/2, height - margin - fth, ftw_small, fth, small_tank_name, highlight, **config[small_tank_name])
@@ -366,7 +371,7 @@ class FuelWidget(CanvasWidget):
         self.pumps[self.components['pumpAB'].name] = self.components['pumpAB']
         self.pumps[self.components['pumpBA'].name] = self.components['pumpBA']
 
-        print(Pump.all_components().keys())
+        #print(Pump.all_components().keys())
 
     def highlight(self, child=None):
         if child is None:

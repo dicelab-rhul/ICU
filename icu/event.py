@@ -17,6 +17,24 @@ def next_name():
     EVENT_NAME += 1
     return str(EVENT_NAME)
 
+
+
+class etuple(tuple):
+    
+    def __new__(self, value, cause=None):
+        return super(etuple, self).__new__(etuple, (value, cause))
+
+class event_property(property):
+
+    def __set__(self, obj, value):
+        cause = None
+        if isinstance(value, etuple):
+            assert len(value) == 2
+            value, cause = value
+        super(event_property, self).__set__(obj, value)
+        nvalue = self.__get__(obj)
+        obj.source("Global", label="change", attr=self.fget.__name__, value=nvalue, cause=cause)
+
 class Event:
 
     def __init__(self, src, dst, timestamp=None, **data):
@@ -176,15 +194,21 @@ class GlobalEventCallback:
     def is_closed(self):
         return self.__closed
 
-    def trigger(self, event): 
+    def _trigger(self, event):
         if event is not None:
             if event.dst in self.sinks:
                 self.sinks[event.dst].sink(event)
             self.__sink_external(event) #send to all external sinks
             self.logger.log(event)
 
+    def trigger(self, *events): 
+        for event in events:
+            self._trigger(event)
+
     def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed
-        print("EXTERNAL: ", event)
+        if "Pump" in event.src:
+            pass #print("EXTERNAL: ", event)
+        
         for sink in self.external_sinks.values():
             sink._ExternalEventSink__buffer.put(copy.deepcopy(event))
 
@@ -295,6 +319,18 @@ def sleep_repeat_list(sleep):
         for i in sleep:
             yield i
 
+class EGen:
+    def __init__(self, gen):
+        self.gen = gen
+    def __iter__(self):
+        return self
+    def __next__(self):
+        e = next(self.gen)
+        if not isinstance(e, tuple):
+            return e,
+        else:
+            return e
+
 class TKSchedular: #might be better to detach events from the GUI? quick and dirty for now...
 
     def __init__(self, tk_root):
@@ -309,8 +345,10 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
             self.after(sleep, GLOBAL_EVENT_CALLBACK.trigger, generator)
             return
         
+        generator = EGen(generator) # always yields (e1, ...)
+
         if isinstance(sleep, int):
-            self.after(sleep, GLOBAL_EVENT_CALLBACK.trigger, next(generator))
+            self.after(sleep, GLOBAL_EVENT_CALLBACK.trigger, *next(generator))
             return
 
         try:
@@ -321,7 +359,7 @@ class TKSchedular: #might be better to detach events from the GUI? quick and dir
 
     def __trigger_repeat(self, generator, sleep):
         try:
-            GLOBAL_EVENT_CALLBACK.trigger(next(generator))
+            GLOBAL_EVENT_CALLBACK.trigger(*next(generator))
         except StopIteration:
             return
         try:

@@ -11,11 +11,11 @@
     "WarningLight:1" : {"grace":2},
 
     "Scale:0" : {},
-    "Scale:1" : {"size":11, "position":5},
-    "Scale:2" : {"size":11, "position":5},
-    "Scale:3" : {"size":11, "position":5},
+    "Scale:1" : {"size":12, "position":10},
+    "Scale:2" : {"size":11, "position":10},
+    "Scale:3" : {"size":11, "position":0},
 
-    "Target:0" : { "step" : 1 , "invert" : true},
+    "Target:0" : { "step" : 1 , "invert" : false},
 
     "FuelTank:A" : {"fuel":10},
     "FuelTank:B" : {},
@@ -49,7 +49,7 @@
         "fuel" : true
     },
 
-    "shutdown":1000,
+    "shutdown":-1,
     "background_colour":"blue",
     "screen_full": false,
     "screen_height": 700,
@@ -60,5 +60,3 @@
     "screen_min_size":[400,400],
     "screen_max_size":[2000,2000]
 }
-
-
