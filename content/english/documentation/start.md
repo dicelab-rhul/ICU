@@ -55,14 +55,13 @@ There are three main tasks for participants in the ICU system designed to test p
 
 ### Monitoring Warning Lights
 
-Participants are tasked with keeping warning light (1) in the on state (green)  by clicking when it turns off (grey). At the same time, the second warning light (2) should be kept off (grey) by clicking when it turns on (red). Warning Lights are [configurable]({{< ref "configuration#system-monitoring" >}}). 
+Participants are tasked with keeping warning light (1) in the on state (green) by clicking when it turns off (grey). At the same time, the second warning light (2) should be kept off (grey) by clicking when it turns on (red). The warning lights will turn to their _undesirable_ state according to a pre-specified schedule. If the user doesn't click on the light, it will remain in this state. After the user clicks the light, it wont return to the undesirable state for a pre-specified length of time. Warning Lights are [configurable]({{< ref "configuration#system-monitoring" >}}). 
 
 ### Monitoring Scales
 
-Participants are tasked with keeping the slider in the middle of the 4 sliders each scale (3). The slider will move up or down at pre-set time intervals. Clicking on the slider will reset it to the middle position as can be seen in the right most scale. Scales are [configurable]({{< ref "configuration#system-monitoring" >}}). 
+Participants are tasked with keeping the slider in the middle of the 4 sliders each scale (3). The slider will move up or down according to a pre-specified schedule. Clicking on the slider will reset it to the middle position as can be seen in the right most scale. Scales are [configurable]({{< ref "configuration#system-monitoring" >}}). 
 
 </div>
-
 
 --------------------
 
