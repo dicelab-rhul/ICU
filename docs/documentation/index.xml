@@ -30,7 +30,7 @@ python3 -m icu This will run the system with the default configuration.
       
       <guid>https://dicelab-rhul.github.io/ICU/documentation/configuration/</guid>
       <description>Many aspects of the ICU can be configured in the config.json file.
-General Configuration  screen_full (bool) - full screen the ICU window (ignores other screen options). Default: False screen_aspect (tuple) - fix the aspect ratio of the ICU window.</description>
+General Configuration  screen_width (int, float) : window width. screen_height (int, float) : window height. screen_size  : window size.</description>
     </item>
     
     <item>

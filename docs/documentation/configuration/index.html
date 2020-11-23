@@ -120,38 +120,39 @@
 					<p><p>Many aspects of the ICU can be configured in the <code>config.json</code> file.</p>
 <h2 id="general-configuration">General Configuration</h2>
 <ul>
-<li><code>screen_full (bool)</code> - full screen the ICU window (ignores other screen options). Default: False</li>
-<li><code>screen_aspect (tuple)</code> - fix the aspect ratio of the ICU window. Default: None</li>
-<li><code>screen_resizable (bool)</code> - can the ICU window be resized. Default: True.</li>
-<li><code>screen_height (int)</code> - height of the ICU window. Default: 700.</li>
-<li><code>screen_width (int)</code> - width of the ICU window. Default: 800.</li>
-<li><code>screen_size (tuple)</code> - size of the ICU window. Default [800, 700].</li>
-<li><code>screen_min_size (tuple)</code> - minimum size of the ICU window (ignores aspect ratio). Default: [100,100].</li>
-<li><code>screen_max_size (tuple)</code> - maximum size of the ICU window (ignores aspect ratio). Default: [2000,2000].</li>
-<li><code>screen_x (int)</code> - x position of the ICU window. Default: 0.</li>
-<li><code>screen_y (int)</code> - y position of the ICU window. Default: 0.</li>
-<li><code>screen_position (tuple)</code> - position of the ICU window. Default [0,0].</li>
-<li><code>shutdown (int)</code> - time after which to close ICU (ms). Default -1 (never close).</li>
+<li><code>screen_width (int, float)</code> : window width.</li>
+<li><code>screen_height (int, float)</code> : window height.</li>
+<li><code>screen_size </code> : window size. Default: (800, 700).</li>
+<li><code>screen_x (int, float)</code> : window x position.</li>
+<li><code>screen_y (int, float)</code> : window y position.</li>
+<li><code>screen_position </code> : window position. Default: (0, 0).</li>
+<li><code>screen_full (bool)</code> : window full screen ?. Default: False.</li>
+<li><code>screen_resizable (bool)</code> : window resizable ?. Default: True.</li>
+<li><code>screen_aspect </code> : window aspect ratio.</li>
+<li><code>screen_min_size </code> : minimum window size. Default: (100, 100).</li>
+<li><code>screen_max_size </code> : maximum window size. Default: (2000, 2000).</li>
+<li><code>background_colour (str)</code> : cosmetic, window background colour. Default: grey.</li>
 </ul>
 <hr>
 <h2 id="task-configuration">Task Configuration</h2>
 <p>Tasks can be enabled/disabled using the <code>task</code> configuration options:</p>
-<pre><code>&quot;task&quot; : {
-    &quot;system&quot; : true,
-    &quot;track&quot; : false,
-    &quot;fuel&quot; : false
-}
-</code></pre><p>The above configuration will disable both the tracking and fuel monitoring tasks, leaving the system monitoring task. All tasks are enabled by default.</p>
+<ul>
+<li><code>system (bool)</code> : enable/disable tracking task.</li>
+<li><code>track (bool)</code> : enable/disable system task.</li>
+<li><code>fuel (bool)</code> : enable/disable fuel task.</li>
+</ul>
+<p>The above configuration will disable both the tracking and fuel monitoring tasks, leaving the system monitoring task. All tasks are enabled by default.</p>
 <hr>
 <h2 id="tracking">Task: Tracking</h2>
 <h3 id="options">Options</h3>
 <ul>
-<li><code>step</code> : distance in pixels moved by the tracking target after each (non-user action) event.</li>
-<li><code>invert</code> : invert controls (true/false).</li>
+<li><code>schedule </code> : event schedule. Target drift, each event moves the target by <code>step</code> amount. Default: schedule: <code>[[100]]</code>.</li>
+<li><code>step (int, float)</code> : distance (pixels) the Target moves on each event. Default: 2.</li>
+<li><code>invert (bool)</code> : invert controls for tracking. Default: False.</li>
 </ul>
 <h3 id="example-1---target">Example (1) - Target</h3>
 <pre><code>&quot;Target:0&quot; : { &quot;step&quot; : 2 }
-</code></pre><p>In the above configuration, the target will move 2 pixels per <code>move</code> event and according to its movement schedule.</p>
+</code></pre><p>In the above configuration, the target will move 2 pixels per <code>move</code> event and according to its movement <code>schedule</code>.</p>
 <hr>
 <h2 id="fuel-monitoring">Task: Fuel Monitoring</h2>
 <h3 id="options-1">Options</h3>
@@ -159,17 +160,23 @@
 <h4 id="tank">Tank</h4>
 <p>Tanks: FuelTank:A, FuelTank:B, FuelTank:C, FuelTank:D, FuelTank:E, FuelTank:F</p>
 <ul>
-<li><code>capacity</code> : the capacity of a tank.</li>
-<li><code>fuel</code> : the initial amount of fuel in a tank.</li>
-<li><code>burn_rate</code> : burn of fuel (units per second) of a main tank.</li>
-<li><code>accept_position</code> : the ideal fuel level for a main tank [0-1].</li>
-<li><code>accept_proportion</code> : the range of fuel values that are acceptable, centered around the ideal fuel value [0-1].</li>
+<li><code>burn_rate (int, float)</code> : rate at which fuel is burnt units/second.</li>
+<li><code>accept_position (int, float)</code> : position of the acceptable level of fuel (for a main tank).</li>
+<li><code>accept_proportion (int, float)</code> : proportion of acceptability of fuel (for a main tank), fuel levels within the range: position +- proportion are acceptable..</li>
+<li><code>capacity (int, float)</code> : capacity of the tank.</li>
+<li><code>fuel (int, float)</code> : initial fuel level.</li>
+<li><code>fuel_colour (str)</code> : cosmetic, colour of the fuel.</li>
+<li><code>background_colour (str)</code> : cosmetic, background colour of the tank.</li>
+<li><code>outline_colour (str)</code> : cosmetic, outline colour of the tank.</li>
+<li><code>outline_thickness (int)</code> : cosmetic, outline thickness of the tank.</li>
 </ul>
 <h4 id="pump">Pump</h4>
 <p>Pumps: Pump:AB, Pump:BA, Pump:FD, Pump:EA, Pump:CA, Pump:EC, Pump:DB, Pump:FB</p>
 <ul>
-<li><code>flow_rate</code> : flow of fuel (units per second) for a pump.</li>
-<li><code>event_rate</code> : frequency of transfer events for a pump.</li>
+<li><code>schedule </code> : event schedule. Each event causes the pump to fail/repair (repeating every two events). Default: schedule: <code>[[uniform(1000,20000)]]</code>.</li>
+<li><code>flow_rate (int)</code> : transfer rate of fuel from one tank to another (units/second). Default: 100.</li>
+<li><code>event_rate (int)</code> : number of events to trigger /second. Default: 10.</li>
+<li><code>scale (float)</code> : cosmetic, the display scale of the pump.</li>
 </ul>
 <h3 id="example-1---tank-options">Example (1) - Tank Options</h3>
 <pre><code>&quot;FuelTank:A&quot; : {&quot;capacity&quot;:2000, &quot;fuel&quot;:1000, &quot;burn_rate&quot;:10}
@@ -179,40 +186,73 @@
 </code></pre><p>For the above configuration for pump AB, 1 <code>transfer</code> event is triggered every second, each event transferring 10 units of fuel from tank A to tank B. Increasing the event rate to 10 would have the effect of 10 events being triggered (uniformly over a 1 second) with each event transferring 1 unit of fuel. Note that higher event rates lead to a smoother fuel animation but at the cost of many more events being generated.</p>
 <hr>
 <h2 id="system-monitoring">Task: System Monitoring</h2>
-<h3 id="options-2">Options:</h3>
+<h3 id="warning-light">Warning Light</h3>
 <ul>
-<li><code>size</code> : the size (number of possible slider positions) of a scale (default 11)</li>
-<li><code>position</code> : the initial position of the slider (default 5)</li>
+<li><code>schedule </code> : event schedule. Each event switches the light to the undesired state (off for WarningLight:0 and on for WarningLight:1). Default: schedule: <code>[[uniform(1000,10000)]]</code>.</li>
+<li><code>grace (int, float)</code> : grace period (the time after which the light may turn on/off after a user has clicked). Default: 2.</li>
+<li><code>key (str)</code> : key-binding shortcut, may be used instead of clicking. Default: 0/1.</li>
+<li><code>state (int)</code> : initial state (on or off). Default: <K>.</li>
+<li><code>on_colour (str)</code> : cosmetic, colour of the on state.</li>
+<li><code>off_colour (str)</code> : cosmetic, colour of the off state.</li>
+<li><code>outline_colour (str)</code> : cosmetic, colour of the outline.</li>
+<li><code>outline_thickness (int)</code> : cosmetic, thickness of the outline.</li>
 </ul>
-<h3 id="example-1---scale-options">Example (1) - Scale Options</h3>
+<h3 id="example-1---warning-light-options">Example (1) - Warning Light Options</h3>
+<pre><code>&quot;WarningLight:0&quot; : {&quot;grace&quot;:1, &quot;state&quot;:0}
+</code></pre><p>In the above configuration, the warning light will start in state 0 (off) and will wait at least 1 second before turning back to an undesired state (according to its <code>schedule</code>).</p>
+<h3 id="scale">Scale</h3>
+<ul>
+<li><code>schedule </code> : event schedule. Each events moves the slider up/down 1 place.. Default: schedule: <code>[[uniform(1000,10000)]]</code>.</li>
+<li><code>key (str)</code> : key-binding shortcut, may be used instead of clicking. Default: <K>.</li>
+<li><code>size (int)</code> : size of the scale (number of positions that the slider may be in). Default: 11.</li>
+<li><code>position (int)</code> : initial position of the slider. Default: 5.</li>
+<li><code>background_colour (str)</code> : cosmetic, background colour of the scale.</li>
+<li><code>outline_colour (str)</code> : cosmetic, outline colour of the scale (and slider).</li>
+<li><code>outline_thickness (int)</code> : cosmetic, outline thickness of the scale (and slider).</li>
+<li><code>slider_colour (str)</code> : cosmetic, colour of the slider.</li>
+</ul>
+<h3 id="example-2---scale-options">Example (2) - Scale Options</h3>
 <pre><code>&quot;Scale:0&quot; : {&quot;size&quot;:11, &quot;position&quot;:0},
 </code></pre><p>In the above configuration, scale 0 will have 11 possible slider position and the slider will start at position 0 (at the top of the scale).</p>
 <hr>
+<h2 id="input-configuration">Input Configuration</h2>
+<p>Different types of input can be configured with the following options:</p>
+<ul>
+<li><code>mouse (bool)</code> : enable/disable mouse input. Default: True.</li>
+<li><code>keyboard (bool)</code> : enable/disable keyboard input. Default: True.</li>
+<li><code>joystick (bool)</code> : enable/disable joystick input. Default: False.</li>
+</ul>
+<p>Input also contains a group of options for eye tracking.</p>
+<h3 id="eye-tracking-configuration">Eye Tracking Configuration</h3>
+<ul>
+<li><code>enabled (bool)</code> : enable eye tracking (requires a device to be connected).</li>
+<li><code>calibrate (bool)</code> : calibrate the eye-tracker.</li>
+<li><code>sample_rate (int)</code> : sample rate for the eye-tracker (if configurable on the device).</li>
+<li><code>stub (bool)</code> : use the mouse as a stub for an eye tracking device, functions exactly as an eyetracker (useful for testing).</li>
+</ul>
+<h3 id="example-1---input">Example (1) - Input</h3>
+<pre><code>&quot;input&quot; : { &quot;mouse&quot; : true, 
+            &quot;eyetracker&quot; : {
+                &quot;enabled&quot; : false,
+                &quot;stub&quot; : false }} 
+</code></pre><p>The above configuration will enable the mouse as an input method, and completely disable the eye tracking.</p>
 <h2 id="overlay-configuration">Overlay Configuration</h2>
 <p>ICU provides support for an overlay, including highlighting widgets, displaying warnings etc. The following options are available under <code>overlay</code>.</p>
-<h4 id="options-3">Options</h4>
+<h4 id="options-2">Options</h4>
 <ul>
-<li><code>transparent (bool)</code> : transparency value of a highlight box (true for transparent).</li>
-<li><code>highlight_colour (bool)</code> : colour value of a highlight box.</li>
-<li><code>highlight_thickness (int)</code> : thickness of the highlight box outline.</li>
-<li><code>outline (bool)</code> : use an outline for the highlight box.</li>
-<li><code>arrow (bool)</code> : TODO</li>
-<li><code>arrow_colour (colour)</code> : TODO</li>
-<li><code>arrow_scale (float)</code> : TODO</li>
+<li><code>enable (bool)</code> : enable/disable overlay (highlighting, arrows etc). Default: True.</li>
+<li><code>arrow (bool)</code> : (IN PROGRESS) enable/disable arrows. Default: True.</li>
+<li><code>transparent (bool)</code> : transparent highlights ?. Default: True.</li>
+<li><code>outline (bool)</code> : outlined highlights ?. Default: True.</li>
+<li><code>highlight_thickness (int)</code> : cosmetic, highlight outline thickness.</li>
+<li><code>highlight_colour (str)</code> : cosmetic, highlight colour.</li>
+<li><code>arrow_colour (colour)</code> : (IN PROGRESS) cosmetic, colour of the arrow</li>
+<li><code>arrow_scale (float)</code> : (IN PROGRESS) cosmetic, scale of the arrow</li>
 </ul>
 <hr>
 <h2 id="event-configuration">Event Configuration</h2>
-<p>Internal ICU events can be triggered according to schedules defined in the configuration. There are four kinds of schedules that can be specified, single, multi, repeating, and custom. Schedules are specified in the <code>&quot;schedule</code>&rdquo; section of the <code>config.json</code> file, for example:</p>
-<pre><code>{ 
-   &quot;schedule&quot;:{
-        &quot;Scale:0&quot; : 1000,
-        &quot;Scale:1&quot; : 1500,
-        &quot;Scale:2&quot; : 2000,
-        &quot;Scale:3&quot; : 2500
-   }
-}
-
-</code></pre><h3 id="single-event-schedule">Single-Event Schedule</h3>
+<p>Internal ICU events can be triggered according to schedules that are defined in the configuration. There are four kinds of schedules that can be specified, single, multi, repeating, and custom. Schedules are specified in the <code>schedule</code> option of each component.</p>
+<h3 id="single-event-schedule">Single-Event Schedule</h3>
 <p>A single event schedule is specified simply as an integer, <code>&quot;Scale:0&quot; : 1000</code> will cause an event to happen 1000ms after ICU begins.</p>
 <pre><code>t: 0 ------ 1000 ------ 2000 ------ 3000 ---
 e: ---------- | ---------------------------- 
@@ -228,9 +268,13 @@ e: ---- | ---------- | ---- | ---------- | ----
 <p>More complex schedules can be specified programmatically by subclassing <code>icu.config.Distribution</code>, subclasses will automatically be registered with the config module. Custom schedule are specified in <code>config.json</code> as <code>&lt;name&gt;(&lt;arg1&gt;, &lt;arg2&gt;, ...,&lt;argn&gt;)</code> where <code>&lt;name&gt;</code> is the class name and <code>&lt;argi&gt;</code> is an argument for the <code>__init__</code> method. Arguments should be parsed by the class. The method <code>sample(self) -&gt; int</code> should be defined, which when called returns the time to wait before triggering the next event.</p>
 <p>Some common distributions have been defined for convenience.</p>
 <h4 id="uniform-distribution">Uniform Distribution</h4>
-<p>Takes the form <code>uniform(a,b)</code> where <code>a</code> and <code>b</code> are the lower and upper bounds (int &gt; 0) of the domain, <code>&quot;Scale:0&quot; : &quot;uniform(0, 1000)&quot;</code>, will trigger an event at random intervals between 0 and 1 second.</p>
+<p>Takes the form <code>uniform(a,b)</code> where <code>a</code> and <code>b</code> are the lower and upper bounds (int &gt; 0) of the domain, <code>&quot;Scale:0&quot; : &quot;uniform(0, 1000)&quot;</code>, will trigger an event after a random time in the interval 0-1 seconds.</p>
 <h4 id="normal-distribution">Normal Distribution</h4>
-<p>Takes the form <code>normal(mu, sigma)</code> where <code>mu</code> and <code>sigma</code> are the mean and standard deviation of a Gaussian distribution, <code>&quot;Scale:0&quot; : &quot;normal(1000,100)&quot;</code>, will trigger events at random intervals centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).</p>
+<p>Takes the form <code>normal(mu, sigma)</code> where <code>mu</code> and <code>sigma</code> are the mean and standard deviation of a Gaussian distribution, <code>&quot;Scale:0&quot; : &quot;normal(1000,100)&quot;</code>, will trigger an event at random time centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).</p>
+<p>Custom-Event Schedules can be combined with multi or repeating schedules as follows:</p>
+<h3 id="example-1---pump-scheduling">Example (1) - Pump Scheduling</h3>
+<pre><code>&quot;Pump:AB&quot; : { &quot;schedule&quot;: [[&quot;uniform(0,10000)&quot;,1000]] }
+</code></pre><p>In the above, the pump will fail randomly at a time between 0-10 seconds, then wait 1 second before being repaired, and repeat.</p>
 <hr>
 <h2 id="cosmetic-options">Cosmetic Options</h2>
 <p>Many of the display properties of widgets in ICU can be configured, common options include:</p>
@@ -240,7 +284,7 @@ e: ---- | ---------- | ---- | ---------- | ----
 <li><code>outline_thickness</code> : set the outline thickness of a widget (default 3)</li>
 </ul>
 <p>All colour options may be specified as a string e.g. <code>&quot;red&quot;</code> (see the <a href="http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter">full list</a>) or as a hexadecimal string e.g. <code>&quot;#ff0000&quot;</code>.</p>
-<p>A number of widgets have specific cosmetic options, a detailed list will be provided soon (until then, check the source <code>config.py</code>).</p>
+<p>A number of widgets have specific cosmetic options (see above).</p>
 </p>
 				</div>
 			</div>

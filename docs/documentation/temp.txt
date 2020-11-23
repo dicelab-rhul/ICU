@@ -1,0 +1,33 @@
+
+Target Options
+
+Warninglight Options
+
+
+Scale Options
+
+Pump Options
+
+Tank Options
+
+
+Eyetracker Options
+
+Options
+* `screen_width (int, float)` : window width.
+* `screen_height (int, float)` : window height.
+* `screen_size ` : window size. Default: (800, 700).
+* `screen_x (int, float)` : window x position.
+* `screen_y (int, float)` : window y position.
+* `screen_position ` : window position. Default: (0, 0).
+* `screen_full (bool)` : window full screen ?. Default: False.
+* `screen_resizable (bool)` : window resizable ?. Default: True.
+* `screen_aspect ` : window aspect ratio.
+* `screen_min_size ` : minimum window size. Default: (100, 100).
+* `screen_max_size ` : maximum window size. Default: (2000, 2000).
+* `background_colour (str)` : cosmetic, window background colour. Default: grey.
+* `system (bool)` : enable/disable tracking task.
+* `track (bool)` : enable/disable system task.
+* `fuel (bool)` : enable/disable fuel task.
+
+* `shutdown (int, float)` : time after which to stop the system (-1 to never stop). Default: -1.
