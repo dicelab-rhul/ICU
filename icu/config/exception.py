@@ -1,0 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+"""
+__author__ = "Benedict Wilkins"
+__email__ = "benrjw@gmail.com"
+__status__ = "Development"
+
+class ConfigurationError(Exception):
+    pass

@@ -1,25 +1,28 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+"""
+__author__ = "Benedict Wilkins"
+__email__ = "benrjw@gmail.com"
+__status__ = "Development"
+
 import json
 import os
-import re
-import random
+
+from pprint import pprint # TODO remove
+
 import copy
 
 from types import SimpleNamespace
 from collections import defaultdict
 
-from itertools import cycle, islice
+from itertools import cycle, islice, repeat
 
+from .distribution import *
+from .validate import validate_schedule
+from .exception import ConfigurationError
 
-class ConfigurationError(Exception):
-    pass
-
-# size 800,800
-# banner 25
-
-# scales 240, 350
-
-# fuel padding 250 
-
+from .default import default_config
 
 # =================================== # =================================== # =================================== # 
 # =================================== # ======== ALL CONFIG OPTIONS ======= # =================================== # 
@@ -27,155 +30,6 @@ class ConfigurationError(Exception):
 
 def tasks():
     return SimpleNamespace(**{k:k for k in ['system', 'fuel', 'track']})
-
-def default_config_screen():
-    return dict(#screen_width=None,  #handled by post processing
-                #screen_height=None, #handled by post processing
-                screen_size=(800,700),
-                #screen_x = None, #handled by post processing
-                #screen_y = None, #handled by post processing
-                screen_position=(0,0),
-                screen_min_size=(100,100),
-                screen_max_size=(2000,2000),
-                screen_full=False,
-                screen_resizable=True,
-                screen_aspect=None,
-                background_colour='grey',
-                shutdown = -1)
-
-def default_task_options():
-    return   {"system" : True, "track" : True,"fuel" : True}
-
-def default_event_schedule():
-    return {"Scale:0" :         default_scale_schedule(),
-            "Scale:1" :         default_scale_schedule(),
-            "Scale:2" :         default_scale_schedule(),
-            "Scale:3" :         default_scale_schedule(),
-            "WarningLight:0" :  default_warning_light_schedule(),
-            "WarningLight:1" :  default_warning_light_schedule(),
-            "Target:0" :        default_target_schedule()}
-
-def default_event_generator():
-    return {"ScaleComponent" : "ScaleEventGenerator"}
-
-def default_scale_schedule():
-    return uniform(1000,10000) 
-
-def default_warning_light_schedule():
-    return uniform(1000,10000) 
-
-def default_pump_schedule():
-    return uniform(0,20000)
-
-def default_target_schedule():
-    return cycle([300])
-
-# TODO config should contain everything --- create a default for all widgets!
-def default_scales():
-    return {"Scale:0" : default_scale("<F1>"),
-            "Scale:1" : default_scale("<F2>"),
-            "Scale:2" : default_scale("<F3>"),
-            "Scale:3" : default_scale("<F4>")}
-
-def default_scale(key):
-    return {'size':11, 'position':5, 'key':key}
-
-def default_warning_lights():
-    return {'WarningLight:0' : {'state':1, 'key':"<F5>", 'grace':2}, 'WarningLight:1' : {'state':0, 'key':"<F6>", 'grace':2}}
-
-def  default_tanks():
-    return {
-        "FuelTank:A" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
-        "FuelTank:B" : {"capacity":2000, "fuel":1000, "burn_rate":6, "accept_position":0.5, "accept_proportion":0.3},
-        "FuelTank:C" : {"capacity":1000, "fuel":100},
-        "FuelTank:D" : {"capacity":1000, "fuel":100},
-        "FuelTank:E" : {"capacity":1000, "fuel":1000},
-        "FuelTank:F" : {"capacity":1000, "fuel":1000}}
-
-def default_pumps():
-    default_pump = { "flow_rate": 100, "event_rate": 10, "state": 1}
-
-    return {"Pump:AB" : copy.deepcopy(default_pump),
-            "Pump:BA" : copy.deepcopy(default_pump), 
-            "Pump:FD" : copy.deepcopy(default_pump),
-            "Pump:EA" : copy.deepcopy(default_pump),
-            "Pump:CA" : copy.deepcopy(default_pump),
-            "Pump:EC" : copy.deepcopy(default_pump),
-            "Pump:DB" : copy.deepcopy(default_pump),
-            "Pump:FB" : copy.deepcopy(default_pump)}
-    
-
-def default_tracking():
-    return {} #TODO
-
-def default_input():
-    return {"mouse" : True,
-            "keyboard" : True,
-            "joystick" : False,
-            "eyetracker" : {
-                "stub" : True,
-                "enabled" : True,
-                "sample_rate" : 100,
-                "calibrate" : False
-            }}
-
-
-def default_overlay():
-    return dict(enable=True, transparent=True, outline=True, arrow=True)
-
-def default_config():
-    return dict(**default_config_screen(), task=default_task_options(), schedule=default_event_schedule(), overlay=default_overlay(), input=default_input(),
-                **default_scales(), **default_warning_lights(), **default_tanks(), **default_pumps(), **default_tracking())
-
-ScreenOptions = SimpleNamespace(**{k:k for k in default_config_screen().keys()})
-# TODO other options
-
-# =================================== # =================================== # =================================== # 
-
-# =================================== # =================================== # =================================== # 
-# =================================== # ========= DISTRIBUTIONS =========== # =================================== # 
-# =================================== # =================================== # =================================== #
-
-class Distribution: #must be an iterable...
-    
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self.sample()
-
-class uniform(Distribution):
-
-    def __init__(self, a, b):
-        try:
-            #assert a >= 0 and b >= 0
-            a = float(a)
-            b = float(b)
-            self.a = min(a,b)
-            self.b = max(a,b)
-        except:
-            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers > 0".format(a,b))
-
-    def sample(self):
-        return random.uniform(self.a, self.b)
-
-class normal(Distribution):
-
-    def __init__(self, mu, sigma, decay=1.):
-        try:
-            self.mu = float(mu)
-            self.sigma = float(sigma)
-            self.decay = float(decay) #multiplicative decay?
-        except:
-            raise ConfigurationError("Invalid arguments for uniform distribution: {0}, {1}, must be numbers".format(mu, sigma))
-
-    def sample(self):
-        self.mu = self.mu * self.decay
-        return max(0, random.gauss(self.mu, self.sigma)) #not thread safe?
-
-distributions = lambda: {k.__name__:k for k in Distribution.__subclasses__()}
-
-# =================================== # =================================== # =================================== # 
 
 def is_type(*types): #validate type(s) 
     def _is_type(**kwargs): #expects a singleton dictionary
@@ -243,6 +97,7 @@ target_options = dict(
 )
 
 warninglight_options = dict(
+    schedule            = Option('warning_light', validate_schedule),
     grace               = Option('warning_light', is_type(int, float)),
     key                 = Option('warning_light', is_type(str)),
     state               = Option('warning_light', is_type(int)),
@@ -253,7 +108,8 @@ warninglight_options = dict(
 )
 
 scale_options = dict(
-    key                 = Option('warning_light', is_type(str)),
+    schedule            = Option('scale', validate_schedule),
+    key                 = Option('scale', is_type(str)),
     size                = Option('scale', is_type(int)),
     position            = Option('scale', is_type(int)),
     background_colour   = Option('scale', is_type(str)),
@@ -263,6 +119,7 @@ scale_options = dict(
 )
 
 pump_options = dict(
+    schedule            = Option('pump', validate_schedule),
     flow_rate           = Option('pump', is_type(int)),
     event_rate          = Option('pump', is_type(int)),
     #cosmetic
@@ -275,11 +132,11 @@ tank_options = dict(
     accept_proportion   = Option('tank', is_type(int, float)),
     capacity            = Option('tank', is_type(int, float)),
     fuel                = Option('tank', is_type(int, float)),
-    # cosmetic
-    fuel_colour         = Option('tank', is_type(str)),
-    background_colour   = Option('tank', is_type(str)),
-    outline_colour      = Option('tank', is_type(str)),
-    outline_thickness   = Option('tank', is_type(int)),
+    
+    fuel_colour         = Option('tank', is_type(str)), # cosmetic
+    background_colour   = Option('tank', is_type(str)), # cosmetic
+    outline_colour      = Option('tank', is_type(str)), # cosmetic
+    outline_thickness   = Option('tank', is_type(int)), # cosmetic
 )
 
 eyetracker_options = dict(
@@ -314,7 +171,7 @@ options = dict(
             screen_max_size        = Option('main', is_coord()),
             background_colour       = Option('main', is_type(str)),
             
-            schedule        = Option('main', lambda **kwargs: {k:Validator.is_schedule(**{k:v}) for k,v in next(iter(kwargs.values())).items()}),
+            #schedule        = Option('main', lambda **kwargs: {k:Validator.is_schedule(**{k:v}) for k,v in next(iter(kwargs.values())).items()}),
             
             task            = Option('main', validate_options('task')),
             system          = Option('task', is_type(bool)),
@@ -354,59 +211,15 @@ def update(d, u): #recursive dictionary update
 
 class Validator:
 
-    def validate_iter(k, v):
-        for i in v:
-            if not isinstance(i, (int, float)):
-                raise ConfigurationError("Invalid value '{0}' for '{1}' in repeating schedule {2}, must be a number.".format(i, k, v))
-        return v
-
-    def validate_list(k, v):
-        if len(v) > 0 and isinstance(v[0], list):
-            if len(v) > 1:
-                raise ConfigurationError("Invalid value '{0}' for '{1}', a repeating schedule is specified through the use of double square brackets: [[...]].".format(k, v))
-            v = Validator.validate_iter(k, v[0])
-            return cycle(v)
-        else:
-            v = Validator.validate_iter(k, v)
-            return iter(v)
-
-    def validate_str(k, v):
-        pattern = '\w+\(((\w|\d)+,)*((\w|\d)+)?\)'
-        r = re.match(pattern, re.sub(r"\s+", "", v))
-        if r is not None:
-            name, args = v.split('(')
-            dists = distributions()
-            if name in dists:
-                args = args[:-1].split(",")
-                try:
-                    return dists[name](*args)
-                except Exception as e:
-                    raise ConfigurationError("Invalid value '{0}' for '{1}', failed to build distribution, perhaps the arguments were invalid.".format(v,k)) from e
-            else:
-                raise ConfigurationError("Invalid value '{0}' for '{1}', distribution not found, valid distributions include: {2}".format(v,k,tuple(distributions().keys())))
-
-
-    def is_schedule(**kwargs): #validate schedule (number, list, tuple, str)
-        k = next(iter(kwargs.keys()))
-        v = kwargs[k]
-        if isinstance(v, (int, float)): #schedule a single event
-            return v
-        elif isinstance(v, list):
-            return Validator.validate_list(k, v)
-        elif isinstance(v, str): #build schedule object
-            return Validator.validate_str(k, v)
-        raise ConfigurationError("Invalid value '{0}' for '{1}', must be a number, tuple, list or distribution.".format(v,k))
-
-
     def __call__(self, **kwargs):
         config =  validate_options('main')(**{'main':kwargs}) #{k:get_option(k, 'main')(**{k:v}) for k,v in kwargs.items()}
 
         # ====== POST PROCESSING ====== # 
         #TOOD move this somewhere more suitable
         result = default_config()
+
         result = update(result, config)
-        #from pprint import pprint
-        #pprint(result)
+        pprint(result)
 
         result['screen_size'] = (result.get('screen_width', result['screen_size'][0]), result.get('screen_height', result['screen_size'][1]))
         result['screen_position'] = (result.get('screen_x', result['screen_position'][0]), result.get('screen_y', result['screen_position'][1]))
@@ -444,7 +257,9 @@ def load(path):
         path = os.path.join(path, 'config.json')
     if not os.path.exists(path):
         raise FileNotFoundError("Could not find config file at location: {0}".format(path))
+
     print("USING CONFIG FILE: {0}".format(path))
+
     with open(path, 'r') as f: 
         data = json.load(f)
         result = validate(**data)
@@ -482,13 +297,4 @@ if __name__ == "__main__":
     for i in default_event_schedule():
         print(i, ":")
     
-    """
-    def match(v):
-        pattern = '\w+\(((\w|\d),)*((\w|\d)+)?\)'
-        r = re.match(pattern, v)
-        return r
-
-    print(match('uniform(0,1000)'))
-    print(match('uniform(10)'))
-    print(match('uniform()'))
-    """
+   

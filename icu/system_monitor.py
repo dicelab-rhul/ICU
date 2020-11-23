@@ -106,7 +106,7 @@ class WarningLight(EventCallback, Component, BoxComponent):
 
     def __init__(self, canvas, name, width=1., height=1., state=0, prefered_state=0, key=None, 
                 on_colour=COLOUR_GREEN, off_colour=COLOUR_RED, outline_thickness=OUTLINE_WIDTH,
-                outline_colour=OUTLINE_COLOUR, highlight={}, grace=1):
+                outline_colour=OUTLINE_COLOUR, highlight={}, grace=1, **kwargs):
 
         self.__state_colours = [off_colour, on_colour]
         self.__state = state

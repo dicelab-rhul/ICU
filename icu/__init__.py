@@ -92,7 +92,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
     
     #pprint(config.__dict__)
 
-    config_schedule = SimpleNamespace(**config.schedule)
+    #config_schedule = SimpleNamespace(**config.schedule)
     window_properties = {}
                          
     eyetracker = None #prevent exit errors
@@ -113,6 +113,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
                 root.attributes("-fullscreen", self.fullscreen)
 
         root = tk.Tk()
+        #root.lower()
         full_screen = None
 
         if config.screen_aspect is not None: 
@@ -234,7 +235,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
                 input_handler = keyhandler.JoyStickHandler(root)
             #event.event_scheduler.schedule(tracking.KeyEventGenerator(input_handler), sleep=cycle([50]))
 
-        # ==================== FULE MONITOR EVENT SCHEDULES   ==================== #
+        # ==================== FUEL MONITOR EVENT SCHEDULES   ==================== #
         if task.fuel:
             task_fuel_monitor(config)
             
@@ -302,13 +303,13 @@ def task_system_monitor(config):
     """
     scales = system_monitor.Scale.all_components()
     for scale in scales:
-        schedule = config.schedule.get(scale, configuration.default_scale_schedule())
+        schedule = config.__dict__[scale]['schedule']
         event.event_scheduler.schedule(generator.ScaleEventGenerator(scale), sleep=schedule)
-        #print(scale, schedule)
+
 
     warning_lights = system_monitor.WarningLight.all_components()
     for warning_light in warning_lights:
-        schedule = config.schedule.get(warning_light, configuration.default_warning_light_schedule())
+        schedule = config.__dict__[warning_light]['schedule']
         event.event_scheduler.schedule(generator.WarningLightEventGenerator(warning_light), sleep=schedule)
         #print(scale, schedule)
 
@@ -320,7 +321,7 @@ def task_tracking(config):
     """
     targets = tracking.Tracking.all_components()
     for target in targets:
-        schedule = config.schedule.get(target, configuration.default_target_schedule())
+        schedule = config.__dict__[target]['schedule']
         event.event_scheduler.schedule(generator.TargetEventGenerator(target, **config.__dict__[target]), sleep=schedule)
 
 def task_fuel_monitor(config):
@@ -331,7 +332,7 @@ def task_fuel_monitor(config):
     """
     pumps = fuel_monitor.Pump.all_components()
     for pump in pumps:
-        schedule = config.schedule.get(pump, configuration.default_pump_schedule())
+        schedule = config.__dict__[pump]['schedule']
         event.event_scheduler.schedule(generator.PumpEventGenerator(pump, False), sleep=schedule)
 
 def pumps():

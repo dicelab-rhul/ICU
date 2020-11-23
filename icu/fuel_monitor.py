@@ -176,8 +176,9 @@ class Pump(EventCallback, Component, CanvasWidget):
 
       
         
-        default_config = configuration.default_pumps() #TODO remove
-        config = config.get(name, default_config)
+        #default_config = configuration.default_pumps() #TODO remove
+        #config = config.get(name, default_config)
+        
 
         self.flow_rate = options[name]['flow_rate']
         self.event_rate = options[name]['event_rate']
