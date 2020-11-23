@@ -38,7 +38,6 @@ The above configuration will disable both the tracking and fuel monitoring tasks
 
 ## Task: Tracking {#tracking}
 
-### Options
 * `schedule ` : event schedule. Target drift, each event moves the target by `step` amount. Default: schedule: `[[100]]`.
 * `step (int, float)` : distance (pixels) the Target moves on each event. Default: 2.
 * `invert (bool)` : invert controls for tracking. Default: False.
@@ -54,11 +53,9 @@ In the above configuration, the target will move 2 pixels per `move` event and a
 
 ## Task: Fuel Monitoring {#fuel-monitoring}
 
-### Options
-
 The fuel monitoring task involves tanks and pumps, each have their own configuration options. Pumps move fuel between their associated tanks. 
 
-#### Tank
+### Tank
 
 Tanks: FuelTank:A, FuelTank:B, FuelTank:C, FuelTank:D, FuelTank:E, FuelTank:F
 
@@ -72,7 +69,7 @@ Tanks: FuelTank:A, FuelTank:B, FuelTank:C, FuelTank:D, FuelTank:E, FuelTank:F
 * `outline_colour (str)` : cosmetic, outline colour of the tank.
 * `outline_thickness (int)` : cosmetic, outline thickness of the tank.
 
-#### Pump
+### Pump
 
 Pumps: Pump:AB, Pump:BA, Pump:FD, Pump:EA, Pump:CA, Pump:EC, Pump:DB, Pump:FB
 
@@ -99,6 +96,8 @@ For the above configuration for pump AB, 1 `transfer` event is triggered every s
 
 ### Warning Light
 
+Warning Lights: WarningLight:0, WarningLight:1
+
 * `schedule ` : event schedule. Each event switches the light to the undesired state (off for WarningLight:0 and on for WarningLight:1). Default: schedule: `[[uniform(1000,10000)]]`.
 * `grace (int, float)` : grace period (the time after which the light may turn on/off after a user has clicked). Default: 2.
 * `key (str)` : key-binding shortcut, may be used instead of clicking. Default: 0/1.
@@ -115,6 +114,8 @@ For the above configuration for pump AB, 1 `transfer` event is triggered every s
 In the above configuration, the warning light will start in state 0 (off) and will wait at least 1 second before turning back to an undesired state (according to its `schedule`).
 
 ### Scale
+
+Scales: Scale:0, Scale:1, Scale:2, Scale:3, ... 
 
 * `schedule ` : event schedule. Each events moves the slider up/down 1 place.. Default: schedule: `[[uniform(1000,10000)]]`.
 * `key (str)` : key-binding shortcut, may be used instead of clicking. Default: <K>.
@@ -167,7 +168,7 @@ The above configuration will enable the mouse as an input method, and completely
 ## Overlay Configuration
 
 ICU provides support for an overlay, including highlighting widgets, displaying warnings etc. The following options are available under `overlay`.
-#### Options
+
 * `enable (bool)` : enable/disable overlay (highlighting, arrows etc). Default: True.
 * `arrow (bool)` : (IN PROGRESS) enable/disable arrows. Default: True.
 * `transparent (bool)` : transparent highlights ?. Default: True.
@@ -217,9 +218,9 @@ More complex schedules can be specified programmatically by subclassing `icu.con
 Some common distributions have been defined for convenience.
 
 #### Uniform Distribution
-Takes the form `uniform(a,b)` where `a` and `b` are the lower and upper bounds (int > 0) of the domain, `"Scale:0" : "uniform(0, 1000)"`, will trigger an event after a random time in the interval 0-1 seconds.
+Takes the form `uniform(a,b)` where `a` and `b` are the lower and upper bounds (int > 0) of the domain, `uniform(0, 1000)`, will trigger an event after a random time in the interval 0-1 seconds.
 #### Normal Distribution
-Takes the form `normal(mu, sigma)` where `mu` and `sigma` are the mean and standard deviation of a Gaussian distribution, `"Scale:0" : "normal(1000,100)"`, will trigger an event at random time centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).
+Takes the form `normal(mu, sigma)` where `mu` and `sigma` are the mean and standard deviation of a Gaussian distribution, `normal(1000,100)`, will trigger an event at a random time centered around 1000ms. Note that negative sample values are treated as 0 (i.e. immediately trigger the event).
 
 Custom-Event Schedules can be combined with multi or repeating schedules as follows: 
 
