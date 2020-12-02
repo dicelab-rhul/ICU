@@ -113,7 +113,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
                 root.attributes("-fullscreen", self.fullscreen)
 
         root = tk.Tk()
-        #root.lower()
+        root.lower()
         full_screen = None
 
         if config.screen_aspect is not None: 
@@ -345,7 +345,7 @@ def warning_lights():
     return list(system_monitor.WarningLight.all_components())
 
 def scales():
-    return list( system_monitor.Scale.all_components())
+    return list(system_monitor.Scale.all_components())
 
 def tanks():
     return list(fuel_monitor.FuelTank.all_components())

@@ -12,6 +12,20 @@ from itertools import cycle, repeat
 from .distribution import distributions
 from .exception import ConfigurationError
 
+class Const:
+
+    def __init__(self,value):
+        self.value = value
+    
+    def __call__(self):
+        return self.value
+
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return str(self)
+
 class Schedule:
     """ Class representing a schedule. """
 
@@ -20,7 +34,7 @@ class Schedule:
         self._rep = str(schedule)
 
         if isinstance(schedule, (int, float)):         # schedule a single event
-            self.schedule = iter([lambda : schedule])
+            self.schedule = iter([Const(schedule)])
         elif isinstance(schedule, str):                # schedule a random event
             self.schedule = iter([Schedule.validate_distribution(schedule)])
         elif isinstance(schedule, list):               # schedule a number of events (may be repeated)
@@ -59,7 +73,7 @@ class Schedule:
     def validate_iter(v):
         def _validate_element(i):
             if isinstance(i, (int, float)):
-                return lambda: i
+                return Const(i)
             elif isinstance(i, (str)):
                 return Schedule.validate_distribution(i)
             else: 

@@ -8,13 +8,14 @@ __email__ = "benrjw@gmail.com"
 __status__ = "Development"
 
 from .validate import validate_schedule
+from ..constants import COLOUR_BLUE, COLOUR_GREEN, COLOUR_RED, BACKGROUND_COLOUR, OUTLINE_COLOUR, OUTLINE_THICKESS # TODO ? 
 
 def default_config_screen():
     return dict(#screen_width=None,  #handled by post processing
                 #screen_height=None, #handled by post processing
                 screen_size = (800,700),                              # size of the ICU window
-                #screen_x = None, #handled by post processing       # x position of the ICU window
-                #screen_y = None, #handled by post processing       # y position of the ICU window
+                #screen_x = None, #handled by post processing         # x position of the ICU window
+                #screen_y = None, #handled by post processing         # y position of the ICU window
                 screen_position = (0,0),                              # position of the ICU window
                 screen_min_size = (100,100),                          # minimum ICU window size
                 screen_max_size = (2000,2000),                        # maximum ICU window size
@@ -22,9 +23,9 @@ def default_config_screen():
                 screen_resizable = True,                              # ICU window resizable ? 
                 screen_aspect = None,                                 # ICU window aspect ratio (if fixed)
                 background_colour = 'grey',                           # ICU window background colour
-                shutdown = -1)                                      # system shutdown after x/seconds (-1 = never)
+                shutdown = -1)                                        # system shutdown after x/seconds (-1 = never)
 
-def default_task_options():                                         # turn on/off specific tasks
+def default_task_options():                                           # turn on/off specific tasks
     return dict(system = True,                                      
                 track = True, 
                 fuel = True)
@@ -89,10 +90,13 @@ def default_pump():
                 state = 1)
 
 def default_tracking():
-    return {"Target:0" : 
-                dict(schedule = default_target_schedule(),
-                step = 2,   
-                invert = False)} #TODO
+    return {"Target:0" : default_target() } #TODO
+
+def default_target():
+    return dict(schedule = default_target_schedule(),
+        step = 2,   
+        invert = False)
+
 
 def default_input():
     return {"mouse" : True,

@@ -89,113 +89,106 @@ class Option:
 
 # CONFIG OPTIONS ARE ALL DEFINED IN THE DICTIONARY BELOW - EACH SHOULD BE VALIDATED
 
-
-
 target_options = dict(
-    step               = Option('target', is_type(int, float)),
-    invert             = Option('target', is_type(bool))
+    schedule           = Option('target', validate_schedule),           # event schedule. Target drift, each event moves the target by `step` amount.
+    step               = Option('target', is_type(int, float)),         # distance (pixels) the Target moves on each event
+    invert             = Option('target', is_type(bool))                # invert controls for tracking
 )
 
 warninglight_options = dict(
-    schedule            = Option('warning_light', validate_schedule),
-    grace               = Option('warning_light', is_type(int, float)),
-    key                 = Option('warning_light', is_type(str)),
-    state               = Option('warning_light', is_type(int)),
-    on_colour           = Option('warning_light', is_type(str)),
-    off_colour          = Option('warning_light', is_type(str)),
-    outline_colour      = Option('warning_light', is_type(str)),
-    outline_thickness   = Option('warning_light', is_type(int))
+    schedule            = Option('warning_light', validate_schedule),   # event schedule. Each event switches the light to the undesired state (off for WarningLight:0 and on for WarningLight:1)
+    grace               = Option('warning_light', is_type(int, float)), # grace period (the time after which the light may turn on/off after a user has clicked)
+    key                 = Option('warning_light', is_type(str)),        # key-binding shortcut, may be used instead of clicking
+    state               = Option('warning_light', is_type(int)),        # initial state (on or off)
+    on_colour           = Option('warning_light', is_type(str)),        # cosmetic, colour of the on state
+    off_colour          = Option('warning_light', is_type(str)),        # cosmetic, colour of the off state
+    outline_colour      = Option('warning_light', is_type(str)),        # cosmetic, colour of the outline 
+    outline_thickness   = Option('warning_light', is_type(int))         # cosmetic, thickness of the outline
 )
 
 scale_options = dict(
-    schedule            = Option('scale', validate_schedule),
-    key                 = Option('scale', is_type(str)),
-    size                = Option('scale', is_type(int)),
-    position            = Option('scale', is_type(int)),
-    background_colour   = Option('scale', is_type(str)),
-    outline_colour      = Option('scale', is_type(str)),
-    outline_thickness   = Option('scale', is_type(int)),
-    slider_colour       = Option('scale', is_type(str))
+    schedule            = Option('scale', validate_schedule),           # event schedule. Each events moves the slider up/down 1 place. 
+    key                 = Option('scale', is_type(str)),                # key-binding shortcut, may be used instead of clicking
+    size                = Option('scale', is_type(int)),                # size of the scale (number of positions that the slider may be in)
+    position            = Option('scale', is_type(int)),                # initial position of the slider
+    background_colour   = Option('scale', is_type(str)),                # cosmetic, background colour of the scale
+    outline_colour      = Option('scale', is_type(str)),                # cosmetic, outline colour of the scale (and slider)
+    outline_thickness   = Option('scale', is_type(int)),                # cosmetic, outline thickness of the scale (and slider)
+    slider_colour       = Option('scale', is_type(str))                 # cosmetic, colour of the slider
 )
 
 pump_options = dict(
-    schedule            = Option('pump', validate_schedule),
-    flow_rate           = Option('pump', is_type(int)),
-    event_rate          = Option('pump', is_type(int)),
-    #cosmetic
-    scale               = Option('pump', is_type(float))
+    schedule            = Option('pump', validate_schedule),            # event schedule. Each event causes the pump to fail/repair (repeating every two events).
+    flow_rate           = Option('pump', is_type(int)),                 # transfer rate of fuel from one tank to another (units/second)
+    event_rate          = Option('pump', is_type(int)),                 # number of events to trigger /second
+    scale               = Option('pump', is_type(float))                # cosmetic, the display scale of the pump
 )
 
 tank_options = dict(
-    burn_rate           = Option('tank', is_type(int, float)),
-    accept_position     = Option('tank', is_type(int, float)),
-    accept_proportion   = Option('tank', is_type(int, float)),
-    capacity            = Option('tank', is_type(int, float)),
-    fuel                = Option('tank', is_type(int, float)),
+    burn_rate           = Option('tank', is_type(int, float)),          # rate at which fuel is burnt units/second
+    accept_position     = Option('tank', is_type(int, float)),          # position of the acceptable level of fuel (for a main tank)
+    accept_proportion   = Option('tank', is_type(int, float)),          # proportion of acceptability of fuel (for a main tank), fuel levels within the range: position +- proportion are acceptable.
+    capacity            = Option('tank', is_type(int, float)),          # capacity of the tank
+    fuel                = Option('tank', is_type(int, float)),          # initial fuel level
     
-    fuel_colour         = Option('tank', is_type(str)), # cosmetic
-    background_colour   = Option('tank', is_type(str)), # cosmetic
-    outline_colour      = Option('tank', is_type(str)), # cosmetic
-    outline_thickness   = Option('tank', is_type(int)), # cosmetic
+    fuel_colour         = Option('tank', is_type(str)),                 # cosmetic, colour of the fuel
+    background_colour   = Option('tank', is_type(str)),                 # cosmetic, background colour of the tank
+    outline_colour      = Option('tank', is_type(str)),                 # cosmetic, outline colour of the tank
+    outline_thickness   = Option('tank', is_type(int)),                 # cosmetic, outline thickness of the tank
 )
 
 eyetracker_options = dict(
-    enabled             = Option('eyetracker', is_type(bool)),
-    stub                = Option('eyetracker', is_type(bool)),
-    calibrate           = Option('eyetracker', is_type(bool)),
-    sample_rate         = Option('eyetracker', is_type(int)),
+    enabled             = Option('eyetracker', is_type(bool)),          # enable eye tracking (requires a device to be connected)
+    calibrate           = Option('eyetracker', is_type(bool)),          # calibrate the eye-tracker
+    sample_rate         = Option('eyetracker', is_type(int)),           # sample rate for the eye-tracker (if configurable on the device)
+    stub                = Option('eyetracker', is_type(bool)),          # use the mouse as a stub for an eye tracking device, functions exactly as an eyetracker (useful for testing) 
 )
 
 options = dict(
 
             main            = Option('-', validate_options('main')),
 
-            #TODO validate these arguments?
-            Pump            = Option('main', validate_options('pump', _options=pump_options)),
-            Target          = Option('main', validate_options('target', _options=target_options)),
-            WarningLight    = Option('main', validate_options('warning_light', _options=warninglight_options)),
-            Scale           = Option('main', validate_options('scale', _options=scale_options)),
-            FuelTank        = Option('main', validate_options('tank', _options=tank_options)),
+            Pump            = Option('main', validate_options('pump', _options=pump_options)),                  
+            Target          = Option('main', validate_options('target', _options=target_options)),              
+            WarningLight    = Option('main', validate_options('warning_light', _options=warninglight_options)), 
+            Scale           = Option('main', validate_options('scale', _options=scale_options)),                
+            FuelTank        = Option('main', validate_options('tank', _options=tank_options)),                  
 
-            screen_width    = Option('main', is_type(int, float)),
-            screen_height   = Option('main', is_type(int, float)),
-            screen_size     = Option('main', is_coord()),
-            screen_x        = Option('main', is_type(int, float)),
-            screen_y        = Option('main', is_type(int, float)),
-            screen_position        = Option('main', is_coord()),
+            screen_width    = Option('main', is_type(int, float)),      # window width
+            screen_height   = Option('main', is_type(int, float)),      # window height
+            screen_size     = Option('main', is_coord()),               # window size
+            screen_x        = Option('main', is_type(int, float)),      # window x position
+            screen_y        = Option('main', is_type(int, float)),      # window y position
+            screen_position = Option('main', is_coord()),               # window position
 
-            screen_full            = Option('main', is_type(bool)),
-            screen_resizable       = Option('main', is_type(bool)),
-            screen_aspect          = Option('main', is_coord()),
-            screen_min_size        = Option('main', is_coord()),
-            screen_max_size        = Option('main', is_coord()),
-            background_colour       = Option('main', is_type(str)),
+            screen_full            = Option('main', is_type(bool)),     # window full screen ?
+            screen_resizable       = Option('main', is_type(bool)),     # window resizable ?
+            screen_aspect          = Option('main', is_coord()),        # window aspect ratio
+            screen_min_size        = Option('main', is_coord()),        # minimum window size
+            screen_max_size        = Option('main', is_coord()),        # maximum window size
+            background_colour      = Option('main', is_type(str)),      #cosmetic, window background colour
             
-            #schedule        = Option('main', lambda **kwargs: {k:Validator.is_schedule(**{k:v}) for k,v in next(iter(kwargs.values())).items()}),
-            
-            task            = Option('main', validate_options('task')),
-            system          = Option('task', is_type(bool)),
-            track           = Option('task', is_type(bool)),
-            fuel            = Option('task', is_type(bool)),
+            task            = Option('main', validate_options('task')), 
+            system          = Option('task', is_type(bool)),            # enable/disable tracking task
+            track           = Option('task', is_type(bool)),            # enable/disable system task
+            fuel            = Option('task', is_type(bool)),            # enable/disable fuel task
 
-            input           = Option('main',  validate_options('input')),
-            mouse           = Option('input', is_type(bool)),
-            keyboard        = Option('input', is_type(bool)),
-            joystick        = Option('input', is_type(bool)),
+            input           = Option('main',  validate_options('input')), 
+            mouse           = Option('input', is_type(bool)),               # enable/disable mouse input
+            keyboard        = Option('input', is_type(bool)),               # enable/disable keyboard input
+            joystick        = Option('input', is_type(bool)),               # enable/disable joystick input
 
             eyetracker      = Option('input', validate_options('eyetracker', _options=eyetracker_options)),
 
-            generators      = Option('main', lambda **kwargs: None), #TODO
-            shutdown          = Option('main', is_type(int, float)), # stop the system
+            shutdown          = Option('main', is_type(int, float)),        # time after which to stop the system (-1 to never stop)
 
             overlay             = Option('main',    validate_options('overlay')),
-            enable              = Option('overlay', is_type(bool)),
-            arrow               = Option('overlay', is_type(bool)),
-            transparent         = Option('overlay', is_type(bool)),
-            outline             = Option('overlay', is_type(bool)),
-            highlight_thickness = Option('overlay', is_type(int)),
-            highlight_colour    = Option('overlay', is_type(str)),
-        
+            enable              = Option('overlay', is_type(bool)),         # enable/disable overlay (highlighting, arrows etc)
+            arrow               = Option('overlay', is_type(bool)),         # enable/disable arrows
+            transparent         = Option('overlay', is_type(bool)),         # transparent highlights ? 
+            outline             = Option('overlay', is_type(bool)),         # outlined highlights ?
+            highlight_thickness = Option('overlay', is_type(int)),          # cosmetic, highlight outline thickness
+            highlight_colour    = Option('overlay', is_type(str)),          # cosmetic, highlight colour
     )
 
 

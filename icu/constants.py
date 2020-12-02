@@ -29,7 +29,6 @@ EYETRACKING = True #are we using eyetracking?
 COLOUR_GREEN = '#90c73e'
 COLOUR_RED = '#f2644d'
 
-
 BACKGROUND_COLOUR = 'lightgray'
 OUTLINE_WIDTH = 2 #TODO remove
 OUTLINE_COLOUR = 'black'
