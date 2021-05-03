@@ -14,13 +14,14 @@ The aim of this project is to provide user assistance in the multi-tasking examp
 
 ## Implementation
 
-### ICU
+### [ICU](https://github.com/dicelab-rhul/ICU)
                         
 An implementation of MATBII in Python 3.6+ with additional user assistance features. ICU is implemented as an event system that is easy to interface with. Interface meta data and all internal events are exposed via a simple event-based python API. ICU includes support for various kinds of user input - mouse, keyboard, joy stick, eye tracking.
 
-### ICUa
+### [ICUa](https://github.com/dicelab-rhul/ICUA)
+   
+[ICUa](https://github.com/dicelab-rhul/ICUA) is [ICU](https://github.com/dicelab-rhul/ICU) extended with agents implemented in [PyStarWorlds](https://github.com/dicelab-rhul/pystarworlds), an agent environment that supports Python agent applications.  The agents access the ICU display and provide feedback in the form of highlights and arrows according to simple logic based on eye tracking, keyboard, mouse and joystick inputs. 
 
-A full version of system implemented with simple agents controlling the display of additional highlights and arrows according to simple logic based on eye tracking, keyboard, mouse and joystick inputs.       
 
 <br/>
 
