@@ -20,6 +20,10 @@ setuptools.setup(name='icu',
       include_package_data=True,
       install_requires=[],
       python_requires='>=3.6',
+      extras_require={
+        "tobii" : ["psychopy", "tobii-research==1.8.0"] # requires python 3.6!
+      },
+
       classifiers=[
         "Programming Language :: Python :: 3.7",
         "Development Status :: 2 - Pre-Alpha",

@@ -20,6 +20,9 @@ from .. import event
 
 from . import filter
 
+import logging
+LOGGER = logging.getLogger("ICU")
+
 __all__ = ('filter',)
 
 
@@ -169,12 +172,15 @@ def eyetracker(root, filter=None, sample_rate=300, calibrate=True, stub=False, *
     Returns:
         (EyeTracker): The new EyeTracker.
     """ 
+    LOGGER.debug("Initialising eyetracker... ")
     if not stub:
         try:
             return EyeTracker(root, filter=filter, sample_rate=sample_rate, calibrate=calibrate)
-        except:
-            print("FAILED TO INITIALISE EYE TRACKER DUE TO:")
-            traceback.print_exc()
-            print(" ---- USING STUB EYETRACKER (MOUSE COORDINATE)")
+        except Exception as e: 
+            LOGGER.error("Failed to initialise eyetracker")
+            LOGGER.exception(e)
+           
+    
+    LOGGER.debug("Using stub eyetracker (MOUSE COORDINATE)")
     return EyeTrackerStub(root, filter=filter, sample_rate=sample_rate)
 

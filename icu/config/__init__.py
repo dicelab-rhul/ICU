@@ -10,6 +10,8 @@ import json
 import os
 
 from pprint import pprint # TODO remove
+import logging
+LOGGER = logging.getLogger("ICU")
 
 import copy
 
@@ -212,7 +214,7 @@ class Validator:
         result = default_config()
 
         result = update(result, config)
-        pprint(result)
+        #pprint(result)
 
         result['screen_size'] = (result.get('screen_width', result['screen_size'][0]), result.get('screen_height', result['screen_size'][1]))
         result['screen_position'] = (result.get('screen_x', result['screen_position'][0]), result.get('screen_y', result['screen_position'][1]))
@@ -251,7 +253,7 @@ def load(path):
     if not os.path.exists(path):
         raise FileNotFoundError("Could not find config file at location: {0}".format(path))
 
-    print("USING CONFIG FILE: {0}".format(path))
+    LOGGER.debug("USING CONFIG FILE: {0}".format(path))
 
     with open(path, 'r') as f: 
         data = json.load(f)
@@ -269,6 +271,7 @@ def reset(path):
     if not os.path.exists(path):
         raise FileNotFoundError("Could not find config file at location: {0}".format(path))
     with open(path, 'w') as f:
+        # TODO? 
         json.dump(kwargs, f, indent=4, sort_keys=True)
 
 if __name__ == "__main__":

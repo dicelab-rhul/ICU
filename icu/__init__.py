@@ -9,7 +9,12 @@ import random
 import copy
 import traceback
 from types import SimpleNamespace
-from itertools import cycle
+
+import logging
+logging.basicConfig() 
+#logging.root.setLevel(logging.DEBUG)
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
 
 from multiprocessing import Pipe
 
@@ -248,7 +253,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
         et_config = config.input['eyetracker']
         if et_config.get('enabled', False):
             eyetracker = None
-            filter = eyetracking.filter.TobiiFilter(5, 200) #some default thing...
+            filter = eyetracking.filter.TobiiFilter(5, 200) # TODO some default thing...
             eyetracker = eyetracking.eyetracker(root, filter=filter, **et_config)
             eyetracker.start()
 
@@ -282,8 +287,8 @@ def run(shared=None, sinks=[], sources=[], config=None):
                                                         size     = fuel_monitor_widget.size,
                                                         **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.tanks.items()},
                                                         **{k:dict(position=v.position, size=v.size) for k,v in fuel_monitor_widget.pumps.items()})
-            from pprint import pprint
-            pprint(shared.window_properties)
+            #from pprint import pprint
+            #pprint(shared.window_properties)
 
             shared.release() # the parent process can now access attributes in shared memory
         
