@@ -33,12 +33,11 @@ This project is supported by a [Human-Like Computing EPSRC Network+ ](http://hlc
 
 ## Demos
 
-### ICU + Agents - Mouse Based Attention
+### EMAS 2021
       
+{{< youtube _jvFMK-z8ps >}}
 
-{{< youtube fY-B0hj6Qtw >}}
+## Papers
 
-A demo of the ICU + Agents system with mouse based attention. Mouse movements are classified as gaze/succade and agents are tasked with guiding the users attention by analysising the ICU event stream in real time. 
 
-Warnings (red highlights) are shown by the agents according to a set of rules. In this example a warning is triggered for a particular component is in a undesirable state and the user hasn't recently interacted with component or task."
-
+S. Durant, B. Wilkins, C. Woods, E. Uliana and K. Stathis. 2021. _Attention Guidance Agents for the MATBII cockpit task._ Engineering Multi-Agent Systems. EMAS 2021. 
