@@ -254,6 +254,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
         if et_config.get('enabled', False):
             eyetracker = None
             filter = eyetracking.filter.TobiiFilter(5, 200) # TODO some default thing...
+            filter = None # TODO remove
             eyetracker = eyetracking.eyetracker(root, filter=filter, **et_config)
             eyetracker.start()
 

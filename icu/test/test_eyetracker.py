@@ -1,6 +1,7 @@
 import tkinter as tk
 import math
 
+
 from icu.eyetracking import eyetracker, filter
 from icu.event import EventCallback
 
@@ -30,7 +31,7 @@ pointer = canvas.create_oval(x - radius, y - radius, x + radius, y + radius, fil
 def update(x, y):
     if not (math.isnan(x) or math.isnan(y)):
         canvas.coords(pointer, x-radius, y-radius, x+radius, y+radius)
-    #print(x, y)
+    print(x, y)
 
 def repeat(ms, fun):
     fun()
@@ -40,11 +41,11 @@ def track(self, *args, **kwargs):
     #print(args, kwargs)
     #update(-root.winfo_x() + kwargs['x'] + canvas.winfo_width()/2, -root.winfo_y() - kwargs['y'] + canvas.winfo_height()/2)
     #update(-root.winfo_x() + kwargs['x'] + screen_width/2, -root.winfo_y() - kwargs['y'] + screen_height/2)
+    #print(kwargs)
     update(kwargs['x'], kwargs['y'])
 
 
 EventCallback.source = track #monkey patch for testing
-
 
 #repeat(100, lambda : update(px + 1, py + 1))
 calibrate = False

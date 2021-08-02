@@ -8,6 +8,7 @@
 import threading
 import traceback
 import math
+from types import SimpleNamespace
 
 from collections import deque
 
@@ -64,13 +65,23 @@ class EyeTracker(EyeTrackerBase):
             raise EyeTrackingError("IMPORT FAILED.", cause=e)
 
         #self.io = connect_eyetracker(sample_rate = sample_rate)
-    
+
+        # HACKZ, this is required for the psychopy 3 (we have our own window, so fake it...)
+        window = SimpleNamespace(units = 'pix', colorSpace = 'rgb', _isFullScr = True, 
+                      screen = 0, monitor = SimpleNamespace(name = "monitor"))
+
         iohub_config = {'eyetracker.hw.tobii.EyeTracker':
-                       {'name':'tracker','runtime_settings':{'sampling_rate':sample_rate}}}
-        self.io = launchHubServer(**iohub_config)    
+                       {'name':'tracker',
+                        'model_name': '',
+                        'serial_number': '',
+                        'runtime_settings':{'sampling_rate':sample_rate}
+                       }}
+        self.io = launchHubServer(window=window, **iohub_config)    
         self.tracker = self.io.devices.tracker
+
         self.sample_rate = sample_rate
         self.tk_root = root
+        
         #self.tk_root.bind("<Configure>", self.tk_update) #TODO some thought here, cannot bind multiple <Configure>..?
 
         # transform eye tracking coordinates to tk window coordinates
@@ -98,8 +109,11 @@ class EyeTracker(EyeTrackerBase):
         while not self.closed.is_set():
             for e in self.tracker.getEvents(asType='dict'): #this might cause the thread to hang... TODO fix it!
                 x,y = e['left_gaze_x'], e['left_gaze_y']
+                #print(e)
                 if not (math.isnan(x) or math.isnan(y)):
+                    #print("EYE TRACKER: {0} {1}".format(x, y))
                     x,y = self.transform(x,y) # convert to tk coordinates
+                    #print("EYE TRACKER: {0} {1}".format(x, y))
                     self.source(x=x,y=y, timestamp=e['time'])
         self.io.quit()
     
