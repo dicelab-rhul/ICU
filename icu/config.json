@@ -32,7 +32,7 @@
         "joystick" : false,
         "eyetracker" : {
             "enabled" : true,
-            "stub" : false
+            "stub" : true
         }
     },
 
