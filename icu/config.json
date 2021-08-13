@@ -42,12 +42,12 @@
         "fuel" : true
     },
 
-    "shutdown":-1,
+    "shutdown":10000,
     "background_colour":"blue",
     "screen_full": false,
-    "screen_height": 700,
-    "screen_width": 800,
-    "screen_x": 0,
+    "screen_height": 1000,
+    "screen_width": 1000,
+    "screen_x": 500,
     "screen_y": 0,
     "screen_resizable":true,
     "screen_min_size":[400,400],

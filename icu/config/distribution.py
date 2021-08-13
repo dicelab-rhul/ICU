@@ -10,6 +10,8 @@ import re
 import random
 from itertools import cycle, repeat, islice
 
+from .exception  import ConfigurationError
+
 class Distribution: 
     """ Base class for distributions, used in scheduling. """
     

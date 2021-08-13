@@ -4,6 +4,7 @@ import os
 from . import run
 
 DEFAULT_CONFIG_FILE = os.path.join(os.path.split(__file__)[0], 'config.json')
+DEFAULT_LOG_FILE = os.path.join(".", 'event_log.txt')
 
 class PathAction(argparse.Action):
 
@@ -14,6 +15,10 @@ parser = argparse.ArgumentParser(description='ICU')
 
 parser.add_argument('--config', '-c', metavar='C', action=PathAction, type=str, 
         default= DEFAULT_CONFIG_FILE,
+        help='path of the config file to use.')
+
+parser.add_argument('--logger', '-l', metavar='L', action=PathAction, type=str, 
+        default= DEFAULT_LOG_FILE,
         help='path of the config file to use.')
 
 args = parser.parse_args()

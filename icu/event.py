@@ -248,11 +248,14 @@ class GlobalEventCallback:
 
         event_scheduler.after(sleep, _trigger)
 
-from .log import EventLogger #TODO MOVE
 # ===  GLOBAL === #
-GLOBAL_EVENT_CALLBACK = GlobalEventCallback(EventLogger('event_log.txt'))
+GLOBAL_EVENT_CALLBACK = None
 global event_scheduler
 event_scheduler = None
+
+def initialise_global_event_callback(logger=None):
+    global GLOBAL_EVENT_CALLBACK
+    GLOBAL_EVENT_CALLBACK = GlobalEventCallback(logger)
 
 def get_event_sources():
     return list(GLOBAL_EVENT_CALLBACK.sources.keys())

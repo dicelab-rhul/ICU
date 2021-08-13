@@ -32,6 +32,8 @@ from . import highlight
 from . import process
 from . import generator
 from . import config as configuration
+from . import log
+
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor', 'process')
 
@@ -42,6 +44,7 @@ ExternalEventSource = event.ExternalEventSource
 
 # some constants ... 
 NAME = "ICU"
+
 #TODO others?
 
 
@@ -80,7 +83,7 @@ def start(sinks=[], sources=[], **kwargs):
 #global config
 #config = None
 
-def run(shared=None, sinks=[], sources=[], config=None):
+def run(shared=None, sinks=[], sources=[], config=None, logger=None):
     """ Starts the ICU system. Call blocks until the GUI is closed.
 
     Args:
@@ -92,8 +95,12 @@ def run(shared=None, sinks=[], sources=[], config=None):
     if config is None:
         config = os.path.join(os.path.split(__file__)[0], 'config.json')
     
-    #global config # this is used in other places and needs to be accessible TODO fix it...
+    #global config, this is used in other places and needs to be accessible TODO fix it... ?? 
     config = SimpleNamespace(**configuration.load(config)) #load config file
+    
+    # initialise global event callback (required for all events to be processed)
+    logger = log.get_logger(logger) # get logger for events
+    event.initialise_global_event_callback(logger)
     
     #pprint(config.__dict__)
 
@@ -156,7 +163,7 @@ def run(shared=None, sinks=[], sources=[], config=None):
                 try: 
                     root.destroy()
                 except:
-                    pass # ?? 
+                    pass # oh no ...?? 
 
             def resize(self):
                 raise NotImplementedError("TODO - resize events") # TODO move from main_panel.resize?
@@ -215,8 +222,8 @@ def run(shared=None, sinks=[], sources=[], config=None):
 
             if config.overlay['arrow']:
                 #TODO the arrow should rotate
-                arrow = main.create_oval(-20,-20,20,20, fill="red", width=0)
-                #arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
+                #arrow = main.create_oval(-20,-20,20,20, fill="red", width=0)
+                arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
                 main.overlay(arrow)
 
         main.pack()

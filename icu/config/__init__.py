@@ -9,16 +9,10 @@ __status__ = "Development"
 import json
 import os
 
-from pprint import pprint # TODO remove
 import logging
 LOGGER = logging.getLogger("ICU")
 
-import copy
-
 from types import SimpleNamespace
-from collections import defaultdict
-
-from itertools import cycle, islice, repeat
 
 from .distribution import *
 from .validate import validate_schedule
@@ -271,8 +265,8 @@ def reset(path):
     if not os.path.exists(path):
         raise FileNotFoundError("Could not find config file at location: {0}".format(path))
     with open(path, 'w') as f:
-        # TODO? 
-        json.dump(kwargs, f, indent=4, sort_keys=True)
+        raise NotImplementedError() # TODO? 
+        #json.dump(kwargs, f, indent=4, sort_keys=True)
 
 if __name__ == "__main__":
 
@@ -284,13 +278,4 @@ if __name__ == "__main__":
         for k,v in config.items():
             print(k, v, type(v))
     run()
-
-    #regex tests...
-    from pprint import pprint
-    for i in default_config_screen():
-        print(i, ":")
-    print()
-    for i in default_event_schedule():
-        print(i, ":")
-    
    
