@@ -205,10 +205,7 @@ class GlobalEventCallback:
         for event in events:
             self._trigger(event)
 
-    def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed
-        if "Pump" in event.src:
-            pass #print("EXTERNAL: ", event)
-        
+    def __sink_external(self, event): # TODO this could be changed at some point... a more advanced event system is needed        
         for sink in self.external_sinks.values():
             sink._ExternalEventSink__buffer.put(copy.deepcopy(event))
 

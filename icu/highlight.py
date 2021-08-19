@@ -6,7 +6,7 @@ def all_highlights():
     return Highlight.__all_highlights__
 
 def all_highlighted():
-    return [k for (k,v) in all_highlights().values() if v.is_on]
+    return [k for (k,v) in all_highlights().items() if v.is_on]
 
 class Highlight(EventCallback):
 
@@ -39,7 +39,7 @@ class Highlight(EventCallback):
             Highlight.__all_highlights__[self.name] = self
 
     def sink(self, event):
-        print("HIGHLIGHT: ", event)
+        #print("HIGHLIGHT: ", event)
         if "value" in event.data.__dict__: #if no value is given, flip the highlight on/off
             (self.off, self.on)[int(event.data.value)]() #love it
         else:
@@ -109,3 +109,7 @@ class Highlight(EventCallback):
     @property
     def position(self):
         return self.__box.position
+
+    @property
+    def size(self):
+        return self.__box.size

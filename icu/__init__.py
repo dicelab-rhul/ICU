@@ -19,7 +19,7 @@ LOGGER.setLevel(logging.DEBUG)
 from multiprocessing import Pipe
 from itertools import cycle
 
-
+import math
 
 
 from . import constants
@@ -245,13 +245,54 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
                 #arrow = main.create_oval(-20,-20,20,20, fill="red", width=0)
                 arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
                 main.overlay(arrow)
+                # subvert the event system, get the arrow to point to a highlight always... TODO this is a hack to
+                # get things working quickly for experiments. Really it should be done elsewhere...
+                class ArrowRotator:
+                    def __init__(self):
+                        super().__init__()
+                        self.highlights = highlight.Highlight.__all_highlights__ # hack..
+                        self.angle = 0
+                        self.highlighted = None
+                        event.event_scheduler.schedule(self.rotate_arrow(), sleep=cycle([100]))
 
+                    @property
+                    def position(self):
+                        return main.eye_position
+
+                    def get_highlight_position(self, k):
+                            x, y = self.highlights[k].position
+                            w, h = self.highlights[k].size
+                            return x + w/2, y + h/2
+
+                    def get_min_distance(self, positions):
+                        min_d = (None, float('inf'))
+                        for k, (px, py) in positions.items():
+                            d = ((px - self.position[0]) ** 2 + (py - self.position[1]) ** 2) ** .5
+                            if d < min_d[1]:
+                                min_d = (k, d)
+                        return min_d
+
+                    def rotate_arrow(self):
+                        while True:
+                            # get positions of all active highlights
+                            positions = {k:self.get_highlight_position(k) for k in highlight.all_highlighted()}
+                            # compute closest to eye position
+                            if len(positions) > 0:
+                                (h, _) = self.get_min_distance(positions)
+                                assert h is not None
+                                hx, hy = positions[h]
+                                # compute angle between eyes and highlight
+                                angle = math.atan2(hy - self.position[1], hx - self.position[0]) * (180 / math.pi)
+                                dangle = angle - self.angle
+                                self.angle = angle
+                                yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=dangle)
+                            else:
+                                yield None # no event... (nothing is highlighted)
+                arrow_rotator = ArrowRotator() # TODO move somewhere more suitable :) 
 
         # DEBUG 
         # debug_highlights()
-
-
-
+        
         main.pack()
 
         #tracking_widget.debug()
@@ -325,7 +366,7 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
 
             shared.release() # the parent process can now access attributes in shared memory
         
-        pprint(highlight.all_highlights())
+        #pprint(highlight.all_highlights())
         root.mainloop()
 
     except:

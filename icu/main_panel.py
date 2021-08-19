@@ -86,6 +86,10 @@ class MainPanel(tk.Canvas, EventCallback):
         self.__main.components['overlay'] = self.__overlay
 
     @property
+    def eye_position(self):
+        return self.__overlay.position 
+
+    @property
     def top(self):
         return self.top_frame
 
