@@ -210,7 +210,7 @@ class SystemMonitorWidget(CanvasWidget):
             self.scale_widget.layout_manager.fill(str(i), 'Y')
             self.scale_widget.layout_manager.split(str(i), 'X')
         
-        #self.highlight = Highlight(canvas, self, **highlight) #TODO this blocks clicks, it can be fixed with some difficulty...
+        self.highlight = Highlight(canvas, self, **highlight)
         
         #self.scale_widget.debug()
         #self.warning_light_widget.debug()

@@ -17,6 +17,10 @@ LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
 
 from multiprocessing import Pipe
+from itertools import cycle
+
+
+
 
 from . import constants
 from . import event
@@ -37,6 +41,23 @@ from . import log
 
 __all__ = ('panel', 'system_monitor', 'constants', 'event', 'main_panel', 'tracking', 'fuel_monitor', 'process')
 
+DEFAULT_CONFIG_FILE = os.path.join(os.path.split(__file__)[0], 'config.json')
+DEFAULT_LOG_FILE = os.path.join(".", 'event_log.txt')
+
+def get_parser(): # command line arguments for ICU
+    import argparse
+    class PathAction(argparse.Action):
+        def __call__(self, parser, namespace, path, option_string=None):
+            setattr(namespace, self.dest, os.path.abspath(path))
+
+    parser = argparse.ArgumentParser(description='ICU')
+    parser.add_argument('--config', '-c', metavar='C', action=PathAction, type=str, 
+            default= DEFAULT_CONFIG_FILE,
+            help='path of the config file to use.')
+    parser.add_argument('--logger', '-l', metavar='L', action=PathAction, type=str, 
+            default= DEFAULT_LOG_FILE,
+            help='path of the config file to use.')
+    return parser
 
 # extend these classes externally to add them (send and receive events to/from ICU system)
 ExternalEventSink = event.ExternalEventSink
@@ -46,8 +67,6 @@ ExternalEventSource = event.ExternalEventSource
 NAME = "ICU"
 
 #TODO others?
-
-
 
 def get_event_sources():
     return event.get_event_sources()
@@ -65,8 +84,9 @@ def start(sinks=[], sources=[], **kwargs):
     """ Start ICU as a seperate process. 
     
     Args:
-        sinks (list, optional): [description]. Defaults to [].
-        sources (list, optional): [description]. Defaults to [].
+        sinks (list, optional): TODO . Defaults to [].
+        sources (list, optional): TODO . Defaults to [].
+        config_hook (str): TODO
     """
     from multiprocessing import Process, Lock
     from .process import PipedMemory
@@ -83,7 +103,7 @@ def start(sinks=[], sources=[], **kwargs):
 #global config
 #config = None
 
-def run(shared=None, sinks=[], sources=[], config=None, logger=None):
+def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger=None):
     """ Starts the ICU system. Call blocks until the GUI is closed.
 
     Args:
@@ -91,10 +111,17 @@ def run(shared=None, sinks=[], sources=[], config=None, logger=None):
         sinks (list, optional): A list of external sinks, used to receive events from the ICU system. Defaults to [].
         sources (list, optional): A list of external sources, used to send events to the ICU system. Defaults to [].
         config (str): Path of configuration file.
+        config_hook (str): file to get configuration information for an external process, this allows configuration to be handled by 
+        ICU (written in the same config.json file) and may be made avaliable via shared memory.
+        logger (str): name of logger to log ICU events. 
     """
     if config is None:
         config = os.path.join(os.path.split(__file__)[0], 'config.json')
     
+    # update config parser using config_hook
+    if config_hook is not None:
+        configuration.hook(config_hook)
+
     #global config, this is used in other places and needs to be accessible TODO fix it... ?? 
     config = SimpleNamespace(**configuration.load(config)) #load config file
     
@@ -213,18 +240,17 @@ def run(shared=None, sinks=[], sources=[], config=None, logger=None):
             main.bottom_frame.layout_manager.fill('fuel_monitor', 'Y')
 
         if config.overlay['enable']:
-            #This is just for testing
-            def rotate_arrow():
-                import random
-                while True:
-                    yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=5)
-            #event.event_scheduler.schedule(rotate_arrow(), sleep=cycle([100]))
-
             if config.overlay['arrow']:
                 #TODO the arrow should rotate
                 #arrow = main.create_oval(-20,-20,20,20, fill="red", width=0)
                 arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
                 main.overlay(arrow)
+
+
+        # DEBUG 
+        # debug_highlights()
+
+
 
         main.pack()
 
@@ -299,7 +325,7 @@ def run(shared=None, sinks=[], sources=[], config=None, logger=None):
 
             shared.release() # the parent process can now access attributes in shared memory
         
-
+        pprint(highlight.all_highlights())
         root.mainloop()
 
     except:
@@ -363,3 +389,12 @@ def tanks():
     return list(fuel_monitor.FuelTank.all_components())
 
 
+# DEBUG STUFF
+
+def debug_highlights():
+    from pprint import pprint
+    pprint(highlight.all_highlights())
+    def random_highlight():
+        while True:
+            yield event.Event('DEBUG_HIGHLIGHT', "Highlight:SystemMonitorWidget", label='highlight')
+    event.event_scheduler.schedule(random_highlight(), sleep=cycle([100]))

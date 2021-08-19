@@ -42,7 +42,7 @@
         "fuel" : true
     },
 
-    "shutdown":10000,
+    "shutdown":-1,
     "background_colour":"blue",
     "screen_full": false,
     "screen_height": 1000,

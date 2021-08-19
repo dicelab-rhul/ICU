@@ -97,7 +97,6 @@ def default_target():
         step = 2,   
         invert = False)
 
-
 def default_input():
     return {"mouse" : True,
             "keyboard" : True,
@@ -115,6 +114,9 @@ def default_overlay():
                 transparent=True, 
                 outline=True, 
                 arrow=True)
+                
+# used with config_hook
+default_external = dict() 
 
 def default_config():
     return dict(**default_config_screen(), 
@@ -125,4 +127,5 @@ def default_config():
                 **default_warning_lights(), 
                 **default_tanks(), 
                 **default_pumps(), 
-                **default_tracking())
+                **default_tracking(),
+                **default_external)

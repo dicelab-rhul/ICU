@@ -13,16 +13,44 @@ import logging
 LOGGER = logging.getLogger("ICU")
 
 from types import SimpleNamespace
+import importlib
+
 
 from .distribution import *
 from .validate import validate_schedule
 from .exception import ConfigurationError
 
-from .default import default_config
+from .default import default_config, default_external
+
+def hook(config_hook):
+    # update validation for external options using a config hook, the hook may be (serialisable) object, or a module path
+    # the config hook must define "options" and "defaults", these will be added to ICU options and defaults and used to validate the config file.
+    if isinstance(config_hook, str):
+        try:
+                config_hook = importlib.import_module(config_hook)
+        except:
+            raise ConfigurationError("Failed to get hook: {0}".format(config_hook))
+    
+    try:
+        config_hook.options
+        config_hook.defaults
+    except:
+        raise ConfigurationError("Config hook {0} doesnt define 'defaults' or 'options'...".format(config_hook))
+
+    def find_conflict(a, b):
+        return set(a.keys()).intersection(set(b.keys()))
+
+    c = find_conflict(options, config_hook.options)
+    if len(c) > 0:
+        raise ConfigurationError("config hook {0} contains conflicting keys: {1}".format(config_hook, c))
+
+    options.update(config_hook.options)
+    default_external.update(config_hook.defaults)
 
 # =================================== # =================================== # =================================== # 
 # =================================== # ======== ALL CONFIG OPTIONS ======= # =================================== # 
 # =================================== # =================================== # =================================== #
+
 
 def tasks():
     return SimpleNamespace(**{k:k for k in ['system', 'fuel', 'track']})
@@ -201,14 +229,14 @@ def update(d, u): #recursive dictionary update
 class Validator:
 
     def __call__(self, **kwargs):
-        config =  validate_options('main')(**{'main':kwargs}) #{k:get_option(k, 'main')(**{k:v}) for k,v in kwargs.items()}
+
+        config =  validate_options('main')(**{'main':kwargs})
 
         # ====== POST PROCESSING ====== # 
         #TOOD move this somewhere more suitable
         result = default_config()
 
         result = update(result, config)
-        #pprint(result)
 
         result['screen_size'] = (result.get('screen_width', result['screen_size'][0]), result.get('screen_height', result['screen_size'][1]))
         result['screen_position'] = (result.get('screen_x', result['screen_position'][0]), result.get('screen_y', result['screen_position'][1]))

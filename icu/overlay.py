@@ -39,7 +39,11 @@ class Overlay(EventCallback, Component, PolyComponent):
             self.x = event.data.x - self.width/2
             self.y = event.data.y - self.height/2
             self.show()
-        
+        elif event.data.label == 'show':
+            self.show()
+        elif event.data.label == 'hide':
+            self.hide()
+            
         #self.source('Global', label='highlight', value=self.is_on) # emit a global event (for external systems)
 
 
