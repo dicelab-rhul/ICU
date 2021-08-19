@@ -96,3 +96,9 @@ class MainPanel(tk.Canvas, EventCallback):
     @property
     def bottom(self):
         return self.bottom_frame
+
+    def hide_overlay(self):
+        self.__overlay.hide()
+    
+    def show_overlay(self):
+        self.__overlay.show()

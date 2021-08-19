@@ -7,7 +7,7 @@
 
 from .event import Event, EventCallback
 from .component import Component, PolyComponent, BaseComponent
-
+from .highlight import all_highlighted
 
 class Overlay(EventCallback, Component, PolyComponent):
     """
@@ -38,7 +38,8 @@ class Overlay(EventCallback, Component, PolyComponent):
         elif event.data.label == 'gaze':
             self.x = event.data.x - self.width/2
             self.y = event.data.y - self.height/2
-            self.show()
+            if len(all_highlighted()) > 0: # TODO ??? hmmm what about for debugging purposes...? 
+                self.show()
         elif event.data.label == 'show':
             self.show()
         elif event.data.label == 'hide':

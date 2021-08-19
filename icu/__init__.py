@@ -253,7 +253,7 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
                         self.highlights = highlight.Highlight.__all_highlights__ # hack..
                         self.angle = 0
                         self.highlighted = None
-                        event.event_scheduler.schedule(self.rotate_arrow(), sleep=cycle([100]))
+                        event.event_scheduler.schedule(self.rotate_arrow(), sleep=cycle([50]))
 
                     @property
                     def position(self):
@@ -287,12 +287,13 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
                                 self.angle = angle
                                 yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=dangle)
                             else:
+                                main.hide_overlay() # hide it if possible...
                                 yield None # no event... (nothing is highlighted)
                 arrow_rotator = ArrowRotator() # TODO move somewhere more suitable :) 
 
         # DEBUG 
         # debug_highlights()
-        
+
         main.pack()
 
         #tracking_widget.debug()
