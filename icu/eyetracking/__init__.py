@@ -46,12 +46,14 @@ class EyeTrackerBase(event.EventCallback, threading.Thread):
             filter =lambda t,x,y:dict(timestamp=t,x=x,y=y,label="place")
             
         self.__filter = filter
+        self.x, self.y = None, None
 
     def source(self, x, y, timestamp=None):
         e = self.__filter(timestamp,x,y)
-        #transform to screen window coordinates
         if e is not None:
-            super().source('Overlay:0', **e)
+            if self.x != e['x'] or self.y != e['y']: # only trigger if the eyes moved...
+                self.x, self.y = e['x'], e['y']
+                super().source('Overlay:0', **e)
 
 class EyeTracker(EyeTrackerBase):
 

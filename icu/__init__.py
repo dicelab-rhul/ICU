@@ -285,7 +285,10 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
                                 angle = math.atan2(hy - self.position[1], hx - self.position[0]) * (180 / math.pi)
                                 dangle = angle - self.angle
                                 self.angle = angle
-                                yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=dangle)
+                                if dangle > 0.01: # dont trigger an event if its not needed...
+                                    yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=dangle)
+                                else:
+                                    yield None
                             else:
                                 main.hide_overlay() # hide it if possible...
                                 yield None # no event... (nothing is highlighted)
