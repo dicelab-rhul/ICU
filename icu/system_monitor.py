@@ -215,6 +215,9 @@ class SystemMonitorWidget(CanvasWidget):
         #self.scale_widget.debug()
         #self.warning_light_widget.debug()
 
+        EventCallback.register(self, self.name)
+        Component.register(self, self.name)
+
     @property
     def name(self):
-        return self.__class__.__name__
+        return "SystemMonitor"

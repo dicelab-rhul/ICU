@@ -9,7 +9,7 @@ from .event import EventCallback
 
 from .overlay import Overlay
 
-OUTER_PADDING = 0 ##??? maybe...
+OUTER_PADDING = 10 ##??? maybe...
 MOUSE_BIND = "<Button-1>"
 
 class MainPanel(tk.Canvas, EventCallback):

@@ -241,6 +241,10 @@ class GlobalEventCallback:
                     #print(" -- EXTERNAL:", event)
                     if event is not None and event.dst in self.sinks:
                         self.sinks[event.dst].sink(event)
+                        if self.logger is not None:
+                            #print("LOG EVENT", event)
+                            self.logger.log(event)
+
             event_scheduler.after(sleep, _trigger)
 
         event_scheduler.after(sleep, _trigger)

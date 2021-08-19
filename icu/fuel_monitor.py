@@ -372,8 +372,16 @@ class FuelWidget(CanvasWidget):
         self.pumps[self.components['pumpAB'].name] = self.components['pumpAB']
         self.pumps[self.components['pumpBA'].name] = self.components['pumpBA']
 
-        #print(Pump.all_components().keys())
+        self.highlight = Highlight(canvas, self, **highlight)
+        
+        EventCallback.register(self, self.name)
+        Component.register(self, self.name)
 
+    @property
+    def name(self):
+        return "FuelMonitor"
+
+"""
     def highlight(self, child=None):
         if child is None:
             print("highlight self")
@@ -385,3 +393,4 @@ class FuelWidget(CanvasWidget):
             print("highlight tank")
         else:
             raise ValueError("Invalid child widget: {0}".format(child))
+"""
