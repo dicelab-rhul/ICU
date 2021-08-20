@@ -9,7 +9,7 @@ Created on Sun Jun  2 21:22:31 2019
 import setuptools
 
 setuptools.setup(name='icu',
-      version='0.0.1',
+      version='0.0.2',
       description='Integrated Cognitive User Assistance',
       url='https://github.com/dicelab-rhul/ICU',
       author='Benedict Wilkins',

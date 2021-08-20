@@ -241,6 +241,7 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
 
         if config.overlay['enable']:
             if config.overlay['arrow']:
+                print(config.overlay['arrow'])
                 #TODO the arrow should rotate
                 #arrow = main.create_oval(-20,-20,20,20, fill="red", width=0)
                 arrow = main.create_polygon([-10,-5,10,-5,10,-10,20,0,10,10,10,5,-10,5], fill='red', width=0)
@@ -281,14 +282,16 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
                                 (h, _) = self.get_min_distance(positions)
                                 assert h is not None
                                 hx, hy = positions[h]
+                                #print(h, hx, hy, self.position)
                                 # compute angle between eyes and highlight
                                 angle = math.atan2(hy - self.position[1], hx - self.position[0]) * (180 / math.pi)
                                 dangle = angle - self.angle
                                 self.angle = angle
-                                if dangle > 0.01: # dont trigger an event if its not needed...
-                                    yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=dangle)
-                                else:
-                                    yield None
+                                #if dangle > 0.001: # dont trigger an event if its not needed...
+                                print("ARROW_ROTATE", self.position, fuel_monitor_widget.position, fuel_monitor_widget.size)
+                                yield event.Event('arrow_rotator_TEST', "Overlay:0", label='rotate', angle=dangle)
+                                #else:
+                                #    yield None
                             else:
                                 main.hide_overlay() # hide it if possible...
                                 yield None # no event... (nothing is highlighted)
@@ -370,9 +373,22 @@ def run(shared=None, sinks=[], sources=[], config=None, config_hook=None, logger
 
             shared.release() # the parent process can now access attributes in shared memory
         
-        #pprint(highlight.all_highlights())
-        root.mainloop()
+        # force focus....
+        try: 
+            import win32gui
+            win32gui.SetForegroundWindow(root.winfo_id())
+        except:
+            pass # ignore ... maybe were not on windows !
 
+        def focus_in(event):
+            root.update_idletasks()
+            root.lift()
+            root.focus_force()
+            #root.update()
+        
+        root.bind("<FocusIn>", focus_in)
+        root.mainloop()
+       
     except:
         traceback.print_exc()
     finally:

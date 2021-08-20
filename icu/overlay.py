@@ -47,7 +47,8 @@ class Overlay(EventCallback, Component, PolyComponent):
             
         #self.source('Global', label='highlight', value=self.is_on) # emit a global event (for external systems)
 
-
+    def resize(self, *args, **kwargs):
+        pass # dont resize the overlay...
 
 
 

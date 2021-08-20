@@ -51,8 +51,10 @@ class EyeTrackerBase(event.EventCallback, threading.Thread):
     def source(self, x, y, timestamp=None):
         e = self.__filter(timestamp,x,y)
         if e is not None:
+            
             if self.x != e['x'] or self.y != e['y']: # only trigger if the eyes moved...
                 self.x, self.y = e['x'], e['y']
+                #print(self.x, self.y)
                 super().source('Overlay:0', **e)
 
 class EyeTracker(EyeTrackerBase):

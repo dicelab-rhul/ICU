@@ -599,7 +599,7 @@ class CanvasWidget(BaseComponent):
         #self.canvas.coords(self.components['background'].component, x1, y1, x1 + width, y1 + height)
  
 
-    def debug(self):        
-        self.__debug = SimpleComponent(self.canvas, self.canvas.create_rectangle(self.x, self.y, self.x+self.width, self.y+self.height, width=1, outline='red'))
+    def debug(self):
+        self.__debug = SimpleComponent(self.canvas, self.canvas.create_rectangle(self.x, self.y, self.x+self.width, self.y+self.height, width=3, outline='green'))
 
         
