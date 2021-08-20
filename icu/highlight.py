@@ -39,7 +39,7 @@ class Highlight(EventCallback):
             Highlight.__all_highlights__[self.name] = self
 
     def sink(self, event):
-        #print("HIGHLIGHT: ", event)
+        print("HIGHLIGHT: ", event)
         if "value" in event.data.__dict__: #if no value is given, flip the highlight on/off
             (self.off, self.on)[int(event.data.value)]() #love it
         else:
