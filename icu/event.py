@@ -17,8 +17,6 @@ def next_name():
     EVENT_NAME += 1
     return str(EVENT_NAME)
 
-
-
 class etuple(tuple):
     
     def __new__(self, value, cause=None):
@@ -72,6 +70,14 @@ class Event:
     @staticmethod
     def empty_event() -> "Event":
         return Event(src="empty", dst="empty")
+
+
+class EventAPI:
+    def __init__(self):
+        super().__init__()
+        self.source = ExternalEventSink()
+        self.sink = ExternalEventSource()
+
 
 
 class ExternalEventSource: 

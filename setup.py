@@ -18,7 +18,10 @@ setuptools.setup(name='icu',
       packages=setuptools.find_packages(),
       package_data={'icu': ['*.json']},
       include_package_data=True,
-      install_requires=[],
+      install_requires=[
+          "pygame",   # for ui
+          "pywinctl", # for cross-platform window control
+      ],
       python_requires='>=3.6',
       extras_require={
         "tobii" : ["psychopy>=2021.2.0", "tobii-research==1.8.0"] # requires python 3.6!
