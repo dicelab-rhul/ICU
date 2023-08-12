@@ -5,7 +5,7 @@ import os
 
 SDL_VIDEO_WINDOW_POS = 'SDL_VIDEO_WINDOW_POS'
 
-def new_window(window_position, window_size, name="icu"):
+def new_window(window_position, window_size, name="icu", resizeable=True):
     assert len(window_position) == 2
     assert len(window_size) == 2 
     
@@ -15,7 +15,11 @@ def new_window(window_position, window_size, name="icu"):
     #    old_window_position = window_position
     os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (window_position[0], window_position[1])
     pygame.init()
-    screen = pygame.display.set_mode(window_size)
+    flags = 0 
+    if resizeable:
+        flags |= pygame.RESIZABLE
+
+    screen = pygame.display.set_mode(window_size, pygame.RESIZABLE)
     if name is not None:
         pygame.display.set_caption(name)
     return screen

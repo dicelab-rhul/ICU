@@ -1,5 +1,7 @@
 
 import time
+import math
+from datetime import datetime
 
 from icu.ui import start
 from icu.ui import config
@@ -14,20 +16,23 @@ print(WINDOW_DEFAULT_CONFIGURATION)
 
 es = EventSystem()
 
-# this is a remote source that will receive UI events
+# this is a remote source that will receive UI events from the UI 
 ui_remote_source = SourceRemote()
 es.add_source(ui_remote_source)
 
-# this is a remote sink that will supply UI events to the UI
+# this is a remote sink that will supply command events to the UI
 # subscriptions will be set remotely in the UI
 ui_remote_sink = SinkRemote()
-ui_remote_sink.subscribe("UI::*")
+ui_remote_sink.subscribe("UI::COMMAND::*")
 es.add_sink(ui_remote_sink)
 
 # local event processor, subscribes to all UI events (remote or local)
-ui_event_processor = SinkLocal(print)
+ui_event_processor = SinkLocal(lambda event : print(f"MAIN RECEIVED: {event}"))
 #ui_event_processor.subscribe("UI::*")
-ui_event_processor.subscribe("UI::CONTROL::*")
+#ui_event_processor.subscribe("UI::CONTROL::*")
+ui_event_processor.subscribe("UI::INPUT::*")
+
+
 
 es.add_sink(ui_event_processor)
 
@@ -39,10 +44,15 @@ ui_process = start(ui_remote_source, ui_remote_sink, WINDOW_DEFAULT_CONFIGURATIO
 
 while ui_process.is_alive():
     time.sleep(0.1)
-    ui_event_gen.source("UI::CANVAS::CLEAR", dict(color='red'))
+    #ui_event_gen.source("UI::CANVAS::CLEAR", dict(color='red'))
+    #x = 100 + math.sin(datetime.now().timestamp()) * 100
+    #ui_event_gen.source("UI::CANVAS::DRAW_LINE", dict(start_position=(x,100), end_position=(200 - x,200), color='white'))
+    #ui_event_gen.source("UI::CANVAS::DRAW_RECT", dict(position=(500,100), size=(100,100), color='white', rotation=x))
+    #ui_event_gen.source("UI::CANVAS::DRAW_CIRCLE", dict(position=(400,400), radius=x, color='white'))
     
-    ui_event_gen.source("UI::CANVAS::DRAW_LINE", dict(start_position=(0,0), end_position=(100,100), color='white'))
-    
+
+
+
     #ui_event_gen.source("UI::CANVAS::CLEAR", dict(color='red'))
 
     es.pull_events()

@@ -157,6 +157,10 @@ class SourceRemote(SourceBase):
     def source(self, event_type, data):
         self._buffer.put(Event(event_type, data))
 
+    def put(self, event): # this is cheating a bit, but it is useful for forwarding events
+        self._buffer.put(event) 
+
+
     def get_events(self): # get any buffered events
         while not self._buffer.empty():
             yield self._buffer.get()
