@@ -2,6 +2,14 @@ import math
 import pygame
       
 
+def rgb_to_hex(*colour):
+    """Creates a hex string from rgb args
+    Args:
+        colour (*int): rgb values
+    Returns:
+        str: rgb hex string
+    """
+    return "#%02x%02x%02x" % colour 
 
 def draw_circle(window, data):
     pygame.draw.circle(window, data.get('color', 'black'), data['position'], data['radius'], width=data.get('width', 0)) 

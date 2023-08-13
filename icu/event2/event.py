@@ -8,6 +8,7 @@ from typing import Dict, Set
 import uuid
 
 from .dict.eventdict import EventDict
+from ..exception import EventSystemException
 
 @dataclass(frozen=True)
 class Event:
@@ -176,9 +177,13 @@ class EventSystem:
     def pull_events(self):
         # get all events from sources and store them in the event dict
         for source in self.sources:
-            for event in source.get_events():
-                self._events.add(event.type, event)
-    
+            try:
+                for event in source.get_events():
+                    self._events.add(event.type, event)
+            except TypeError:
+                print(source)
+                raise EventSystemException("")
+
     def publish(self):
         for sink in self.sinks:
             events = set()
@@ -192,12 +197,16 @@ class EventSystem:
         self.sinks.remove(sink)
     
     def add_sink(self, sink : SinkBase):
+        if sink is None:
+            raise EventSystemException("Sink cannot be None.")
         self.sinks.add(sink)
 
-    def remove_source(self, source : SourceBase ):
+    def remove_source(self, source : SourceBase):
         self.sources.remove(source)
 
     def add_source(self, source : SourceBase):
+        if source is None:
+            raise EventSystemException("Source cannot be None.")
         self.sources.add(source)
 
     def close(self):

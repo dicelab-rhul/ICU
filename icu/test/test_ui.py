@@ -30,7 +30,8 @@ es.add_sink(ui_remote_sink)
 ui_event_processor = SinkLocal(lambda event : print(f"MAIN RECEIVED: {event}"))
 #ui_event_processor.subscribe("UI::*")
 #ui_event_processor.subscribe("UI::CONTROL::*")
-ui_event_processor.subscribe("UI::INPUT::*")
+ui_event_processor.subscribe("UI::*")
+
 
 
 

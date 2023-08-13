@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 import multiprocessing
 import pygame
+import random
+
+from datetime import datetime
+import math
 
 from .window import new_window, get_window_info
 from ..event2 import EventSystem, SinkBase, SourceLocal, SinkLocal, DELIMITER
-from .draw import draw_circle, draw_rectangle, draw_line, clear
+from .draw import draw_circle, draw_rectangle, draw_line, clear, rgb_to_hex
 
+from .constants import * 
 from .commands import *
 
 
@@ -92,32 +97,81 @@ def run(source, sink, config):
 
     # TODO deal with the external source...
 
-    system_task = SystemTask(window, (0,0), (400,600))
-    for widget in system_task.children.values(): # move this to Widget class?
-        event_system.add_source(widget)
-        event_system.add_sink(widget)
+    system_task = SystemTask(window)
+    system_task.register(event_system)
+
+    # example of setting cosmetic options...
+    # system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::COSMETIC", dict(color_goal = COLOR_BLACK))
 
     
-    running = True
-    while running:
-        # Handle events
-        events = pygame.event.get()
-        for event in events:
-            pygame_event_source.update(event)
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.WINDOWRESIZED:
-                # redraw everything...
-                ui_canvas.update()
+    with ConditionalTimer(1) as ct:
+        running = True
+        while running:
+            # Handle events
+            events = pygame.event.get()
+            for event in events:
+                pygame_event_source.update(event)
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.WINDOWRESIZED:
+                    # redraw everything...
+                    ui_canvas.update()
 
-        pygame.display.flip()
-        event_system.pull_events()
+            # examples of changing cosmetic options
+            
+            #pad = 0.1 + math.sin(datetime.now().timestamp()) * 0.1
+            #system_task.source("UI::SYSTEMTASK::COSMETIC", dict(padding = x))
+            
+            #size = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
+            #system_task.source("UI::SYSTEMTASK::COSMETIC", dict(size = (size, size * 2)))
+            
+            #x = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
+            #system_task.source("UI::SYSTEMTASK::COSMETIC", dict(position = (x, 0)))
 
-        event_system.publish()
-        clear(window, dict(color="black"))
-        system_task.update()
-        ui_canvas.update()
+            #x = int(((1 + math.sin(math.sin(datetime.now().timestamp()))) / 2) * 255)
+            #color = rgb_to_hex(x, 200, 100)
+            #system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::COSMETIC", dict(color_fail = color))
+
+            # example of setting properties
+            #system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::PROPERTY", dict(set = dict(state = int(random.uniform(0,1) > 0.5))))
+
+            # if ct.should_execute():
+            #     steps = random.randint(5,11)
+            #     state = random.randint(0,steps-1)
+            #     goal_state = steps // 2
+            #     system_task.source("UI::SYSTEMTASK::SLIDER::1::PROPERTY", dict(set = dict(state = state, steps = steps, goal_state = goal_state)))
+
+            pygame.display.flip()
+            event_system.pull_events()
+
+            event_system.publish()
+            clear(window, dict(color="black"))
+
+            system_task.update()
+            ui_canvas.update()
 
 
     pygame.quit()    
     event_system.close()
+
+
+# TODO remove? 
+import time
+
+class ConditionalTimer:
+    def __init__(self, interval):
+        self.interval = interval
+        self.last_execution = time.time()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def should_execute(self):
+        current_time = time.time()
+        if current_time - self.last_execution >= self.interval:
+            self.last_execution = current_time
+            return True
+        return False
