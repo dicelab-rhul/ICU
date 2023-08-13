@@ -1,3 +1,5 @@
+
+# window config...
 WINDOW_SIZE = (800,700)
 WINDOW_POSITION = (0,0)
 WINDOW_MIN_SIZE = (100,100)

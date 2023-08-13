@@ -2,7 +2,7 @@
 from collections import deque
 from ..event2 import SinkBase, SourceBase, Event, DELIMITER
 from .commands import PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, PROPERTY, SET_RESPONSE, GET_RESPONSE
-from ..constants import * # colours
+from .constants import * # colours
 
 # TODO these decorators dont work with inheritance!
 

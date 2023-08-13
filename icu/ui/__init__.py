@@ -7,10 +7,4 @@
 
 from .window import *
 from .run import start
-from . import config
-
-
-
-
-from ..config.utils import read_configpy_file
-DEFAULT_WINDOW_CONFIGURATION = read_configpy_file(config.__file__)
+from ..config import DEFAULT_CONFIGURATION
