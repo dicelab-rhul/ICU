@@ -86,6 +86,13 @@ class EventDict:
         for v in self._children.values():
             result = result.union(v.values())
         return result
+    
+    def __len__(self):
+        l = len(self._data)
+        for v in self._children.values():
+            l += len(v)
+        return l
+
 
     @split_first_arg
     def __getitem__(self, key):

@@ -1,6 +1,20 @@
 import math
 import pygame
-      
+from pygame import gfxdraw
+from .utils import Point
+
+
+def draw_dashed_line(window, data):
+    color, start_pos, end_pos, width, dash_length = data.get('color', 'black'), data['start_position'], data['end_position'], data.get('width', 1), data.get('dash_length', 10)
+    origin = Point(start_pos)
+    target = Point(end_pos)
+    displacement = target - origin
+    length = len(displacement)
+    slope = displacement/length
+    for index in range(0, length//dash_length, 2):
+        start = origin + (slope *    index    * dash_length)
+        end   = origin + (slope * (index + 1) * dash_length)
+        pygame.draw.line(window, color, start.get(), end.get(), width)
 
 def rgb_to_hex(*colour):
     """Creates a hex string from rgb args
@@ -12,8 +26,11 @@ def rgb_to_hex(*colour):
     return "#%02x%02x%02x" % colour 
 
 def draw_circle(window, data):
+    # TODO antialiasing?
     pygame.draw.circle(window, data.get('color', 'black'), data['position'], data['radius'], width=data.get('width', 0)) 
+    #gfxdraw.aacircle(window, int(data['position'][0]), int(data['position'][1]), int(data['radius']), (0,0,0)) #data.get('color', 'black'))
 
+    
 def draw_simple_rect(window, data):
     pygame.draw.rect(window, data.get('color', 'black'), (*data['position'], *data['size']), width=data.get('width', 0)) 
 

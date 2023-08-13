@@ -7,15 +7,14 @@ from datetime import datetime
 import math
 
 from .window import new_window, get_window_info
-from ..event2 import EventSystem, SinkBase, SourceLocal, SinkLocal, DELIMITER
+from ..event2 import EventSystem, SinkBase, SourceLocal, SinkLocal, DELIMITER, utils
 from .draw import draw_circle, draw_rectangle, draw_line, clear, rgb_to_hex
 
 from .constants import * 
 from .commands import *
 
 
-from .task import SystemTask
-
+from .task import SystemTask, TrackingTask
 
 class Canvas(SinkBase):
 
@@ -61,6 +60,8 @@ class PygameEventSource(SourceLocal):
             pygame.MOUSEMOTION: lambda event: self.source(PYGAME_INPUT_MOUSEMOTION, dict(x=event.pos[0], y=event.pos[1])),
             pygame.MOUSEBUTTONDOWN: lambda event: self.source(PYGAME_INPUT_MOUSEDOWN, dict(x=event.pos[0], y=event.pos[1], button=event.button)),
             pygame.MOUSEBUTTONUP: lambda event: self.source(PYGAME_INPUT_MOUSEUP, dict(x=event.pos[0], y=event.pos[1], button=event.button)),
+            pygame.KEYDOWN : lambda event : self.source(PYGAME_INPUT_KEYDOWN, dict(keycode = event.key, mod = event.mod, unicode = event.unicode)),
+            pygame.KEYUP : lambda event : self.source(PYGAME_INPUT_KEYUP, dict(keycode = event.key, mod = event.mod, unicode = event.unicode)),
         }
 
     def update(self, pygame_event):
@@ -100,55 +101,35 @@ def run(source, sink, config):
     system_task = SystemTask(window)
     system_task.register(event_system)
 
-    # example of setting cosmetic options...
-    # system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::COSMETIC", dict(color_goal = COLOR_BLACK))
+    tracking_task = TrackingTask(window)
+    tracking_task.register(event_system)
 
+    import os
     
-    with ConditionalTimer(1) as ct:
-        running = True
-        while running:
-            # Handle events
-            events = pygame.event.get()
-            for event in events:
-                pygame_event_source.update(event)
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.WINDOWRESIZED:
-                    # redraw everything...
-                    ui_canvas.update()
+    running = True
+    while running:
+        time.sleep(0.01)
 
-            # examples of changing cosmetic options
-            
-            #pad = 0.1 + math.sin(datetime.now().timestamp()) * 0.1
-            #system_task.source("UI::SYSTEMTASK::COSMETIC", dict(padding = x))
-            
-            #size = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
-            #system_task.source("UI::SYSTEMTASK::COSMETIC", dict(size = (size, size * 2)))
-            
-            #x = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
-            #system_task.source("UI::SYSTEMTASK::COSMETIC", dict(position = (x, 0)))
+        # Handle events
+        events = pygame.event.get()
+        for event in events:
+            pygame_event_source.update(event)
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.WINDOWRESIZED:
+                # redraw everything...
+                ui_canvas.update()
 
-            #x = int(((1 + math.sin(math.sin(datetime.now().timestamp()))) / 2) * 255)
-            #color = rgb_to_hex(x, 200, 100)
-            #system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::COSMETIC", dict(color_fail = color))
+        pygame.display.flip()
 
-            # example of setting properties
-            #system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::PROPERTY", dict(set = dict(state = int(random.uniform(0,1) > 0.5))))
+        event_system.pull_events()
+        event_system.publish()
+        clear(window, dict(color=config['window_background_color']))
 
-            # if ct.should_execute():
-            #     steps = random.randint(5,11)
-            #     state = random.randint(0,steps-1)
-            #     goal_state = steps // 2
-            #     system_task.source("UI::SYSTEMTASK::SLIDER::1::PROPERTY", dict(set = dict(state = state, steps = steps, goal_state = goal_state)))
+        system_task.update()
+        tracking_task.update()
 
-            pygame.display.flip()
-            event_system.pull_events()
-
-            event_system.publish()
-            clear(window, dict(color="black"))
-
-            system_task.update()
-            ui_canvas.update()
+        ui_canvas.update()
 
 
     pygame.quit()    
@@ -175,3 +156,32 @@ class ConditionalTimer:
             self.last_execution = current_time
             return True
         return False
+    
+
+
+# examples of changing cosmetic options
+            
+#pad = 0.1 + math.sin(datetime.now().timestamp()) * 0.1
+#system_task.source("UI::SYSTEMTASK::COSMETIC", dict(padding = x))
+
+#size = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
+#system_task.source("UI::SYSTEMTASK::COSMETIC", dict(size = (size, size * 2)))
+
+#x = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
+#system_task.source("UI::SYSTEMTASK::COSMETIC", dict(position = (x, 0)))
+
+#x = int(((1 + math.sin(math.sin(datetime.now().timestamp()))) / 2) * 255)
+#color = rgb_to_hex(x, 200, 100)
+#system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::COSMETIC", dict(color_fail = color))
+
+# example of setting properties
+#system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::SET_PROPERTY", dict(state = int(random.uniform(0,1) > 0.5)))
+
+# if ct.should_execute():
+#     steps = random.randint(5,11)
+#     state = random.randint(0,steps-1)
+#     goal_state = steps // 2
+#     system_task.source("UI::SYSTEMTASK::SLIDER::1::SET_PROPERTY", dict(state = state, steps = steps, goal_state = goal_state))
+
+#x = 0.05 + (1 + math.sin(datetime.now().timestamp())) / 6
+#system_task.source("UI::TRACKINGTASK::SET_PROPERTY", dict(failure_boundary_proportion = x))

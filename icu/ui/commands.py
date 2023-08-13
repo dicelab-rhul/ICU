@@ -17,7 +17,9 @@ UI_WINDOW_WINDOWRESIZED     = "UI::WINDOW::WINDOWRESIZED"
 UI_WINDOW_WINDOWMOVED       = "UI::WINDOW::WINDOWMOVED"
 
 COSMETIC = "COSMETIC" # used to update cosmetic properties
-PROPERTY = "PROPERTY" # used to get/set widget properties
+SET_PROPERTY = "SET_PROPERTY" # used to set widget properties
+GET_PROPERTY = "GET_PROPERTY" # ussed to get widget properties
+
 SET_RESPONSE = "SET_RESPONSE" # response type that will be given by a widget if properties were changed
 GET_RESPONSE = "GET_RESPONSE" # response type that will be given by a widget in response to a get request (using PROPERTY)
 
@@ -29,7 +31,8 @@ INPUT_MOUSECLICK         = "INPUT::MOUSECLICK"
 PYGAME_INPUT_MOUSEMOTION = "PYGAME::INPUT::MOUSEMOTION"
 PYGAME_INPUT_MOUSEDOWN   = "PYGAME::INPUT::MOUSEDOWN"
 PYGAME_INPUT_MOUSEUP     = "PYGAME::INPUT::MOUSEUP"
-
+PYGAME_INPUT_KEYDOWN     = "PYGAME::INPUT::KEYDOWN"
+PYGAME_INPUT_KEYUP       = "PYGAME::INPUT::KEYUP"
 
 # TODO could use dataclasses? 
 

@@ -2,7 +2,9 @@
 
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime
+import time
+import os
+
 from multiprocessing import Queue
 from typing import Dict, Set
 import uuid
@@ -13,7 +15,7 @@ from ..exception import EventSystemException
 @dataclass(frozen=True)
 class Event:
     id: str = field(init=False, default_factory=lambda: str(uuid.uuid4().int))
-    timestamp : float = field(init=False, default_factory=lambda : datetime.now().timestamp())
+    timestamp : float = field(init=False, default_factory=lambda : time.time())
     type: str
     data: dict = field(default_factory=dict)
     
@@ -127,7 +129,9 @@ class SinkRemote(SinkBase, SourceBase):
     
     def get_events(self): # get any buffered events
         while not self._buffer.empty():
-            yield self._buffer.get()
+            event = self._buffer.get()
+            #print(event)
+            yield event
     
 class SourceLocal(SourceBase):
 
@@ -181,10 +185,11 @@ class EventSystem:
                 for event in source.get_events():
                     self._events.add(event.type, event)
             except TypeError:
-                print(source)
+                print(source) # TODO
                 raise EventSystemException("")
 
     def publish(self):
+        print(os.getpid(), len(self._events))
         for sink in self.sinks:
             events = set()
             for subscription in sink.get_subscriptions():
@@ -211,8 +216,6 @@ class EventSystem:
 
     def close(self):
         self.pull_events()
-        #self.publish()
-
         for sink in self.sinks:
             sink.close()
         for source in self.sources:

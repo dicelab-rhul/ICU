@@ -1,8 +1,10 @@
 
 from collections import deque
 from ..event2 import SinkBase, SourceBase, Event, DELIMITER
-from .commands import PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, PROPERTY, SET_RESPONSE, GET_RESPONSE
+from .commands import PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, SET_PROPERTY, GET_PROPERTY, SET_RESPONSE, GET_RESPONSE
 from .constants import * # colours
+
+from .utils import Point
 
 # TODO these decorators dont work with inheritance!
 
@@ -67,7 +69,7 @@ class Widget(SourceBase, SinkBase):
            
     @property
     def address(self): # event system address for this widget
-        parent = self.parent.address if self.parent is not None else "UI"
+        parent = self.parent.address if self.parent is not None else "UI" # TODO perhaps instead have a single main parent called "UI" and None -> ""
         return f"{parent}::{self.name}"
 
     @property
@@ -75,7 +77,7 @@ class Widget(SourceBase, SinkBase):
         return self._parent
     
     def get_subscriptions(self):
-        return self.subscriptions + [ f"{self.address}::*"]
+        return self.subscriptions + [ f"{self.address}::*".replace("UI::", "ICU::")] # TODO do this somewhere else, its not reusable
     
     def add_child(self, child):
         self.children[child.name] = child
@@ -91,13 +93,17 @@ class Widget(SourceBase, SinkBase):
             yield self._source_buffer.popleft()
 
     def sink(self, event):
-        #event_suffix#event_type = event.type.split(DELIMITER)
-        #event_suffix = event_type[-1]
-        if f"{self.address}::{COSMETIC}" == event.type:
+        event_type = event.type.split(DELIMITER)
+        event_suffix = event_type[-1]
+
+        if event_suffix == COSMETIC:
             self.on_cosmetic(event)
-        elif f"{self.address}::{PROPERTY}" == event.type:
-            self.on_property(event) 
-        
+        elif event_suffix == SET_PROPERTY:
+            print(event)
+            self.on_set_property(event) 
+        elif event_suffix == GET_PROPERTY:
+            self.on_get_property(event) 
+
         elif self.clickable:
             if event.type == PYGAME_INPUT_MOUSEDOWN and self.in_bounds((event.data['x'], event.data['y'])):
                 self._prepare_click = True
@@ -108,28 +114,27 @@ class Widget(SourceBase, SinkBase):
                     self.on_mouse_click(event)
                 return self.on_mouse_up(event)
         
-    def on_property(self, event):
+    def on_set_property(self, event):
         # set these options, and produce an event that shows the change
-        _toset = event.data.get('set', None) # properties to set
+        _toset = event.data
         if _toset is not None:
             toset = {k:v for k,v in _toset.items() if k in self.__settable_options__}
             if len(_toset) != len(toset):
                 pass # TODO log warning? return errors for these?
-
-
             old = {k:getattr(self, k) for k in toset}
             for k,v in toset.items():
                 setattr(self, k, v)
-            self.source(self.address + PROPERTY + SET_RESPONSE, dict(old=old, new=toset))
+            self.source(self.address + DELIMITER + SET_RESPONSE, dict(old=old, new=toset))
 
+    def on_get_property(self, event):
         # get these options and produce an event that shows them
-        _toget = event.data.get('get', None)
+        _toget = event.data
         if _toget is not None:
             toget = {k:getattr(self, k) for k in _toget if k in self.__gettable_options__}
             if len(_toget) != len(toget):
                 pass # TODO log warning? return errors for these?
             
-            self.source(self.address + PROPERTY + GET_RESPONSE, toget)
+            self.source(self.address + DELIMITER + GET_RESPONSE, toget)
 
     def on_cosmetic(self, event):
         for k,v in event.data.items(): # ignore any that are not valid TODO warning?
@@ -153,7 +158,7 @@ class Widget(SourceBase, SinkBase):
 
     @property
     def canvas_position(self):
-        return self.parent.canvas_position[0] + self.position[0], self.parent.canvas_position[1] + self.position[1]
+        return Point(self.parent.canvas_position[0] + self.position[0], self.parent.canvas_position[1] + self.position[1])
 
     @property
     def canvas_bounds(self):
@@ -174,11 +179,11 @@ class Widget(SourceBase, SinkBase):
 
     @property 
     def position(self):
-        return self.bounds[0]
+        return Point(self.bounds[0])
      
     @property
     def size(self):
-        return self.bounds[1]
+        return Point(self.bounds[1])
     
     # register widget and children with the end system
     def register(self, event_system):

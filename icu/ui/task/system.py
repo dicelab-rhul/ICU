@@ -3,20 +3,9 @@
 from ...event2 import DELIMITER
 from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
 from ..draw import draw_simple_rect
-from ..constants import * # colours
+from ..constants import *
 from ..widget import Widget, cosmetic_options, gettable_properties, settable_properties
 
-# default constants
-PADDING = 0.05
-WARNING_LIGHT_SIZE = (1/3, 1/5)
-NUM_SLIDERS = 4
-NUM_SLIDER_STEPS = 11
-
-WARNINGLIGHT1 = "WARNINGLIGHT::1"
-WARNINGLIGHT2 = "WARNINGLIGHT::2"
-SLIDER = "SLIDER::{}"
-SLIDERBOX = "SLIDERBOX::{}"
-SYSTEMTASK = "SYSTEMTASK"
 
 class WarningLight(Widget):
 
