@@ -6,15 +6,11 @@ __author__ = "Benedict Wilkins"
 __email__ = "benrjw@gmail.com"
 __status__ = "Development"
 
-import re
 import random
-from itertools import cycle, repeat, islice
-
 from .exception  import ConfigurationError
 
 class Distribution: 
     """ Base class for distributions, used in scheduling. """
-    
     def __call__(self):
         return self.sample()
 

@@ -74,7 +74,7 @@ class ExternalSource(SinkLocal):
         super().__init__(external_source.put)
 
     def get_subscriptions(self):
-        return ["UI::*"] # all UI events
+        return ["UI::*", "PYGAME::*"] # all UI events
 
 def run(source, sink, config):
     """ Runner for the ICU gui
@@ -158,30 +158,3 @@ class ConditionalTimer:
         return False
     
 
-
-# examples of changing cosmetic options
-            
-#pad = 0.1 + math.sin(datetime.now().timestamp()) * 0.1
-#system_task.source("UI::SYSTEMTASK::COSMETIC", dict(padding = x))
-
-#size = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
-#system_task.source("UI::SYSTEMTASK::COSMETIC", dict(size = (size, size * 2)))
-
-#x = 200 + math.sin(math.sin(datetime.now().timestamp())) * 100 
-#system_task.source("UI::SYSTEMTASK::COSMETIC", dict(position = (x, 0)))
-
-#x = int(((1 + math.sin(math.sin(datetime.now().timestamp()))) / 2) * 255)
-#color = rgb_to_hex(x, 200, 100)
-#system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::COSMETIC", dict(color_fail = color))
-
-# example of setting properties
-#system_task.source("UI::SYSTEMTASK::WARNINGLIGHT::2::SET_PROPERTY", dict(state = int(random.uniform(0,1) > 0.5)))
-
-# if ct.should_execute():
-#     steps = random.randint(5,11)
-#     state = random.randint(0,steps-1)
-#     goal_state = steps // 2
-#     system_task.source("UI::SYSTEMTASK::SLIDER::1::SET_PROPERTY", dict(state = state, steps = steps, goal_state = goal_state))
-
-#x = 0.05 + (1 + math.sin(datetime.now().timestamp())) / 6
-#system_task.source("UI::TRACKINGTASK::SET_PROPERTY", dict(failure_boundary_proportion = x))

@@ -1,5 +1,5 @@
 
-from ..widget import Widget, cosmetic_options, gettable_properties, settable_properties, in_bounds
+from ..widget import Widget, cosmetic_options, property_event, gettable_properties, settable_properties, in_bounds
 from ..constants import *
 from ..draw import draw_simple_rect, draw_line, draw_dashed_line, draw_circle
 from ..commands import *
@@ -9,22 +9,27 @@ import pygame
 import math
 import time
 
+@cosmetic_options(
+        line_color = TRACKING_LINE_COLOUR,
+        line_width = TRACKING_LINE_WIDTH,
+        scale = 1)
 class Target(Widget):
     
     @gettable_properties('position')
     @settable_properties('position')
-    @cosmetic_options(
-        line_color = TRACKING_LINE_COLOUR,
-        line_width = TRACKING_LINE_WIDTH,
-        scale = 1)
     def __init__(self, position=(0,0)):
         super().__init__(TARGET1, clickable=False)
+        # trigger events for initial values settings
         self._position = Point(position)
         self._size = Point(0.2, 0.2)
 
     @property
     def bounds(self):
-        return self._position, self._size * self.cosmetic_options['scale'] * self.parent.size[0]
+        return self._position, self.size
+
+    @property
+    def size(self):
+        return self._size * self.scale * self.parent.size[0]
 
     @property
     def radius(self):
@@ -32,20 +37,22 @@ class Target(Widget):
     
     def draw(self, window):
         pos, _ = self.canvas_bounds
-        draw_circle(window, dict(position=pos, radius=self.radius, color=self.cosmetic_options['line_color'], width=self.cosmetic_options['line_width']))
-        draw_circle(window, dict(position=pos, radius=self.radius/10, color=self.cosmetic_options['line_color'], width=0))
+        draw_circle(window, dict(position=pos, radius=self.radius, color=self._line_color, width=self._line_width))
+        draw_circle(window, dict(position=pos, radius=self.radius/10, color=self._line_color, width=0))
 
-    @property
+    @property_event
     def position(self):
         return self._position 
     
     @position.setter
     def position(self, value):
-        if isinstance(value, tuple):
+        print(value)
+        if isinstance(value, (list, tuple)):
             value = Point(value)
         r = self.radius
-        ps = self.parent.size
+        ps = Point(self.parent.size)
         # check within bounds
+        
         if value.x - r < 0:
             value.x = r
         if value.y - r < 0:
@@ -56,18 +63,18 @@ class Target(Widget):
             value.y = ps.y - r
         self._position = value
 
+@cosmetic_options(
+    position = Point(500, 10),
+    size = Point(480,480),
+    padding = PADDING,
+    background_color = COLOR_GREY,
+    line_width = TRACKING_LINE_WIDTH,
+    line_color = TRACKING_LINE_COLOUR,
+    goal_color = TRACKING_LINE_COLOUR,
+    fail_color = COLOR_RED,
+    dash_length = 10) # TODO
 class TrackingTask(Widget): 
-
-    @cosmetic_options(
-            position = (500, 10),
-            size = (480,480),
-            padding = PADDING,
-            background_color = COLOR_GREY,
-            line_width = TRACKING_LINE_WIDTH,
-            line_color = TRACKING_LINE_COLOUR,
-            goal_color = TRACKING_LINE_COLOUR,
-            fail_color = COLOR_RED,
-            dash_length = 8) # TODO
+    
     @gettable_properties("target_speed", 
                         "event_frequency", 
                         "failure_boundary",
@@ -77,12 +84,22 @@ class TrackingTask(Widget):
                         "failure_boundary_proportion")
     def __init__(self, 
                 window,
-                failure_boundary_proportion = 1/8, 
+                failure_boundary_proportion = 1/4, 
                 target_speed = 10,       # pixels per second
                 event_frequency = 30     # events per second
             ):
+        """ Tracking task widget.
+
+        Args:
+            window (Window): pygame window to render to.
+            failure_boundary_proportion (float, optional): proportion of the task that consisitues the correct region for the target. This is always a box around the center of the task. Defaults to 1/4.
+            target_speed (int, optional): _description_. Defaults to 10.
+        """
         super().__init__(TRACKINGTASK, clickable=False)
         self.window = window
+
+        print(self.size)
+
         self.add_child(Target((self.size[0] / 2, self.size[1] / 2)))
 
         # subscribe to keyboard input
@@ -99,47 +116,46 @@ class TrackingTask(Widget):
         self._last_event_time = time.time()
         self._target_direction = Point(0,0)
     
-    @property
+    @property_event
     def event_frequency(self):
         return self._event_frequency
 
     @event_frequency.setter
     def event_frequency(self, value):
-        if value > 0:
+        if value <= 0:
             raise ValueError(f"event_frequency must be greater than 0. got {self.event_frequency}")
-        self.event_frequency = value
+        self._event_frequency = value
 
-    @property
+    @property_event
     def target_speed(self):
         return self._target_speed
 
     @target_speed.setter
     def target_speed(self, value):
-        if value > 0:
+        if value <= 0:
             raise ValueError(f"target_speed must be greater than 0, got {self.target_speed}")
-        self.target_speed = value
+        self._target_speed = value
 
-    @property
+    @property_event
     def failure_boundary_proportion(self):
         return self._failure_boundary_proportion
 
     @failure_boundary_proportion.setter
     def failure_boundary_proportion(self, value):
-        if value <= 0 or value >= 0.5: 
-            raise ValueError(f"failure_boundary_proportion {self.failure_boundary_proportion} not in the interval (0,1/2) (exclusive).")
+        if value <= 0 or value >= 1: 
+            raise ValueError(f"failure_boundary_proportion {self.failure_boundary_proportion} not in the interval (0,1) (exclusive).")
         self._failure_boundary_proportion = value
 
     @property
     def failure_boundary(self):
-        p = self.size / 2 - self.size * self.failure_boundary_proportion
-        s = self.size * self.failure_boundary_proportion * 2
+        p = self.size / 2 - self.size * (self.failure_boundary_proportion / 2)
+        s = self.size * self.failure_boundary_proportion
         return p, s
 
     def in_failure(self):
         sp = self.size
-        inc = sp * self.failure_boundary_proportion # either side of the center
+        inc = sp * (self.failure_boundary_proportion/2) # either side of the center
         fbp, fbs = (sp/2 - inc), inc * 2
-
         return not in_bounds(self.target.position, fbp, fbs)
         
     def on_key_down(self, event):
@@ -198,12 +214,12 @@ class TrackingTask(Widget):
 
         # draw widget background
         pos, size = self.canvas_bounds
-        draw_simple_rect(self.window, dict(position = pos, size = size, color=self.cosmetic_options['background_color']))
+        draw_simple_rect(self.window, dict(position = pos, size = size, color=self.background_color))
         # draw lines
         size = size[0]
-        line_color = self.cosmetic_options['line_color']        
-        line_width =  self.cosmetic_options['line_width']
-        dash_length = self.cosmetic_options['dash_length']
+        line_color = self.line_color     
+        line_width =  self.line_width
+        dash_length = self.dash_length
         line_size = size/16
         edge = line_width // 2 - 1
         edge2 = line_width // 2 + 1
@@ -245,7 +261,7 @@ class TrackingTask(Widget):
         draw_dashed_line(self.window, dict(start_position= tgp(*p2), end_position=tgp(*p3), color=line_color, width=line_width, dash_length=dash_length))
         draw_dashed_line(self.window, dict(start_position= tgp(*p3), end_position=tgp(*p4), color=line_color, width=line_width, dash_length=dash_length))
         draw_dashed_line(self.window, dict(start_position= tgp(*p4), end_position=tgp(*p1), color=line_color, width=line_width, dash_length=dash_length))
-        self.target.cosmetic_options['line_color'] = self.cosmetic_options['goal_color'] if not self.in_failure() else self.cosmetic_options['fail_color']
+        self.target.line_color = self.goal_color if not self.in_failure() else self.fail_color
 
         for widget in self.children.values():
             widget.draw(self.window) # TODO what if position changes?
@@ -253,7 +269,7 @@ class TrackingTask(Widget):
 
     @property
     def bounds(self):
-        return self.cosmetic_options['position'], self.cosmetic_options['size']
+        return self.position, self.size
 
     @property
     def canvas_position(self): # top level widget...
@@ -261,5 +277,5 @@ class TrackingTask(Widget):
 
     @property
     def padding(self):
-        return min(self.size[0], self.size[1]) * self.cosmetic_options['padding']
+        return min(self.size[0], self.size[1]) * self.padding
     

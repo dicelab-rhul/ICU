@@ -18,10 +18,12 @@ UI_WINDOW_WINDOWMOVED       = "UI::WINDOW::WINDOWMOVED"
 
 COSMETIC = "COSMETIC" # used to update cosmetic properties
 SET_PROPERTY = "SET_PROPERTY" # used to set widget properties
-GET_PROPERTY = "GET_PROPERTY" # ussed to get widget properties
+GET_PROPERTY = "GET_PROPERTY" # used to get widget properties
 
 SET_RESPONSE = "SET_RESPONSE" # response type that will be given by a widget if properties were changed
 GET_RESPONSE = "GET_RESPONSE" # response type that will be given by a widget in response to a get request (using PROPERTY)
+CHANGED = "CHANGED"
+
 
 INPUT_MOUSEMOTION        = "INPUT::MOUSEMOTION"
 INPUT_MOUSEDOWN          = "INPUT::MOUSEDOWN"

@@ -1,56 +1,93 @@
 
 import time
 import math
+import argparse
 from datetime import datetime
+import random
 
-from icu.ui import start
-from icu.event2 import EventSystem, SourceLocal, SinkLocal, SourceRemote, SinkRemote
-from icu.event2.utils import ConditionalTimer
+from .ui import start
+from .event2 import load_schedule, EventSystem, SourceLocal, SinkLocal, SourceRemote, SinkRemote
+from .event2.utils import ConditionalTimer
+
+from .config import DEFAULT_CONFIGURATION
+from .logging import EventLogger
+
+import asyncio
+
+DEFAULT_LOGPATH = "./logs"
+DEFAULT_CONFIG = "./config.yaml"
+DEFAULT_WAIT = 0.01 # simulation speed...
+
+def start_ui(event_system):
+     # this is a remote source that will receive UI events from the UI 
+    ui_remote_source = SourceRemote()
+    event_system.add_source(ui_remote_source)
+    # this is a remote sink that will supply command events to the UI
+    # subscriptions will be set remotely in the UI
+    ui_remote_sink = SinkRemote()
+    ui_remote_sink.subscribe("ICU::*")
+    event_system.add_sink(ui_remote_sink)
+    ui_process = start(ui_remote_source, ui_remote_sink, DEFAULT_CONFIGURATION) # TODO we dont want to provide the full default configuration!?
+    # wait for the ui_process to finish setup before starting the event system
+    return ui_process
+
+async def run(event_system):
+    ui_process = start_ui(event_system)
+    # main loop
+    while ui_process.is_alive():
+        await asyncio.sleep(DEFAULT_WAIT)
+        event_system.pull_events()
+        event_system.publish()
+    event_system.close()
+    ui_process.join()
+
+def start_logger(event_system,logpath, logfile):
+    logger = EventLogger(path=logpath, file=logfile)
+    logger.subscribe("*")
+    event_system.add_sink(logger)
+    return logger
+
+def start_local_source(event_system):
+    # this is the local source that will produce events for the UI
+    icu_event_source = SourceLocal()
+    event_system.add_source(icu_event_source)
+    return icu_event_source
 
 
-from icu.config import DEFAULT_CONFIGURATION
 
-es = EventSystem()
+async def main(cmdargs):
 
-# this is a remote source that will receive UI events from the UI 
-ui_remote_source = SourceRemote()
-es.add_source(ui_remote_source)
+    event_system = EventSystem()
+    logger = start_logger(event_system, cmdargs.logpath, cmdargs.log)
+    source = start_local_source(event_system)
 
-# this is a remote sink that will supply command events to the UI
-# subscriptions will be set remotely in the UI
-ui_remote_sink = SinkRemote()
-ui_remote_sink.subscribe("ICU::TRACKINGTASK::*")
-es.add_sink(ui_remote_sink)
+   
+    schedule = load_schedule("./icu/example_schedule.sch")
+    for sch in schedule:
+        asyncio.create_task(sch(source))
 
-# local event processor, subscribes to all UI events
-ui_event_processor = SinkLocal(lambda event : print(f"MAIN RECEIVED: {event}"))
-ui_event_processor.subscribe("UI::*")
+    await asyncio.create_task(run(event_system))
 
-es.add_sink(ui_event_processor)
+if __name__ == "__main__":
 
-ui_event_gen = SourceLocal()
-es.add_source(ui_event_gen)
-
-ui_process = start(ui_remote_source, ui_remote_sink, DEFAULT_CONFIGURATION) # TODO we dont want to provide the full default configuration!?
-# wait for the ui_process to finish setup before starting the event system
-
-#with ConditionalTimer(0.1) as ct:
-
-while ui_process.is_alive():
-    time.sleep(0.01)
+    parser = argparse.ArgumentParser(description="Process log files.")
+    parser.add_argument("--logpath", help="Location for the event log file. This may be overriden by the --logfile option.", default=DEFAULT_LOGPATH)
+    parser.add_argument("--log", help="Path to the event log file. If specified this will override the --logpath option.", default=None)
+    parser.add_argument("--config", help="Path to the config file.", default=DEFAULT_CONFIG)
     
-    #if ct.should_execute():
-    x = 0.05 + (1 + math.sin(datetime.now().timestamp())) / 6
-    ui_event_gen.source("ICU::TRACKINGTASK::SET_PROPERTY", dict(failure_boundary_proportion = x))
+    args = parser.parse_args()
 
-    #ui_event_gen.source("UI::CANVAS::CLEAR", dict(color='red'))
-    #x = 100 + math.sin(datetime.now().timestamp()) * 100
-    #ui_event_gen.source("UI::CANVAS::DRAW_LINE", dict(start_position=(x,100), end_position=(200 - x,200), color='white'))
-    #ui_event_gen.source("UI::CANVAS::DRAW_RECT", dict(position=(500,100), size=(100,100), color='white', rotation=x))
-    #ui_event_gen.source("UI::CANVAS::DRAW_CIRCLE", dict(position=(400,400), radius=x, color='white'))
-    #ui_event_gen.source("UI::CANVAS::CLEAR", dict(color='red'))
-    es.pull_events()
-    es.publish()
+    print(args)
 
-es.close()
-ui_process.join()
+    asyncio.run(main(args))
+
+
+
+# @scheduler.after(2)
+# async def delayed_task():
+#     source.source("DELAYED", data=dict(a=1))
+#  @scheduler.every(1)
+#     async def periodic_task():
+#         source.source("ICU::SYSTEMTASK::WARNINGLIGHT2::SET_PROPERTY", data=dict(state=random.randint(0,1)))
+# asyncio.create_task(delayed_task())
+# asyncio.create_task(periodic_task())

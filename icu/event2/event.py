@@ -10,11 +10,11 @@ from typing import Dict, Set
 import uuid
 
 from .dict.eventdict import EventDict
-from ..exception import EventSystemException
+from ..exception import EventSystemError
 
 @dataclass(frozen=True)
 class Event:
-    id: str = field(init=False, default_factory=lambda: str(uuid.uuid4().int))
+    id: str = field(init=False, default_factory=lambda: '{:>039d}'.format(uuid.uuid4().int))
     timestamp : float = field(init=False, default_factory=lambda : time.time())
     type: str
     data: dict = field(default_factory=dict)
@@ -26,6 +26,12 @@ class Event:
 
     def __hash__(self):
         return hash(self.id)
+    
+    def __str__(self):
+        formatted_timestamp = '{:.6f}'.format(self.timestamp)
+        return (f"Event(id={self.id}, timestamp={formatted_timestamp}, "
+                f"type='{self.type}', data={self.data})")
+    
 
 
 class SinkBase:
@@ -170,6 +176,18 @@ class SourceRemote(SourceBase):
         while not self._buffer.empty():
             yield self._buffer.get()
 
+class EventSchedular:
+
+    def __init__(self, source):
+        self.source = source
+
+    def after(self, interval): # calls source once after interval time has passed
+        pass 
+
+    def every(self, frequency): # calls source based on frequency
+        pass 
+
+
 class EventSystem:
 
     def __init__(self):
@@ -186,10 +204,10 @@ class EventSystem:
                     self._events.add(event.type, event)
             except TypeError:
                 print(source) # TODO
-                raise EventSystemException("")
+                raise EventSystemError("")
 
     def publish(self):
-        print(os.getpid(), len(self._events))
+        #print(os.getpid(), len(self._events))
         for sink in self.sinks:
             events = set()
             for subscription in sink.get_subscriptions():
@@ -203,7 +221,7 @@ class EventSystem:
     
     def add_sink(self, sink : SinkBase):
         if sink is None:
-            raise EventSystemException("Sink cannot be None.")
+            raise EventSystemError("Sink cannot be None.")
         self.sinks.add(sink)
 
     def remove_source(self, source : SourceBase):
@@ -211,7 +229,7 @@ class EventSystem:
 
     def add_source(self, source : SourceBase):
         if source is None:
-            raise EventSystemException("Source cannot be None.")
+            raise EventSystemError("Source cannot be None.")
         self.sources.add(source)
 
     def close(self):

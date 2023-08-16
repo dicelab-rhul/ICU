@@ -39,20 +39,29 @@ class Point:
     def __add__(self, other):
         if isinstance(other, Point):
             return Point(self.x + other.x, self.y + other.y)
+        elif isinstance(other, (list, tuple)):
+            return Point(self.x + other[0], self.y + other[1])
         elif isinstance(other, (int, float)):
             return Point(self.x + other, self.y + other)
+        raise ValueError(f"Cannot add {other} from {self}.")
         
     def __sub__(self, other):
         if isinstance(other, Point):
             return Point(self.x - other.x, self.y - other.y)
+        elif isinstance(other, (list, tuple)):
+            return Point(self.x - other[0], self.y - other[1])
         elif isinstance(other, (int, float)):
             return Point(self.x - other, self.y - other)
+        raise ValueError(f"Cannot subtract {other} from {self}.")
         
     def __mul__(self, other):
         if isinstance(other, Point):
             return Point(self.x * other.x, self.y * other.y)
+        elif isinstance(other, (list, tuple)):
+            return Point(self.x * other[0], self.y * other[1])
         elif isinstance(other, (int, float)):
             return Point(self.x * other, self.y * other)
+        raise ValueError(f"Cannot multiply {other} from {self}.")
     
     def __div__(self, scalar):
         return Point((self.x/scalar, self.y/scalar))

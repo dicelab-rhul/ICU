@@ -1,6 +1,8 @@
 
 
 from .utils import read_configpy_file
-from . import config
+from . import default
 
-DEFAULT_CONFIGURATION = read_configpy_file(config.__file__)
+from .distribution import Uniform, Normal
+
+DEFAULT_CONFIGURATION = read_configpy_file(default.__file__)

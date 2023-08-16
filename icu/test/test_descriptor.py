@@ -1,48 +1,45 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-"""
-    Created on 12-10-2020 13:58:58
 
-    [Description]
-"""
-__author__ = "Benedict Wilkins"
-__email__ = "benrjw@gmail.com"
-__status__ = "Development"
-
-
-class etuple(tuple):
-    
-    def __new__(self, *args):
-        return super(etuple, self).__new__(etuple, args)
-
-class event_property(property):
-
+class property_event(property):
     def __set__(self, obj, value):
-        cause = None
-        if isinstance(value, etuple):
-            assert len(value) == 2
-            value, cause = value
-
-        super(event_property, self).__set__(obj, value)
-        nvalue = self.__get__(obj)
-        print()
-        print("CAUSE", cause)
-
-
-class test:
-
-    def __init__(self):
-        self.__x = None
-
-    @event_property
-    def x(self):
-        return self.__x
-
-    @x.setter
-    def x(self, value):
-        print("SET", value)
-
+        old_value = super().__get__(obj)
+        result = super().__set__(obj, value)
+        new_value = super().__get__(obj)
+        print(old_value, new_value)
+        #obj.source(obj.address + DELIMITER + CHANGED, dict(old = {self.fset.__name__ : old_value}, new = {self.fset.__name__  : new_value}) ) # this decorator can only be used on an event source... TODO check this? 
+        return result 
     
-t = test()
-t.x = etuple(1, 2)
-t.x = 3
+def cosmetic_options(**options):
+    def decorator(cls):
+        original_init = cls.__init__
+        def _cosmetic_init_(self, *args, **kwargs):
+            for option, value in options.items():
+                backing = "_" + option
+                setattr(self, backing, value)
+            return original_init(self, *args, **kwargs)
+        # set properties for the class
+        for option, _ in options.items():
+            backing = "_" + option
+            setattr(cls, option, property_event(lambda self, backing=backing: getattr(self, backing), lambda self, v, backing=backing: setattr(self, backing, v)))
+        cls.__init__ = _cosmetic_init_
+        return cls
+    return decorator
+
+@cosmetic_options(
+    a = 1,
+    b = 2,
+    c = 3,
+)
+class Test:
+    
+    def __init__(self):
+        self._z = 1
+
+
+t = Test()
+
+print(dir(t))
+
+print(t.a)
+print(t.b)
+print(t.c)
+print(t._z)
