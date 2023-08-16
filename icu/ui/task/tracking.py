@@ -21,11 +21,10 @@ class Target(Widget):
         super().__init__(TARGET1, clickable=False)
         # trigger events for initial values settings
         self._position = Point(position)
-        self._size = Point(0.2, 0.2)
-
+ 
     @property
     def size(self):
-        return self._size * self.scale * self.parent.size[0]
+        return Point(0.2, 0.2) * self.scale * self.parent.size[0]
 
     @property
     def radius(self):
@@ -58,6 +57,16 @@ class Target(Widget):
             value.y = ps.y - r
         self._position = value
 
+    @property_event
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = value
+        # update position to stop the target from being out of bounds?
+        self.position = self._position 
+
 @cosmetic_options(
     position = Point(500, 10),
     size = Point(480,480),
@@ -71,9 +80,9 @@ class Target(Widget):
 class TrackingTask(Widget): 
     
     @gettable_properties("target_speed", 
-                        "event_frequency", 
-                        "failure_boundary",
-                        "failure_boundary_proportion")
+                         "event_frequency", 
+                         "failure_boundary",
+                         "failure_boundary_proportion")
     @settable_properties("target_speed", 
                         "event_frequency",
                         "failure_boundary_proportion")
@@ -262,7 +271,7 @@ class TrackingTask(Widget):
             self.target.line_color = self.goal_color
 
         for widget in self.children.values():
-            widget.draw(self.window) # TODO what if position changes?
+            widget.draw(self.window)
 
     @property
     def bounds(self):

@@ -61,7 +61,6 @@ async def main(cmdargs):
     logger = start_logger(event_system, cmdargs.logpath, cmdargs.log)
     source = start_local_source(event_system)
 
-
     printer = SinkLocal(print)
     printer.subscribe("UI::*")
     event_system.add_sink(printer)

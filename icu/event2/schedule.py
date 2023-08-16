@@ -100,7 +100,7 @@ class Schedule:
         raise ConfigurationError(f"Invalid schedule {schedule}, must be of the form [*interval], or [[*intervals], ?repeat]. See documentation for further details.")
 
 
-def load_schedule(file):
+def load_schedule2(file): # TODO each element is contained in a line... what about multi-line? 
     file = pathlib.Path(file).expanduser().resolve().absolute()
     schedules = []
     with open(str(file), 'r') as sfile:
@@ -118,6 +118,39 @@ def load_schedule(file):
             schedules.append(schedule)
     return schedules
 
+def load_schedule(file): # TODO each element is contained in a line... what about multi-line? 
+    file = pathlib.Path(file).expanduser().resolve().absolute()
+    schedules = []
+
+    def get_schedule(line):
+        literals = list(ast.literal_eval(line))
+        event_type, data, schedule = literals
+        if not isinstance(event_type, str):
+            raise ConfigurationError(f"event type {event_type} must be a string, found type {type(event_type)}.")
+        event_type = Const(event_type)
+        data = Map(data) # parse the map
+        return Schedule.parse_schedule(schedule, event_type, data)
+
+    from pprint import pprint
+
+    with open(str(file), 'r') as sfile:
+        lines = [line.strip() for line in sfile.readlines()]
+        lines = [line for line in lines if not len(line) == 0 and not line.startswith("#")]
+
+        result = []
+        current_line = ''
+        for item in lines:
+            if item.endswith("\\"):
+                current_line += item[:-1].strip()  # Remove trailing "\\"
+            else:
+                current_line += item
+                result.append(current_line)
+                current_line = ''
+            
+        #for line in result:
+        #    print(line)
+        return [get_schedule(line) for line in result]
+        
 ### OLD SCHEDULEING 
 
 # class TaskRepeatable:

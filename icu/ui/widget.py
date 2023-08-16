@@ -28,9 +28,6 @@ def cosmetic_options(**options):
                 pe = property_event(lambda self, backing=backing: getattr(self, backing), lambda self, v, backing=backing: setattr(self, backing, v))
                 pe.fset.__name__, pe.fget.__name__, = option, option
                 setattr(cls, option, pe)
-            else:
-                print(getattr(cls, option).fset.__name__)
-        
         cls.__init__ = _cosmetic_init_
         return cls
     return decorator
