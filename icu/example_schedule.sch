@@ -6,9 +6,9 @@
 #"ICU::SYSTEMTASK::WARNINGLIGHT2::SET_PROPERTY", { "state" : "!uniform(0,1)" }, [[0.2]] # repeat forever every 0.2 seconds
 #"ICU::SYSTEMTASK::WARNINGLIGHT2::SET_PROPERTY", { "state" : "!uniform(0,1)" }, [["!uniform(0,0.5)"]]
 
-"ICU::SYSTEMTASK::WARNINGLIGHT2::SET_PROPERTY", { "+state" : 1 }, [[1]]
-"ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "+position" : ("!uniform(-5,5)", "!uniform(-5,5)") }, [[0.1]]
+#"ICU::SYSTEMTASK::WARNINGLIGHT2::SET_PROPERTY", { "+state" : 1 }, [[1]]
+#"ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "+position" : ("!uniform(-5,5)", "!uniform(-5,5)") }, [[1]]
 
-
-
-"ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "line_width" : 10 }, [1]
+#"ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "line_width" : 10 }, [1]
+#"ICU::TRACKINGTASK::GET_PROPERTY", { "child_addresses" : None }, [1]
+#"ICU::SYSTEMTASK::GET_PROPERTY", { "child_addresses" : None }, [1]

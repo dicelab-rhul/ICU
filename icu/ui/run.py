@@ -97,14 +97,11 @@ def run(source, sink, config):
     event_system.add_source(pygame_event_source)
 
     # TODO deal with the external source...
-
     system_task = SystemTask(window)
     system_task.register(event_system)
 
     tracking_task = TrackingTask(window)
     tracking_task.register(event_system)
-
-    import os
     
     running = True
     while running:

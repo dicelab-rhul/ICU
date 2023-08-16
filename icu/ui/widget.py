@@ -6,40 +6,6 @@ from .commands import PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, SE
 from .constants import * # colours
 
 from .utils import Point
-
-# used to ensure events trigger when cosmetic options are changed in a widget
-class CosmeticOptionsDict:
-
-    def __init__(self, initial, source):
-        super().__init__()
-        self._dict = {**initial}
-        self._source = source
-
-    def __getitem__(self, key):
-        return self._dict[key]
-
-    def __setitem__(self, key, value):
-        old_value = self._dict[key]
-        self._dict[key] = value
-        self._source.source(self._source.address + DELIMITER + CHANGED, dict(old = {key.__name__ : old_value}, new = {key  : value}) ) # this decorator can only be used on an event source... TODO check this? 
-
-    def __delitem__(self, key):
-        del self._dict[key]
-
-    def update(self, data):
-        return self._dict.update(data)
-
-    def __contains__(self, key):
-        return key in self._dict
-
-    def keys(self):
-        return self._dict.keys()
-
-    def values(self):
-        return self._dict.values()
-
-    def items(self):
-        return self._dict.items()
   
 def cosmetic_options(**options):
     def decorator(cls):
@@ -59,7 +25,12 @@ def cosmetic_options(**options):
         for option, _ in options.items():
             backing = "_" + option
             if not hasattr(cls, option): # its already been set, leave this up to the class :)
-                setattr(cls, option, property_event(lambda self, backing=backing: getattr(self, backing), lambda self, v, backing=backing: setattr(self, backing, v)))
+                pe = property_event(lambda self, backing=backing: getattr(self, backing), lambda self, v, backing=backing: setattr(self, backing, v))
+                pe.fset.__name__, pe.fget.__name__, = option, option
+                setattr(cls, option, pe)
+            else:
+                print(getattr(cls, option).fset.__name__)
+        
         cls.__init__ = _cosmetic_init_
         return cls
     return decorator
@@ -82,16 +53,17 @@ def gettable_properties(*options):
                 self.__gettable_options__ += list(options)
             else:
                 self.__gettable_options__ = list(options)
+            #print(self, self.__gettable_options__)
             func(self, *args, **kwargs)
         return fun
     return decorator
-
 
 class property_event(property):
     def __set__(self, obj, value):
         old_value = super().__get__(obj)
         result = super().__set__(obj, value)
         new_value = super().__get__(obj)
+        #print(obj, dir(obj))
         obj.source(obj.address + DELIMITER + CHANGED, dict(old = {self.fset.__name__ : old_value}, new = {self.fset.__name__  : new_value}) ) # this decorator can only be used on an event source... TODO check this? 
         return result 
 
@@ -100,7 +72,8 @@ def in_bounds(position, rect_pos, rect_size):
 
 class Widget(SourceBase, SinkBase):
     
-    @gettable_properties('cosmetic_options', 'gettable_properties', 'settable_properties')
+    @gettable_properties('child_addresses', 'gettable_properties', 'settable_properties')
+    @settable_properties()
     def __init__(self, name, clickable=False):
         super().__init__()
         assert not name in ["INPUT", "WINDOW"] # these are reserved names in the event system!
@@ -116,13 +89,21 @@ class Widget(SourceBase, SinkBase):
         self._prepare_click = False
         self._source_buffer = deque() 
 
+    @property
+    def child_addresses(self): # addresses of all children of this widget
+        def _gen():
+            yield self.address
+            for child in self.children.values():
+                yield from child.child_addresses
+        return [addr for addr in _gen()]
+        
     @property   
     def gettable_properties(self):
-        return list(self.__settable_options__) + list(self.__cosmetic_options__) # TODO check there are no collisions
+        return list(self.__gettable_options__) + list(self.__cosmetic_options__) # TODO check there are no collisions
     
     @property
     def settable_properties(self):
-        return list(self.__gettable_options__) + list(self.__cosmetic_options__) # TODO check there are no collisions
+        return list(self.__settable_options__) + list(self.__cosmetic_options__) # TODO check there are no collisions
     
     @property
     def cosmetic_options(self): # TODO when any cosmetic option is set, an event should be triggered?
@@ -201,7 +182,7 @@ class Widget(SourceBase, SinkBase):
         if _toset is not None:
             toset = {k:v for k,v in _toset.items() if k in self.settable_properties}
             if len(_toset) != len(toset):
-                print(f"WARNING: trying to set missing properties on widget {self.name}: {list(set(_toset.keys()) - set(toset.keys()))} avaliable properties: {list(self.__settable_options__)}")
+                print(f"WARNING: trying to set missing properties on widget {self.name}: {list(set(_toset.keys()) - set(toset.keys()))} avaliable properties: {list(self.settable_properties)}")
             
             old = {k:getattr(self, k) for k,v in toset.items()}
 
@@ -217,9 +198,9 @@ class Widget(SourceBase, SinkBase):
         _toget = event.data
         if _toget is not None:
             toget = {k:getattr(self, k) for k in _toget if k in self.gettable_properties}
-            
+            #print(self.gettable_properties)
             if len(_toget) != len(toget):
-                print(f"WARNING: trying to set missing properties on widget {self.name}: {list(set(_toget.keys()) - set(toget.keys()))} avaliable properties: {list(self.__gettable_options__)}")
+                print(f"WARNING: trying to get missing properties on widget {self.name}: {list(set(_toget.keys()) - set(toget.keys()))} avaliable properties: {list(self.gettable_properties)}")
             self.source(self.address + DELIMITER + GET_RESPONSE, toget)
 
     def on_cosmetic(self, event):

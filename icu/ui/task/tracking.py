@@ -24,10 +24,6 @@ class Target(Widget):
         self._size = Point(0.2, 0.2)
 
     @property
-    def bounds(self):
-        return self._position, self.size
-
-    @property
     def size(self):
         return self._size * self.scale * self.parent.size[0]
 
@@ -46,7 +42,6 @@ class Target(Widget):
     
     @position.setter
     def position(self, value):
-        print(value)
         if isinstance(value, (list, tuple)):
             value = Point(value)
         r = self.radius
@@ -97,9 +92,6 @@ class TrackingTask(Widget):
         """
         super().__init__(TRACKINGTASK, clickable=False)
         self.window = window
-
-        print(self.size)
-
         self.add_child(Target((self.size[0] / 2, self.size[1] / 2)))
 
         # subscribe to keyboard input
@@ -225,7 +217,7 @@ class TrackingTask(Widget):
         edge2 = line_width // 2 + 1
         tgp = lambda x, y : (x + pos[0], y + pos[1]) # convert to canvas coordinate system
 
-        # draw border lines
+        # # draw border lines
         draw_line(self.window, dict(start_position= tgp(0, edge),               end_position=tgp(line_size, edge),                  color=line_color, width=line_width))
         draw_line(self.window, dict(start_position= tgp(edge, 0),               end_position=tgp(edge, line_size),                  color=line_color, width=line_width))
         draw_line(self.window, dict(start_position= tgp(0, size-edge2),         end_position=tgp(line_size, size-edge2),            color=line_color, width=line_width))
@@ -235,7 +227,7 @@ class TrackingTask(Widget):
         draw_line(self.window, dict(start_position= tgp(size-edge2, edge),      end_position=tgp(size-line_size-edge2, edge),       color=line_color, width=line_width))  
         draw_line(self.window, dict(start_position= tgp(size-edge2, 0),         end_position=tgp(size-edge2, line_size),            color=line_color, width=line_width))
 
-        # #main middle lines
+        # # #main middle lines
         draw_line(self.window, dict(start_position= tgp( size/2,                  0,                  ), end_position=tgp(  size/2,                 size-1,             ), color=line_color, width=line_width ))
         draw_line(self.window, dict(start_position= tgp( 0,                       size/2,             ), end_position=tgp(  size-1,                 size/2,             ), color=line_color, width=line_width ))
         draw_line(self.window, dict(start_position= tgp( size/2 - line_size,      edge,               ), end_position=tgp(  size/2 + line_size,     edge,               ), color=line_color, width=line_width ))
@@ -251,7 +243,7 @@ class TrackingTask(Widget):
         draw_line(self.window, dict(start_position= tgp( -edge + 6*size/8,        size/2 + line_size,  ), end_position=tgp( -edge + 6*size/8,       size/2 - line_size,  ), color=line_color, width=line_width ))
         draw_line(self.window, dict(start_position= tgp( -edge + 7*size/8,        size/2 + line_size/2,), end_position=tgp( -edge + 7*size/8,       size/2 - line_size/2,), color=line_color, width=line_width ))
 
-        # draw the central box that defines the failure boundary
+        # # draw the central box that defines the failure boundary
         fb, fs = self.failure_boundary
         p1 = fb
         p2 = fb + Point(fs[0], 0)
@@ -261,11 +253,16 @@ class TrackingTask(Widget):
         draw_dashed_line(self.window, dict(start_position= tgp(*p2), end_position=tgp(*p3), color=line_color, width=line_width, dash_length=dash_length))
         draw_dashed_line(self.window, dict(start_position= tgp(*p3), end_position=tgp(*p4), color=line_color, width=line_width, dash_length=dash_length))
         draw_dashed_line(self.window, dict(start_position= tgp(*p4), end_position=tgp(*p1), color=line_color, width=line_width, dash_length=dash_length))
-        self.target.line_color = self.goal_color if not self.in_failure() else self.fail_color
+        
+        in_failure = self.in_failure()
+        # ensure the change event is emitted properly
+        if in_failure and self.target._line_color != self.fail_color:
+            self.target.line_color = self.fail_color
+        elif not in_failure and self.target._line_color != self.goal_color:
+            self.target.line_color = self.goal_color
 
         for widget in self.children.values():
             widget.draw(self.window) # TODO what if position changes?
-
 
     @property
     def bounds(self):
@@ -277,5 +274,8 @@ class TrackingTask(Widget):
 
     @property
     def padding(self):
-        return min(self.size[0], self.size[1]) * self.padding
+        return min(self.size[0], self.size[1]) * self._padding
     
+    @padding.setter
+    def padding(self, value):
+        self._padding = value 

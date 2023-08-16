@@ -205,7 +205,11 @@ class Slider(Widget):
         rel = self.box.state - self.box.goal_state 
         self.box.state = self.box.goal_state
         self.source(self.address + DELIMITER + INPUT_MOUSECLICK, data=dict(widget = self.name, widget_state = self.box.state, widget_state_rel = rel, x = event.data['x'], y = event.data['y']))
-    
+
+    @property
+    def child_addresses(self):
+        return [self.address] # hide children... 
+
 @cosmetic_options(
     position = Point(0, 0),
     size = Point(480,640),
@@ -236,6 +240,10 @@ class SystemTask(Widget):
     @property
     def padding(self):
         return min(self._size[0], self._size[1]) * self._padding
+
+    @padding.setter
+    def padding(self, value):
+        self._padding = value 
 
     def update(self):
         # draw widget background

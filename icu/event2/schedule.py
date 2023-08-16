@@ -57,6 +57,8 @@ def _get_function(x):
         return Map(x)
     elif isinstance(x, (int, float, str)):
         return Const(x)
+    elif x is None:
+        return Const(x)
     else:
         raise ConfigurationError(f"Invalid data type: {type(x)} encountered while parsing schedule.")
 
