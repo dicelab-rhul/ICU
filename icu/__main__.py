@@ -63,7 +63,7 @@ async def main(cmdargs):
 
     printer = SinkLocal(print)
     printer.subscribe("UI::*")
-    event_system.add_sink(printer)
+    #event_system.add_sink(printer)
    
     schedule = load_schedule("./icu/example_schedule.sch")
     for sch in schedule:

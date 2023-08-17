@@ -9,7 +9,7 @@ class Point:
             x, y = x
         self.x = float(x)
         self.y = float(y)
-
+        
     def __getitem__(self, index):
         if index == 0:
             return self.x

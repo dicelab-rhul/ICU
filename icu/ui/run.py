@@ -14,7 +14,7 @@ from .constants import *
 from .commands import *
 
 
-from .task import SystemTask, TrackingTask
+from .task import SystemTask, TrackingTask, FuelTask
 
 class Canvas(SinkBase):
 
@@ -102,7 +102,10 @@ def run(source, sink, config):
 
     tracking_task = TrackingTask(window)
     tracking_task.register(event_system)
-    
+
+    fuel_task = FuelTask(window)
+    fuel_task.register(event_system)
+
     running = True
     while running:
         time.sleep(0.01)
@@ -125,6 +128,7 @@ def run(source, sink, config):
 
         system_task.update()
         tracking_task.update()
+        fuel_task.update()
 
         ui_canvas.update()
 

@@ -156,7 +156,12 @@ class Widget(SourceBase, SinkBase):
     
     def on_set_property(self, event):
         # set these options, and produce an event that shows the change
-        _toset = event.data
+        _toset = event.data.get("set", None) # TODO warning? 
+        if _toset is None:
+            raise ValueError(f"Failed to SET_PROPERTY, 'set' was not part of event data {event.data}.")
+        if len(_toset) == 0:
+            raise ValueError(f"Failed to SET_PROPERTY, 'set' was empty in event data {event.data}.")
+
         # TODO document this
         setflags = {
             '=' : lambda obj,k,v : setattr(obj, k, v),
@@ -188,16 +193,18 @@ class Widget(SourceBase, SinkBase):
                 setflags[f](self, k, x)
                 return getattr(self, k)
             new = {k:_set_property(k,v) for k,v in toset.items()}
-            self.source(self.address + DELIMITER + SET_RESPONSE, dict(old=old, new=new))
+
+            if event.data.get('response', True):
+                self.source(self.address + DELIMITER + SET_RESPONSE, dict(old=old, new=new))
 
     def on_get_property(self, event):
         # get these options and produce an event that shows them
-        _toget = event.data
+        _toget = event.data.get('get', None) # TODO should be a list or tuple
         if _toget is not None:
             toget = {k:getattr(self, k) for k in _toget if k in self.gettable_properties}
             #print(self.gettable_properties)
             if len(_toget) != len(toget):
-                print(f"WARNING: trying to get missing properties on widget {self.name}: {list(set(_toget.keys()) - set(toget.keys()))} avaliable properties: {list(self.gettable_properties)}")
+                print(f"WARNING: trying to get missing properties on widget {self.name}: {list(set(_toget) - set(toget.keys()))} avaliable properties: {list(self.gettable_properties)}")
             self.source(self.address + DELIMITER + GET_RESPONSE, toget)
 
     def on_cosmetic(self, event):

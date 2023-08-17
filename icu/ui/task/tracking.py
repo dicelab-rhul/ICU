@@ -46,7 +46,6 @@ class Target(Widget):
         r = self.radius
         ps = Point(self.parent.size)
         # check within bounds
-        
         if value.x - r < 0:
             value.x = r
         if value.y - r < 0:
@@ -263,25 +262,21 @@ class TrackingTask(Widget):
         draw_dashed_line(self.window, dict(start_position= tgp(*p3), end_position=tgp(*p4), color=line_color, width=line_width, dash_length=dash_length))
         draw_dashed_line(self.window, dict(start_position= tgp(*p4), end_position=tgp(*p1), color=line_color, width=line_width, dash_length=dash_length))
         
-        in_failure = self.in_failure()
-        # ensure the change event is emitted properly
-        if in_failure and self.target._line_color != self.fail_color:
-            self.target.line_color = self.fail_color
-        elif not in_failure and self.target._line_color != self.goal_color:
-            self.target.line_color = self.goal_color
+        
+        # dont emit an event so use _line_color
+        if self.in_failure():
+            self.target._line_color = self.fail_color
+        else:
+            self.target._line_color = self.goal_color
 
         for widget in self.children.values():
             widget.draw(self.window)
 
     @property
-    def bounds(self):
-        return self.position, self.size
-
-    @property
     def canvas_position(self): # top level widget...
         return self.position[0], self.position[1]
 
-    @property
+    @property_event
     def padding(self):
         return min(self.size[0], self.size[1]) * self._padding
     

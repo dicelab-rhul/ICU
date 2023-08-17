@@ -4,7 +4,7 @@ from ...event2 import DELIMITER
 from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
 from ..draw import draw_simple_rect
 from ..constants import *
-from ..widget import Widget, cosmetic_options, gettable_properties, settable_properties
+from ..widget import Widget, property_event, cosmetic_options, gettable_properties, settable_properties
 from ..utils import Point
 
 class WarningLight(Widget):
@@ -16,7 +16,7 @@ class WarningLight(Widget):
         assert start_state in (0,1) # goal state = 0, fail state = 1
         self._state = start_state 
         
-    @property
+    @property_event
     def state(self):
         return self._state % 2
     
@@ -142,23 +142,23 @@ class Slider(Widget):
         self.i = i
         self.add_child(SliderBox(i, steps = steps, goal_state=goal_state, start_state=start_state))
 
-    @property
+    @property_event
     def state(self):
         return self.box.state
     
     @state.setter
     def state(self, value):
-        self.box.state = value
+        self.box.state = min(max(value, 0), self.steps-1)
 
-    @property
+    @property_event
     def goal_state(self):
         return self.box.goal_state
     
     @goal_state.setter
     def goal_state(self, value):
-        self.box.goal_state = value
+        self.box.goal_state = min(max(value, 0), self.steps-1)
 
-    @property
+    @property_event
     def steps(self):
         return self.box.steps
     
@@ -230,14 +230,10 @@ class SystemTask(Widget):
             self.add_child(Slider(i + 1))
 
     @property
-    def bounds(self):
-        return self._position, self._size
-
-    @property
     def canvas_position(self): # top level widget...
         return self.position[0], self.position[1]
 
-    @property
+    @property_event
     def padding(self):
         return min(self._size[0], self._size[1]) * self._padding
 
