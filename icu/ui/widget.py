@@ -2,7 +2,7 @@
 from collections import deque
 from typing import Any
 from ..event2 import SinkBase, SourceBase, Event, DELIMITER
-from .commands import PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, SET_PROPERTY, GET_PROPERTY, SET_RESPONSE, GET_RESPONSE, CHANGED
+from .commands import MOUSECLICK, MOUSEUP, PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, SET_PROPERTY, GET_PROPERTY, SET_RESPONSE, GET_RESPONSE, CHANGED
 from .constants import * # colours
 
 from .utils import Point
@@ -60,8 +60,8 @@ class property_event(property):
         old_value = super().__get__(obj)
         result = super().__set__(obj, value)
         new_value = super().__get__(obj)
-        #print(obj, dir(obj))
-        obj.source(obj.address + DELIMITER + CHANGED, dict(old = {self.fset.__name__ : old_value}, new = {self.fset.__name__  : new_value}) ) # this decorator can only be used on an event source... TODO check this? 
+        if old_value != new_value: # TODO should this be done? 
+            obj.source(obj.address + DELIMITER + CHANGED, dict(old = {self.fset.__name__ : old_value}, new = {self.fset.__name__  : new_value}) ) # this decorator can only be used on an event source... TODO check this? 
         return result 
 
 def in_bounds(position, rect_pos, rect_size):
@@ -130,6 +130,17 @@ class Widget(SourceBase, SinkBase):
         while len(self._source_buffer) > 0:
             yield self._source_buffer.popleft()
 
+    def update(self):
+        raise NotImplementedError()
+    
+    def draw(self, window):
+        for widget in self.children.values():
+            widget.draw(window)
+
+    def update(self):
+        for widget in self.children.values():
+            widget.update()
+
     def sink(self, event):
         event_type = event.type.split(DELIMITER)
         event_suffix = event_type[-1]
@@ -157,6 +168,7 @@ class Widget(SourceBase, SinkBase):
     def on_set_property(self, event):
         # set these options, and produce an event that shows the change
         _toset = event.data.get("set", None) # TODO warning? 
+        #print(event)
         if _toset is None:
             raise ValueError(f"Failed to SET_PROPERTY, 'set' was not part of event data {event.data}.")
         if len(_toset) == 0:
@@ -247,9 +259,6 @@ class Widget(SourceBase, SinkBase):
     def in_bounds(self, position):
         p, s = self.canvas_bounds
         return p[0] <= position[0] <= p[0] + s[0] and p[1] <= position[1] <= p[1] + s[1]
-
-    def draw(self):
-        raise NotImplementedError() 
     
     # register widget and children with the end system
     def register(self, event_system):

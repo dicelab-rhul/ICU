@@ -109,7 +109,7 @@ class TrackingTask(Widget):
         # how far from the center can the target go?
         self._failure_boundary_proportion = failure_boundary_proportion
 
-        # used to produce events that move the target
+        # used to control the speed of target movement on user input
         self._target_speed = target_speed
         self._event_frequency = event_frequency
 

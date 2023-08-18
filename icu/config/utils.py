@@ -6,6 +6,8 @@ from typing import Union
 import yaml
 import re
 
+from ast import parse, Expression, Constant, Tuple, List, Set, Call, Name, Dict, BinOp, UnaryOp, UAdd, USub, Add, Sub
+
 from ..event2 import Event
 from ..exception import ConfigurationError
 
@@ -29,5 +31,85 @@ def load_config_file(file):
 
     with open(str(file, 'r')) as yfile:
         data = yaml.safe_load(yfile)
-    
+
         
+def literal_eval_with_ops(node_or_string):
+    """
+    Safely evaluate an expression node or a string containing a Python
+    expression. The string or node provided may only consist of the 
+    following Python literal structures: strings, bytes, numbers, 
+    tuples, lists, dicts, sets, booleans, None, and basic binary operations.
+    
+    Caution: A complex expression can overflow the C stack and cause a crash.
+    """
+
+    def _raise_malformed_node(node):
+        msg = "malformed node or string"
+        if lno := getattr(node, 'lineno', None):
+            msg += f' on line {lno}'
+        raise ValueError(msg + f': {node!r}')
+        
+    def _convert_num(node):
+        if isinstance(node, Constant) and type(node.value) in (int, float, complex):
+            return node.value
+        _raise_malformed_node(node)
+        
+    def _convert_signed_num(node):
+        if isinstance(node, UnaryOp) and isinstance(node.op, (UAdd, USub)):
+            operand = _convert(node.operand)
+            if isinstance(node.op, UAdd):
+                return + operand
+            else:
+                return - operand
+        else:
+            return _convert(node)
+        
+    def _convert(node):
+        if isinstance(node, Constant):
+            return node.value
+        elif isinstance(node, Tuple):
+            return tuple(map(_convert, node.elts))
+        elif isinstance(node, List):
+            # Handle list with unpacking
+            result = []
+            for elt in node.elts:
+                if isinstance(elt, ast.Starred):  # Unpacking operator
+                    result.extend(_convert(elt.value))
+                else:
+                    result.append(_convert(elt))
+            return result
+        elif isinstance(node, Set):
+            return set(map(_convert, node.elts))
+        elif (isinstance(node, Call) and isinstance(node.func, Name) and
+              node.func.id == 'set' and node.args == node.keywords == []):
+            return set()
+        elif isinstance(node, Dict):
+            if len(node.keys) != len(node.values):
+                _raise_malformed_node(node)
+            return dict(zip(map(_convert, node.keys),
+                            map(_convert, node.values)))
+        elif isinstance(node, BinOp):  # Handle binary operations
+            left = _convert(node.left)
+            right = _convert(node.right)
+            if isinstance(node.op, Add):
+                return left + right
+            elif isinstance(node.op, Sub):
+                return left - right
+            elif isinstance(node.op, ast.Mult):
+                return left * right
+            elif isinstance(node.op, ast.Div):
+                return left / right
+            else:
+                _raise_malformed_node(node)
+        else:
+            _raise_malformed_node(node)
+
+    try:
+        if isinstance(node_or_string, str):
+            node_or_string = parse(node_or_string.lstrip(" \t"), mode='eval')
+        if isinstance(node_or_string, Expression):
+            node_or_string = node_or_string.body
+    except SyntaxError:
+        _raise_malformed_node(node_or_string)
+    
+    return _convert(node_or_string)

@@ -1,6 +1,7 @@
 
 
 
+import math
 from ...event2 import DELIMITER
 from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
 from ..draw import draw_rectangle, draw_line, draw_arrow
@@ -9,6 +10,7 @@ from ..widget import Widget, property_event, cosmetic_options, gettable_properti
 from ..utils import Point
 
 from enum import Enum
+import time
 
 
 # TODO inherit from parent decorator? 
@@ -16,6 +18,9 @@ class FuelWing(Widget):
     def __init__(self, wing):
         super().__init__(f"Wing{wing}")
         self._wing = wing - 1
+    @property
+    def event_frequency(self):
+        return self.parent.event_frequency
     @property
     def size(self):
         s = self.parent.size
@@ -38,11 +43,9 @@ class FuelWing(Widget):
     @property
     def fuel_tanks(self): # main, left, right
         return list(dict(sorted(self.children.items())).values())[:3]
-    
-    def draw(self, window):
-        #draw_simple_rect(window, dict(position = self.position, size = self.size, width = self.parent.line_width, color=COLOR_BLACK))
-        for widget in self.children.values():
-            widget.draw(window)
+    @property # this widget is not addressable
+    def address(self):
+        return self.parent.address
 
 @cosmetic_options(
     background_color = COLOR_GREY,
@@ -53,6 +56,7 @@ class FuelWing(Widget):
 class FuelTank(Widget):
 
     @settable_properties('fuel_level', 'capacity')
+    @gettable_properties('fuel_level', 'capacity')
     def __init__(self, name, fuel_level, capacity):
         super().__init__(name)
         self._fuel_level = fuel_level
@@ -89,8 +93,11 @@ class FuelTank(Widget):
     def in_failure(self):
         return False # only applies to the main tank
 
-    def get_pump_position(self, tank2, pump):
+    def _get_pump_position(self, tank2, pump):
         raise NotImplementedError()
+    
+    def _get_pump_arrow_angle(self, tank2):
+        raise NotImplementedError() 
 
 @cosmetic_options(
     fuel_level_protrusion = FUELTANKMAIN_FUEL_LEVEL_PROTRUSION
@@ -141,10 +148,16 @@ class FuelTankMain(FuelTank):
         else:
             raise ValueError(f"No fuel line connection between {self} and {tank2}.")
 
-    def get_pump_position(self, tank2, pump):
-        p1, p2 = self.get_connecting_line(tank2)
-        off = (p1[0] - p2[0]) / 12
-        return Point(min(p1[0], p2[0]) + abs(p1[0] - p2[0])/2 + off, p1[1]) - pump.size / 2
+    def _get_pump_position(self, tank2, pump):
+        w = self.parent._wing
+        y = self.position[1] + self.size[1] * (w + 1) / 4 
+        x = self.position[0] + (self.size[0] * (1-w)) # either side of the correct tank
+        x -= ((w*2) - 1) * self.size[0]/2
+        return Point(x,y) - pump.size / 2
+        
+    def _get_pump_arrow_angle(self, tank2):
+        d = (self.canvas_position[0] - tank2.canvas_position[0])
+        return ((d/abs(d)) + 1) * 90
 
 class FuelTankLeft(FuelTank):
     @property
@@ -155,8 +168,16 @@ class FuelTankLeft(FuelTank):
     def size(self):
         return Point(self.parent.size[0] / 6, self.parent.size[1] / 3)
 
-    def get_pump_position(self, tank2, pump):
-        return Point(0,0)
+    def _get_pump_position(self, tank2, pump):
+        if isinstance(tank2, FuelTankMain):
+            x = self.position[0] + self.size[0] / 2
+            y = self.position[1] - (self.position[1] - (tank2.position[1] + tank2.size[1])) / 2
+            return Point(x, y) - pump.size/2
+        else:
+            raise ValueError(f"Invalid tank {type(self).__name__} for {type(self).__name__}, tanks do not share a {Pump.__name__}.") # unreachable...
+        
+    def _get_pump_arrow_angle(self, tank2):
+        return 90
 
 class FuelTankRight(FuelTank):
     @property
@@ -167,50 +188,80 @@ class FuelTankRight(FuelTank):
     def size(self):
         return Point(self.parent.size[0] / 4, self.parent.size[1] / 3)
 
-    def get_pump_position(self, tank2, pump):
-        # if tank 2 is above
+    def _get_pump_position(self, tank2, pump):
         if isinstance(tank2, FuelTankMain):
-            return Point(0,0) 
+            x = self.position[0] + self.size[0] / 2
+            y = self.position[1] - (self.position[1] - (tank2.position[1] + tank2.size[1])) / 2
+            return Point(x, y) - pump.size/2
         elif isinstance(tank2, FuelTankLeft):
-            return Point(0,0) 
+            x = (tank2.position[0] + tank2.size[0] / 2) + (self.position[0] - tank2.position[0]) / 2
+            y = self.position[1] + self.size[1] /2
+            return Point(x,y) - pump.size/2
         else:
             raise ValueError(f"Invalid tank {type(self).__name__} for {type(self).__name__}, tanks do not share a {Pump.__name__}.") # unreachable...
         
-
-# class syntax
-
+    def _get_pump_arrow_angle(self, tank2):
+        if isinstance(tank2, FuelTankMain):
+            return 90
+        elif isinstance(tank2, FuelTankLeft):
+            return 180
+        else:
+            raise ValueError(f"Invalid tank {type(self).__name__} for {type(self).__name__}, tanks do not share a {Pump.__name__}.") # unreachable...
+        
 class PumpState(Enum):
-    IDLE = 1
-    ON = 2
-    OFF = 3
+    OFF = 0
+    ON = 1
+    FAIL = 2
 
-    def __getitem__(i):
-        return [PumpState.IDLE, PumpState.ON, PumpState.OFF]
+    @classmethod
+    def get(cls, index):
+        return list(cls)[index]
 
 @cosmetic_options(
-    background_color = COLOR_GREY,
+    off_color = COLOR_GREY,
     on_color = COLOR_GREEN,
-    off_color = COLOR_RED,
+    fail_color = COLOR_RED,
     line_color = LINE_COLOR,
     arrow_color = LINE_COLOR,
     arrow_fill_head = True,
     scale = (0.8, 0.8)
 )
 class Pump(Widget):
-    def __init__(self, tank1, tank2):
-        super().__init__(f"Pump{tank1.name[-1] + tank2.name[-1]}", clickable=True)
+    
+    @settable_properties('state', 'fail', 'flow_speed')
+    @gettable_properties('state', 'fail', 'flow_speed')
+    def __init__(self, tank1, tank2, flow_speed):
+        super().__init__(f"PUMP{tank1.name[-1] + tank2.name[-1]}", clickable=True)
         self.tank1 = tank1
         self.tank2 = tank2
-        self._state = 0 # 0 clickable, 1 on, 2 failure
+        self._state =  PumpState.OFF # 0 clickable, 1 on, 2 failure
+        self._flow_speed = flow_speed
+        self._last_event_time = time.time()
+
+    @property_event
+    def flow_speed(self):
+        return self._flow_speed
+    
+    @flow_speed.setter
+    def flow_speed(self, value):
+        self._flow_speed = max(value, 0)
 
     @property_event
     def state(self):
         return self._state
     
+    @property
+    def fail(self):
+        return int(self.state == PumpState.FAIL)
+    
+    @fail.setter
+    def fail(self, value):
+        self.state = PumpState.get((value % 2)*2)
+
     @state.setter
     def state(self, value):
         if isinstance(value, int):
-            self._state = PumpState[value]
+            self._state = PumpState.get(value)
         elif isinstance(value, PumpState):
             self._state = value
         else:
@@ -219,29 +270,62 @@ class Pump(Widget):
     @property
     def position(self):
         # yes its weird to off load this to the fuel tanks, but it avoids a large conditional statement for type checking...
-        return self.tank1.get_pump_position(self.tank2, self)
+        return self.tank1._get_pump_position(self.tank2, self)
 
     @property
     def _colors(self):
-        return [self.background_color, self.on_color, self.off_color]
+        return [self.off_color, self.on_color, self.fail_color]
 
     @property
     def size(self):
         return Point(self.scale) * self.tank1.size[1] / 4
     
     def draw(self, window):
-        draw_rectangle(window, position = self.canvas_position, size = self.size, color=self._colors[self.state], fill=True)
+        draw_rectangle(window, position = self.canvas_position, size = self.size, color=self._colors[self.state.value], fill=True)
         draw_rectangle(window, position = self.canvas_position, size = self.size, color=self.line_color, line_width = self.parent.line_width)
-        
         # draw arrow
+        angle = self.tank1._get_pump_arrow_angle(self.tank2)
         draw_arrow(window, start_position = self.canvas_position + self.size/2, length=self.size[0] / 4, 
-                   color=self.arrow_color, head_only=True, fill_head=self.arrow_fill_head, head_length=self.size[0] / 2)
+                   color=self.arrow_color, angle=angle, head_only=True, fill_head=self.arrow_fill_head, head_length=self.size[0] / 2)
+        
+    def on_mouse_click(self, event):
+        if self.state == PumpState.OFF:
+            self.state = PumpState.ON
+            self._last_event_time = time.time()
+        elif self.state == PumpState.ON:
+            self.state = PumpState.OFF
 
-
-
-
+    def update(self):
+        should, dif = self._should_transfer_fuel()
+        if should:
+            self.transfer(dif * self.flow_speed)
+            
+    def transfer(self, amount):
+        f1 = self.tank1.fuel_level
+        f2 = self.tank2.fuel_level
+        # move `amount` from f1 to f2
+        d1 = abs(max(f1 - amount, 0) - f1)
+        d2 = amount - max(((f2 + amount) - self.tank2.capacity), 0) 
+        d = min(d1, d2)
+        if d > 0:
+            self.tank1.fuel_level -= d
+            self.tank2.fuel_level += d
+        else:
+            self.state = PumpState.OFF
+        
+    def _should_transfer_fuel(self):
+        if self.state == PumpState.ON:
+            current_time = time.time()
+            dif = current_time - self._last_event_time
+            if dif >= (1 / self.parent.event_frequency):
+                self._last_event_time = current_time
+                return (True, dif)
+            return (False, dif)
+        else:
+            return (False, None)
+    
 @cosmetic_options(
-    position = Point(0, 0),
+    position = Point(50,50),
     size = Point(780, 480),
     padding = (1.5*PADDING, PADDING),
     background_color = COLOR_GREY,
@@ -249,12 +333,9 @@ class Pump(Widget):
     line_width = LINE_WIDTH,
 )
 class FuelTask(Widget): 
-    # TODO this could be much more sophisticated... have options specified on each constructor of child widget? 
-    # rather than ever passing these options directly, they should be updated via the event system!
-   
-    def __init__(self, 
-                window):
-        super().__init__(SYSTEMTASK, clickable=False)
+
+    def __init__(self, window, event_frequency=30):
+        super().__init__(FUELTASK, clickable=False)
         self.window = window
 
         self._wings = [FuelWing(1), FuelWing(2)]
@@ -274,14 +355,32 @@ class FuelTask(Widget):
         main1, left1, right1 = self._wings[0].fuel_tanks
         main2, left2, right2 = self._wings[1].fuel_tanks
 
-        self.add_child(Pump(main1, main2))
-        # self.add_child(Pump(left1, main1))
-        # self.add_child(Pump(right1, main1))
-        # self.add_child(Pump(right1, left1))
-        self.add_child(Pump(main2, main1))
-        # self.add_child(Pump(left2, main2))
-        # self.add_child(Pump(right2, main2))
-        # self.add_child(Pump(right2, left2))
+        self._wings[0].add_child(Pump(main1,  main2, PUMP_FLOW_SPEED))
+        self._wings[0].add_child(Pump(left1,  main1, PUMP_FLOW_SPEED))
+        self._wings[0].add_child(Pump(right1, main1, PUMP_FLOW_SPEED))
+        self._wings[0].add_child(Pump(right1, left1, PUMP_FLOW_SPEED))
+        self._wings[1].add_child(Pump(main2,  main1, PUMP_FLOW_SPEED))
+        self._wings[1].add_child(Pump(left2,  main2, PUMP_FLOW_SPEED))
+        self._wings[1].add_child(Pump(right2, main2, PUMP_FLOW_SPEED))
+        self._wings[1].add_child(Pump(right2, left2, PUMP_FLOW_SPEED))
+
+
+        for child in self.children.values():
+            for c in child.children.values():
+                print(c.address)
+
+        # used to control the speed of fuel flow
+        self._event_frequency = event_frequency
+
+    @property_event
+    def event_frequency(self):
+        return self._event_frequency
+
+    @event_frequency.setter
+    def event_frequency(self, value):
+        if value <= 0:
+            raise ValueError(f"event_frequency must be greater than 0. got {self.event_frequency}")
+        self._event_frequency = value
 
     @property
     def bounds(self):
@@ -321,4 +420,16 @@ class FuelTask(Widget):
         draw_line(self.window, start_position = s2, end_position = e2, width = self.line_width, color=self.line_color)
 
         for widget in self.children.values():
-            widget.draw(self.window) # TODO what if position changes?
+            widget.update()
+            widget.draw(self.window)
+            
+
+
+
+
+
+
+
+
+
+        

@@ -4,6 +4,7 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 import time
 import os
+import copy
 
 from multiprocessing import Queue
 from typing import Dict, Set
@@ -31,15 +32,13 @@ class Event:
         formatted_timestamp = '{:.6f}'.format(self.timestamp)
         return (f"Event(id={self.id}, timestamp={formatted_timestamp}, "
                 f"type='{self.type}', data={self.data})")
-    
-
 
 class SinkBase:
 
     def __init__(self):
         self.id = str(uuid.uuid4().int)
 
-    def close(self):
+    def close(selMOUSECLICKf):
         pass 
 
     def sink(self, event):

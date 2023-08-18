@@ -9,6 +9,8 @@ from dataclasses import dataclass
 
 from ..exception import ConfigurationError
 from ..config.distribution import get_distribution_cls
+from ..config.utils import literal_eval_with_ops
+
 
 __all__ = ("load_schedule",)
 
@@ -62,6 +64,16 @@ def _get_function(x):
     else:
         raise ConfigurationError(f"Invalid data type: {type(x)} encountered while parsing schedule.")
 
+class RepeatedSchedule:
+
+    def __init__(self, schedules):
+        super().__init__()
+        self.schedules = schedules
+    
+    async def __call__(self, source):
+        for schedule in self.schedules:
+            await schedule(source)
+
 class Schedule:
 
     def __init__(self, schedule : Collection, repeat, event_type, data):
@@ -88,6 +100,36 @@ class Schedule:
                 return Schedule (Collection(schedule[0]), Const(None), event_type, data)
             else:
                 raise ConfigurationError(f"Invalid schedule {schedule}")
+        else:
+            islit = [isinstance(x, (int,float,str)) for x in schedule]
+            if all(islit):
+                return Schedule(Collection(schedule), Const(1), event_type, data) # schedule once
+            
+            iscol = [isinstance(x, (list,tuple)) for x in schedule]
+            isvalid = [(x ^ y) for x,y in zip(islit, iscol)]
+            if not all(isvalid): # TODO is this even possible?
+                raise ConfigurationError(f"Invalid schedule, invalid type {type(isvalid.index(False))}.") 
+            if not all(islit[1::2]):
+                fail = [('R','I')[int(i)] for i in islit]
+                raise ConfigurationError(f"Invalid schedule, repeats should be every other element ['I', 'R', 'I', 'R', ...] currently {fail}. ")
+            if not all(iscol[::2]):
+                fail = [('R','I')[int(1-i)] for i in islit]
+                raise ConfigurationError(f"Invalid schedule, intervals should be every other element ['I', 'R', 'I', 'R', ...] currently {fail}.")
+            if len(schedule) % 2 == 1:
+                schedule.append(None) # repeat forever at the end if no repeat is given
+            schedules = [Schedule(Collection(schedule[i]), _get_function(schedule[i+1]), event_type, data) for i in range(0, len(schedule), 2)]            
+            return RepeatedSchedule(schedules)
+
+    def parse_schedule2(schedule, event_type : Const, data : Map):
+        if len(schedule) == 0:
+            raise ConfigurationError(f"Invalid schedule {schedule} cannot be empty.")
+        elif len(schedule) == 1: 
+            if isinstance(schedule[0], (int, float, str)): # schedule once
+                return Schedule(Collection([schedule[0]]), Const(1), event_type, data) 
+            elif isinstance(schedule[0], (list, tuple)): # repeat forever task
+                return Schedule (Collection(schedule[0]), Const(None), event_type, data)
+            else:
+                raise ConfigurationError(f"Invalid schedule {schedule}")
         elif len(schedule) == 2:
             if isinstance(schedule[0], (int, float, str)): # schedule once
                 return Schedule(Collection(schedule), Const(1), event_type, data) 
@@ -100,38 +142,19 @@ class Schedule:
         raise ConfigurationError(f"Invalid schedule {schedule}, must be of the form [*interval], or [[*intervals], ?repeat]. See documentation for further details.")
 
 
-def load_schedule2(file): # TODO each element is contained in a line... what about multi-line? 
-    file = pathlib.Path(file).expanduser().resolve().absolute()
-    schedules = []
-    with open(str(file), 'r') as sfile:
-        for line in sfile.readlines():
-            line = line.strip()
-            if len(line) == 0 or line.startswith("#"):
-                continue
-            literals = list(ast.literal_eval(line))
-            event_type, data, schedule = literals
-            if not isinstance(event_type, str):
-                raise ConfigurationError(f"event type {event_type} must be a string, found type {type(event_type)}.")
-            event_type = Const(event_type)
-            data = Map(data) # parse the map
-            schedule = Schedule.parse_schedule(schedule, event_type, data)
-            schedules.append(schedule)
-    return schedules
-
 def load_schedule(file): # TODO each element is contained in a line... what about multi-line? 
     file = pathlib.Path(file).expanduser().resolve().absolute()
-    schedules = []
 
     def get_schedule(line):
-        literals = list(ast.literal_eval(line))
+        #literals = list(ast.literal_eval(line))
+        literals = list(literal_eval_with_ops(line))
+        
         event_type, data, schedule = literals
         if not isinstance(event_type, str):
             raise ConfigurationError(f"event type {event_type} must be a string, found type {type(event_type)}.")
         event_type = Const(event_type)
         data = Map(data) # parse the map
         return Schedule.parse_schedule(schedule, event_type, data)
-
-    from pprint import pprint
 
     with open(str(file), 'r') as sfile:
         lines = [line.strip() for line in sfile.readlines()]
@@ -150,7 +173,15 @@ def load_schedule(file): # TODO each element is contained in a line... what abou
         #for line in result:
         #    print(line)
         return [get_schedule(line) for line in result]
-        
+
+
+
+
+
+
+
+
+
 ### OLD SCHEDULEING 
 
 # class TaskRepeatable:

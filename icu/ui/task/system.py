@@ -18,11 +18,11 @@ class WarningLight(Widget):
         
     @property_event
     def state(self):
-        return self._state % 2
+        return self._state
     
     @state.setter
     def state(self, value):
-        self._state = value 
+        self._state = value % 2
 
     @property
     def _colors(self):

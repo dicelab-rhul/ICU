@@ -19,6 +19,20 @@ class Distribution:
     def __call__(self):
         return self.sample()
     
+class Choice(Distribution):
+
+    def __init__(self, *choices):
+        self.choices = tuple(choices)
+
+    def sample(self):
+        return random.choice([c() for c in self.choices])
+    
+    def __str__(self):
+        return "choice" + str(self.choices)
+
+    def __repr__(self):
+        return str(self)
+
 class Uniform(Distribution):
     """ Uniform distribution. """
 
