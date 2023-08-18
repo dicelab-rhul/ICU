@@ -10,7 +10,7 @@
 
 
 # Schedule for the tracking task that will make the target move around
-"ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "response" : False, "set" : { "+position" : ("!uniform(-5,5)", "!uniform(-5,5)") }}, [[0.1]]
+# "ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "response" : False, "set" : { "+position" : ("!uniform(-5,5)", "!uniform(-5,5)") }}, [[0.1]]
 
 # Schedule for the WARNINGLIGHT1 
 "ICU::SYSTEMTASK::WARNINGLIGHT1::SET_PROPERTY", { "response" : False, "set" : {"+state" : 1 }}, [[1]]

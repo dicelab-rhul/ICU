@@ -32,8 +32,8 @@ class Target(Widget):
     
     def draw(self, window):
         pos, _ = self.canvas_bounds
-        draw_circle(window, position=pos, radius=self.radius, color=self._line_color, width=self._line_width)
-        draw_circle(window, position=pos, radius=self.radius/10, color=self._line_color, width=0)
+        draw_circle(window, position=pos, radius=int(self.radius), color=self._line_color, line_width=self._line_width)
+        draw_circle(window, position=pos, radius=int(self.radius/10), color=self._line_color, fill=True)
 
     @property_event
     def position(self):
