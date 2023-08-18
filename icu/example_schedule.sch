@@ -26,7 +26,7 @@
 # Schedule for the fuel task that will refuel and deplete tanks
 
 # deplete
-"ICU::FUELTASK::FUELTANKA::SET_PROPERTY", { "response" : False, "set" : { "-fuel_level" : 5 }}, [[0.2], 1, 1]
+"ICU::FUELTASK::FUELTANKA::SET_PROPERTY", { "response" : False, "set" : { "-fuel_level" : 5 }}, [[0.5], 10, [0.1]]
 "ICU::FUELTASK::FUELTANKD::SET_PROPERTY", { "response" : False, "set" : { "-fuel_level" : 5 }}, [[0.1]]
 
 # refuel
