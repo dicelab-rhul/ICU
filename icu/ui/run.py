@@ -124,7 +124,7 @@ def run(source, sink, config):
 
         event_system.pull_events()
         event_system.publish()
-        clear(window, dict(color=config['window_background_color']))
+        clear(window, color=config['window_background_color'])
 
         system_task.update()
         tracking_task.update()

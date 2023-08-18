@@ -2,7 +2,7 @@
 
 from ...event2 import DELIMITER
 from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
-from ..draw import draw_simple_rect
+from ..draw import draw_rectangle
 from ..constants import *
 from ..widget import Widget, property_event, cosmetic_options, gettable_properties, settable_properties
 from ..utils import Point
@@ -30,8 +30,8 @@ class WarningLight(Widget):
 
     def draw(self, window):
         p, s = self.canvas_bounds
-        draw_simple_rect(window, dict(position = p, size = s, color = self._colors[self.state]))
-        draw_simple_rect(window, dict(position = p, size = s, color = COLOR_BLACK, width=LINE_WIDTH))
+        draw_rectangle(window, position = p, size = s, color = self._colors[self.state], fill=True)
+        draw_rectangle(window, position = p, size = s, color = COLOR_BLACK, line_width=LINE_WIDTH)
 
     def on_mouse_click(self, event):
         rel = self.state - (1-self.state)
@@ -115,7 +115,7 @@ class SliderBox(Widget):
         p, s = self.canvas_bounds 
         color = self.parent.box_color_goal if self.state == self.goal_state else self.parent.box_color_fail
         p = (p[0], p[1] - 1) # avoids glitches
-        draw_simple_rect(window, dict(position = p, size = s, color = color, width=0))
+        draw_rectangle(window, position = p, size = s, color = color, fill=True)
 
     def on_mouse_click(self, event):
         self.parent.on_mouse_click(event) # delegate the event trigger to the parent...
@@ -191,15 +191,15 @@ class Slider(Widget):
     def draw(self, window):
         # draw each rect
         p, s = self.canvas_bounds
-        draw_simple_rect(window, dict(position = p, size = s, color=self.background_color))
-        
+        draw_rectangle(window, position = p, size = s, color=self.background_color, fill=True)
+    
         # draw clickable rect
         for child in self.children.values():
             child.draw(window)
 
         inc = s[1] / (self.steps)
         for i in range(1, self.steps + 1):
-            draw_simple_rect(window, dict(position = (p[0], p[1]), size = (s[0], i * inc), color=self.line_color, width=self.line_width)) 
+            draw_rectangle(window, position = (p[0], p[1]), size = (s[0], i * inc), color=self.line_color, line_width=self.line_width, fill=False)
 
     def on_mouse_click(self, event):
         rel = self.box.state - self.box.goal_state 
@@ -243,6 +243,6 @@ class SystemTask(Widget):
 
     def update(self):
         # draw widget background
-        draw_simple_rect(self.window, dict(position = self.position, size = self.size, color=self.background_color))
+        draw_rectangle(self.window, position = self.position, size = self.size, color=self.background_color, fill=True)
         for widget in self.children.values():
             widget.draw(self.window) # TODO what if position changes?

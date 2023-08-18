@@ -3,18 +3,7 @@ import pygame
 from pygame import gfxdraw
 from .utils import Point
 
-
-def draw_dashed_line(window, data):
-    color, start_pos, end_pos, width, dash_length = data.get('color', 'black'), data['start_position'], data['end_position'], data.get('width', 1), data.get('dash_length', 10)
-    origin = Point(start_pos)
-    target = Point(end_pos)
-    displacement = target - origin
-    length = len(displacement)
-    slope = displacement/length
-    for index in range(0, length//dash_length, 2):
-        start = origin + (slope *    index    * dash_length)
-        end   = origin + (slope * (index + 1) * dash_length)
-        pygame.draw.line(window, color, start.get(), end.get(), width)
+from .constants import LINE_COLOR, LINE_WIDTH, LINE_DASH_LENGTH
 
 def rgb_to_hex(*colour):
     """Creates a hex string from rgb args
@@ -25,42 +14,121 @@ def rgb_to_hex(*colour):
     """
     return "#%02x%02x%02x" % colour 
 
-def draw_circle(window, data):
-    # TODO antialiasing?
-    pygame.draw.circle(window, data.get('color', 'black'), data['position'], data['radius'], width=data.get('width', 0)) 
-    #gfxdraw.aacircle(window, int(data['position'][0]), int(data['position'][1]), int(data['radius']), (0,0,0)) #data.get('color', 'black'))
 
-    
-def draw_simple_rect(window, data):
-    pygame.draw.rect(window, data.get('color', 'black'), (*data['position'], *data['size']), width=data.get('width', 0)) 
+def draw_dashed_line(window, start_position, end_position, width=LINE_WIDTH, color=LINE_COLOR, dash_length=LINE_DASH_LENGTH):
+    origin = Point(start_position)
+    target = Point(end_position)
+    displacement = target - origin
+    length = len(displacement)
+    slope = displacement/length
+    for index in range(0, length//dash_length, 2):
+        start = origin + (slope *    index    * dash_length)
+        end   = origin + (slope * (index + 1) * dash_length)
+        pygame.draw.line(window, color, start.get(), end.get(), width)
 
-def draw_line(window, data):
-    pygame.draw.line(window, data.get('color', 'black'), data['start_position'], data['end_position'], data.get('width', 1))
 
-def clear(window, data):
-    window.fill(data['color'])
 
-def draw_rectangle(window, data):
-    rotation = data.get('rotation', 0)
-    if rotation == 0:
-        return draw_simple_rect(window, data)
-    x, y = data['position']
-    width, height = data['size']
+def draw_line(window, start_position, end_position, color=LINE_COLOR, width=LINE_WIDTH, anti_alias=True):
+    if anti_alias:
+       _aa_draw_line(window, start_position, end_position, color=color, width=width)
+    else:
+        _draw_line(window, start_position, end_position, color=color, width=width)
+        
+def draw_circle(window, position, radius, color=LINE_COLOR, width=0):
+    pygame.draw.circle(window, color, position, radius, width=width)
+
+def clear(window, color):
+    window.fill(color)
+
+def draw_rectangle(window, position, size, rotation=0, color=LINE_COLOR, line_width=1, fill=False, anti_alias=True):
+    line_width = line_width if not fill else 0
+    if rotation % 90 == 0:
+        # TODO test this... (AI GENERATED)
+        if rotation == 0:
+            return _draw_simple_rectangle(window, position=position, size=size, color=color, line_width=line_width)
+        elif rotation == 90:
+            return _draw_simple_rectangle(window, position=(position[0] - size[1], position[1]), size=(size[1], size[0]), color=color, line_width=line_width)
+        elif rotation == 180:
+            return _draw_simple_rectangle(window, position=(position[0] - size[0], position[1] - size[1]), size=size, color=color, line_width=line_width)
+        elif rotation == 270:
+            return _draw_simple_rectangle(window, position=position, size=(size[1], size[0]), color=color, line_width=line_width)
+        
+    x, y = position
+    line_width, height = size
     points = []
-    # The distance from the center of the rectangle to
-    # one of the corners is the same for each corner.
-    radius = math.sqrt((height / 2)**2 + (width / 2)**2)
-    # Get the angle to one of the corners with respect
-    # to the x-axis.
-    angle = math.atan2(height / 2, width / 2)
-    # Transform that angle to reach each corner of the rectangle.
+    radius = math.sqrt((height / 2)**2 + (line_width / 2)**2)
+    angle = math.atan2(height / 2, line_width / 2)
     angles = [angle, -angle + math.pi, angle + math.pi, -angle]
-    # Convert rotation from degrees to radians.
     rot_radians = (math.pi / 180) * rotation
-    # Calculate the coordinates of each point.
     for angle in angles:
         y_offset = -1 * radius * math.sin(angle + rot_radians)
         x_offset = radius * math.cos(angle + rot_radians)
         points.append((x + x_offset, y + y_offset))
+    draw_polygon(window, points, color=color, line_width=line_width, anti_alias=anti_alias, fill=fill)
 
-    pygame.draw.polygon(window, data.get('color', 'black'), points, width=data.get('width', 0))
+def draw_arrow(window, start_position, length, width=LINE_WIDTH, color=LINE_COLOR, angle=0, head_length=None, head_only=False, fill_head=False, anti_alias=True):
+    start_position = tuple(start_position)
+    angle = math.radians(angle)
+    head_length = head_length if head_length is not None else length / 2
+    # Calculate arrow end point
+    arrow_end = (
+        start_position[0] + length * math.cos(angle),
+        start_position[1] - length * math.sin(angle),
+    )
+    # Calculate arrowhead points
+    arrowhead_left = (
+        arrow_end[0] - head_length * math.cos(angle + math.radians(30)),
+        arrow_end[1] + head_length * math.sin(angle + math.radians(30))
+    )
+    arrowhead_right = (
+        arrow_end[0] - head_length * math.cos(angle - math.radians(30)),
+        arrow_end[1] + head_length * math.sin(angle - math.radians(30))
+    )
+    if not head_only:
+        #gfxdraw.line(window, *start_position, *arrow_end, )
+        draw_line(window, start_position, arrow_end, color=color, width=width, anti_alias=anti_alias)
+    if not fill_head:
+        draw_line(window, arrow_end, arrowhead_left, width=width, color=color, anti_alias=anti_alias)
+        draw_line(window, arrow_end, arrowhead_right,width=width, color=color, anti_alias=anti_alias)
+    else:
+        draw_polygon(window, (arrowhead_left, arrowhead_right, arrow_end), color=color, fill=True)
+      
+def draw_polygon(window, points, color=LINE_COLOR, line_width=1, fill=False, anti_alias=True):
+    if anti_alias:
+        return _aa_draw_polygon(window, points, color=color, line_width=line_width, fill=fill)
+    else:
+        return _draw_polygon(window, points, color=color, line_width=line_width, fill=fill)
+    
+def _draw_polygon(window, points, color=LINE_COLOR, line_width=1, fill=False):
+    line_width = line_width if not fill else 0
+    pygame.draw.polygon(window, color, points, width=line_width)
+
+def _aa_draw_polygon(window, points, color=LINE_COLOR, line_width=1, fill=False):
+    color = pygame.Color(color)
+    pygame.gfxdraw.aapolygon(window, points, color)
+    if fill:
+        pygame.gfxdraw.filled_polygon(window, points, color)
+
+def _draw_simple_rectangle(window, position, size, color=LINE_COLOR, line_width=1, fill=False):
+    line_width = line_width if not fill else 0
+    pygame.draw.rect(window, color, (*position, *size), width=line_width)
+
+def _aa_draw_line(window, start_position, end_position, color=LINE_COLOR, width=LINE_WIDTH):
+    start_position = tuple(start_position)
+    end_position = tuple(end_position)
+    color = pygame.Color(color)
+    direction = pygame.math.Vector2(end_position) - pygame.math.Vector2(start_position)
+    perpendicular = pygame.math.Vector2(-direction.y, direction.x)
+    perpendicular.normalize_ip()
+    half_width = (width-1) / 2
+    points = [
+        start_position + perpendicular * half_width,
+        end_position + perpendicular * half_width,
+        end_position - perpendicular * half_width,
+        start_position - perpendicular * half_width
+    ]
+    pygame.gfxdraw.aapolygon(window, points, color)
+    pygame.gfxdraw.filled_polygon(window, points, color)
+
+def _draw_line(window, start_position, end_position, color=LINE_COLOR, width=LINE_WIDTH):
+    pygame.draw.line(window, color, tuple(start_position), tuple(end_position), width=width)

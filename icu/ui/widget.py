@@ -231,9 +231,12 @@ class Widget(SourceBase, SinkBase):
     def bounds(self):
         return self.position, self.size
     
+    def to_canvas_position(self, rel_position):
+        return Point(self.parent.canvas_position) + Point(rel_position)
+
     @property
     def canvas_position(self):
-        return Point(self.parent.canvas_position[0] + self.position[0], self.parent.canvas_position[1] + self.position[1])
+        return self.to_canvas_position(self.position)
 
     @property
     def canvas_bounds(self):
