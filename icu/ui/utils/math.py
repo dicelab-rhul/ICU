@@ -1,6 +1,7 @@
 
 import math
 
+
 # TODO useful utility class... maybe it should be used elsewhere rather than tuple-2?
 class Point:
     # constructed using a normal tupple
@@ -76,7 +77,6 @@ class Point:
         d = len(self)
         return Point(self.x/d, self.y/d)
 
-
     def __str__(self):
         return f"({self.x},{self.y})"
     
@@ -86,5 +86,8 @@ class Point:
     # get back values in original tuple format
     def get(self):
         return (self.x, self.y)
+    
+    def clone(self):
+        return Point(self.x, self.y)
     
     

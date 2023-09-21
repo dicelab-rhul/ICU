@@ -5,7 +5,7 @@ from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
 from ..draw import draw_rectangle
 from ..constants import *
 from ..widget import Widget, property_event, cosmetic_options, gettable_properties, settable_properties
-from ..utils import Point
+from ..utils.math import Point
 
 class WarningLight(Widget):
 
@@ -32,6 +32,7 @@ class WarningLight(Widget):
         p, s = self.canvas_bounds
         draw_rectangle(window, position = p, size = s, color = self._colors[self.state], fill=True)
         draw_rectangle(window, position = p, size = s, color = COLOR_BLACK, line_width=LINE_WIDTH)
+        super().draw(window)
 
     def on_mouse_click(self, event):
         rel = self.state - (1-self.state)
@@ -116,6 +117,7 @@ class SliderBox(Widget):
         color = self.parent.box_color_goal if self.state == self.goal_state else self.parent.box_color_fail
         p = (p[0], p[1] - 1) # avoids glitches
         draw_rectangle(window, position = p, size = s, color = color, fill=True)
+        super().draw(window)
 
     def on_mouse_click(self, event):
         self.parent.on_mouse_click(event) # delegate the event trigger to the parent...
@@ -193,9 +195,8 @@ class Slider(Widget):
         p, s = self.canvas_bounds
         draw_rectangle(window, position = p, size = s, color=self.background_color, fill=True)
     
-        # draw clickable rect
-        for child in self.children.values():
-            child.draw(window)
+        # draw clickable rect (draw all children)
+        super().draw(window)
 
         inc = s[1] / (self.steps)
         for i in range(1, self.steps + 1):
@@ -220,15 +221,17 @@ class SystemTask(Widget):
     # TODO this could be much more sophisticated... have options specified on each constructor of child widget? 
     # rather than ever passing these options directly, they should be updated via the event system!
    
-    def __init__(self, 
-                window):
+    def __init__(self):
         super().__init__(SYSTEMTASK, clickable=False)
-        self.window = window
         self.add_child(WarningLight1())
         self.add_child(WarningLight2())
         for i in range(NUM_SLIDERS):
             self.add_child(Slider(i + 1))
 
+    @property
+    def window(self):
+        return self.parent.window
+    
     @property
     def canvas_position(self): # top level widget...
         return self.position[0], self.position[1]
@@ -241,8 +244,8 @@ class SystemTask(Widget):
     def padding(self, value):
         self._padding = value 
 
-    def update(self):
-        # draw widget background
-        draw_rectangle(self.window, position = self.position, size = self.size, color=self.background_color, fill=True)
-        for widget in self.children.values():
-            widget.draw(self.window) # TODO what if position changes?
+    def draw(self, window):
+        draw_rectangle(window, position = self.position, size = self.size, color=self.background_color, fill=True)
+        super().draw(window)
+    
+   

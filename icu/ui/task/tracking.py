@@ -2,7 +2,7 @@
 from ..widget import Widget, cosmetic_options, property_event, gettable_properties, settable_properties, in_bounds
 from ..constants import *
 from ..draw import draw_rectangle, draw_line, draw_dashed_line, draw_circle
-from ..commands import *
+from ..commands import UI_INPUT_KEYDOWN, UI_INPUT_KEYUP
 from ..utils import Point
 
 import pygame
@@ -85,8 +85,7 @@ class TrackingTask(Widget):
     @settable_properties("target_speed", 
                         "event_frequency",
                         "failure_boundary_proportion")
-    def __init__(self, 
-                window,
+    def __init__(self,
                 failure_boundary_proportion = 1/4, 
                 target_speed = 10,       # pixels per second
                 event_frequency = 30     # events per second
@@ -99,12 +98,11 @@ class TrackingTask(Widget):
             target_speed (int, optional): _description_. Defaults to 10.
         """
         super().__init__(TRACKINGTASK, clickable=False)
-        self.window = window
         self.add_child(Target((self.size[0] / 2, self.size[1] / 2)))
 
         # subscribe to keyboard input
-        self.subscriptions.append(PYGAME_INPUT_KEYUP)
-        self.subscriptions.append(PYGAME_INPUT_KEYDOWN)
+        self.subscriptions.append(UI_INPUT_KEYUP)
+        self.subscriptions.append(UI_INPUT_KEYDOWN)
 
         # how far from the center can the target go?
         self._failure_boundary_proportion = failure_boundary_proportion
@@ -182,9 +180,9 @@ class TrackingTask(Widget):
             self._target_direction[0] -= 1
 
     def sink(self, event):
-        if event.type == PYGAME_INPUT_KEYUP:
+        if event.type == UI_INPUT_KEYUP:
             self.on_key_up(event) 
-        elif event.type == PYGAME_INPUT_KEYDOWN:
+        elif event.type == UI_INPUT_KEYDOWN:
             self.on_key_down(event) 
         super().sink(event)
 
@@ -208,13 +206,13 @@ class TrackingTask(Widget):
             d = self._target_direction.normalised()
             self.target.position = (p[0] + self.target_speed * dif * d[0], p[1] +  self.target_speed * dif * d[1])
 
-    def update(self):
+    def draw(self, window):
         # update target position if keys are pressed.
         self.user_control_target() 
 
         # draw widget background
         pos, size = self.canvas_bounds
-        draw_rectangle(self.window, position = pos, size = size, color=self.background_color, fill=True)
+        draw_rectangle(window, position = pos, size = size, color=self.background_color, fill=True)
         # draw lines
         size = size[0]
         line_color = self.line_color     
@@ -226,30 +224,30 @@ class TrackingTask(Widget):
         tgp = lambda x, y : (x + pos[0], y + pos[1]) # convert to canvas coordinate system
 
         # # draw border lines
-        draw_line(self.window, start_position= tgp(0, edge),               end_position=tgp(line_size, edge),                  color=line_color, width=line_width)
-        draw_line(self.window, start_position= tgp(edge, 0),               end_position=tgp(edge, line_size),                  color=line_color, width=line_width)
-        draw_line(self.window, start_position= tgp(0, size-edge2),         end_position=tgp(line_size, size-edge2),            color=line_color, width=line_width)
-        draw_line(self.window, start_position= tgp(edge, size-1),          end_position=tgp(edge, size-line_size-1),           color=line_color, width=line_width)
-        draw_line(self.window, start_position= tgp(size-edge2, size-edge2),end_position=tgp(size-line_size-edge2, size-edge2), color=line_color, width=line_width)
-        draw_line(self.window, start_position= tgp(size-edge2, size-1),    end_position=tgp(size-edge2, size-line_size-1),     color=line_color, width=line_width)
-        draw_line(self.window, start_position= tgp(size-edge2, edge),      end_position=tgp(size-line_size-edge2, edge),       color=line_color, width=line_width)  
-        draw_line(self.window, start_position= tgp(size-edge2, 0),         end_position=tgp(size-edge2, line_size),            color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(0, edge),               end_position=tgp(line_size, edge),                  color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(edge, 0),               end_position=tgp(edge, line_size),                  color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(0, size-edge2),         end_position=tgp(line_size, size-edge2),            color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(edge, size-1),          end_position=tgp(edge, size-line_size-1),           color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(size-edge2, size-edge2),end_position=tgp(size-line_size-edge2, size-edge2), color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(size-edge2, size-1),    end_position=tgp(size-edge2, size-line_size-1),     color=line_color, width=line_width)
+        draw_line(window, start_position= tgp(size-edge2, edge),      end_position=tgp(size-line_size-edge2, edge),       color=line_color, width=line_width)  
+        draw_line(window, start_position= tgp(size-edge2, 0),         end_position=tgp(size-edge2, line_size),            color=line_color, width=line_width)
 
         # # #main middle lines
-        draw_line(self.window, start_position= tgp( size/2,                  0,                  ), end_position=tgp(  size/2,                 size-1,             ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( 0,                       size/2,             ), end_position=tgp(  size-1,                 size/2,             ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size/2 - line_size,      edge,               ), end_position=tgp(  size/2 + line_size,     edge,               ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size/2 - line_size,      size-edge2,         ), end_position=tgp(  size/2 + line_size,     size-edge2,         ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( edge,                    size/2-line_size,   ), end_position=tgp(  edge,                   size/2+line_size,   ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size-edge2,               size/2-line_size,  ), end_position=tgp(  size-edge2,             size/2+line_size,   ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size/2 - line_size/2,    edge + size/8,      ), end_position=tgp(  size/2 + line_size/2,   edge + size/8,      ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size/2 - line_size,      edge + 2*size/8,    ), end_position=tgp(  size/2 + line_size,     edge + 2*size/8,    ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size/2 - line_size,      -edge + 6*size/8,   ), end_position=tgp(  size/2 + line_size,     -edge + 6*size/8,   ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( size/2 - line_size/2,    -edge + 7*size/8,    ), end_position=tgp( size/2 + line_size/2,   -edge + 7*size/8,    ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( edge + size/8,           size/2 + line_size/2,), end_position=tgp( edge + size/8,          size/2 - line_size/2,), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( edge + 2*size/8,         size/2 + line_size,  ), end_position=tgp( edge + 2*size/8,        size/2 - line_size,  ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( -edge + 6*size/8,        size/2 + line_size,  ), end_position=tgp( -edge + 6*size/8,       size/2 - line_size,  ), color=line_color, width=line_width )
-        draw_line(self.window, start_position= tgp( -edge + 7*size/8,        size/2 + line_size/2,), end_position=tgp( -edge + 7*size/8,       size/2 - line_size/2,), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2,                  0,                  ), end_position=tgp(  size/2,                 size-1,             ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( 0,                       size/2,             ), end_position=tgp(  size-1,                 size/2,             ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2 - line_size,      edge,               ), end_position=tgp(  size/2 + line_size,     edge,               ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2 - line_size,      size-edge2,         ), end_position=tgp(  size/2 + line_size,     size-edge2,         ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( edge,                    size/2-line_size,   ), end_position=tgp(  edge,                   size/2+line_size,   ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size-edge2,               size/2-line_size,  ), end_position=tgp(  size-edge2,             size/2+line_size,   ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2 - line_size/2,    edge + size/8,      ), end_position=tgp(  size/2 + line_size/2,   edge + size/8,      ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2 - line_size,      edge + 2*size/8,    ), end_position=tgp(  size/2 + line_size,     edge + 2*size/8,    ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2 - line_size,      -edge + 6*size/8,   ), end_position=tgp(  size/2 + line_size,     -edge + 6*size/8,   ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( size/2 - line_size/2,    -edge + 7*size/8,    ), end_position=tgp( size/2 + line_size/2,   -edge + 7*size/8,    ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( edge + size/8,           size/2 + line_size/2,), end_position=tgp( edge + size/8,          size/2 - line_size/2,), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( edge + 2*size/8,         size/2 + line_size,  ), end_position=tgp( edge + 2*size/8,        size/2 - line_size,  ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( -edge + 6*size/8,        size/2 + line_size,  ), end_position=tgp( -edge + 6*size/8,       size/2 - line_size,  ), color=line_color, width=line_width )
+        draw_line(window, start_position= tgp( -edge + 7*size/8,        size/2 + line_size/2,), end_position=tgp( -edge + 7*size/8,       size/2 - line_size/2,), color=line_color, width=line_width )
 
         # # draw the central box that defines the failure boundary
         fb, fs = self.failure_boundary
@@ -257,10 +255,10 @@ class TrackingTask(Widget):
         p2 = fb + Point(fs[0], 0)
         p3 = fb + fs
         p4 = fb + Point(0, fs[1])
-        draw_dashed_line(self.window, start_position= tgp(*p1), end_position=tgp(*p2), color=line_color, width=line_width, dash_length=dash_length)
-        draw_dashed_line(self.window, start_position= tgp(*p2), end_position=tgp(*p3), color=line_color, width=line_width, dash_length=dash_length)
-        draw_dashed_line(self.window, start_position= tgp(*p3), end_position=tgp(*p4), color=line_color, width=line_width, dash_length=dash_length)
-        draw_dashed_line(self.window, start_position= tgp(*p4), end_position=tgp(*p1), color=line_color, width=line_width, dash_length=dash_length)
+        draw_dashed_line(window, start_position= tgp(*p1), end_position=tgp(*p2), color=line_color, width=line_width, dash_length=dash_length)
+        draw_dashed_line(window, start_position= tgp(*p2), end_position=tgp(*p3), color=line_color, width=line_width, dash_length=dash_length)
+        draw_dashed_line(window, start_position= tgp(*p3), end_position=tgp(*p4), color=line_color, width=line_width, dash_length=dash_length)
+        draw_dashed_line(window, start_position= tgp(*p4), end_position=tgp(*p1), color=line_color, width=line_width, dash_length=dash_length)
         
         
         # dont emit an event so use _line_color
@@ -269,8 +267,7 @@ class TrackingTask(Widget):
         else:
             self.target._line_color = self.goal_color
 
-        for widget in self.children.values():
-            widget.draw(self.window)
+        super().draw(window)
 
     @property
     def canvas_position(self): # top level widget...

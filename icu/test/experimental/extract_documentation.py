@@ -19,7 +19,7 @@ result = []
 type_P = "is_type(.*)\)"
 group_P = "Option\(\'(.*)\'"
 
-from icu.config.default import default_input, default_overlay, default_config, default_pump, default_scale, default_tracking, default_warning_light, default_target
+from icu.config.default_ui_config import default_input, default_overlay, default_config, default_pump, default_scale, default_tracking, default_warning_light, default_target
 
 DEFAULT_KEYS = {"scale": default_scale("<K>"), 
                 "warning_light": default_warning_light("<K>", "0/1"),

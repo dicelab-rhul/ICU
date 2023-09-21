@@ -7,4 +7,3 @@
 
 from .window import *
 from .run import start
-from ..config import DEFAULT_CONFIGURATION

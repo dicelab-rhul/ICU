@@ -6,7 +6,7 @@ from ...event2 import DELIMITER
 from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
 from ..draw import draw_rectangle, draw_line, draw_arrow
 from ..constants import *
-from ..widget import Widget, property_event, cosmetic_options, gettable_properties, settable_properties
+from ..widget import Widget, castPoint, property_event, cosmetic_options, gettable_properties, settable_properties
 from ..utils import Point
 
 from enum import Enum
@@ -281,25 +281,25 @@ class Pump(Widget):
         return Point(self.scale) * self.tank1.size[1] / 4
     
     def draw(self, window):
+        should, dif = self._should_transfer_fuel()
+        if should:
+            self.transfer(dif * self.flow_speed)
+
         draw_rectangle(window, position = self.canvas_position, size = self.size, color=self._colors[self.state.value], fill=True)
         draw_rectangle(window, position = self.canvas_position, size = self.size, color=self.line_color, line_width = self.parent.line_width)
         # draw arrow
         angle = self.tank1._get_pump_arrow_angle(self.tank2)
         draw_arrow(window, start_position = self.canvas_position + self.size/2, length=self.size[0] / 4, 
                    color=self.arrow_color, angle=angle, head_only=True, fill_head=self.arrow_fill_head, head_length=self.size[0] / 2)
-        
+        super().draw(window)
+
     def on_mouse_click(self, event):
         if self.state == PumpState.OFF:
             self.state = PumpState.ON
             self._last_event_time = time.time()
         elif self.state == PumpState.ON:
             self.state = PumpState.OFF
-
-    def update(self):
-        should, dif = self._should_transfer_fuel()
-        if should:
-            self.transfer(dif * self.flow_speed)
-            
+ 
     def transfer(self, amount):
         f1 = self.tank1.fuel_level
         f2 = self.tank2.fuel_level
@@ -327,17 +327,15 @@ class Pump(Widget):
 @cosmetic_options(
     position = Point(50,50),
     size = Point(780, 480),
-    padding = (1.5*PADDING, PADDING),
+    padding = Point(1.5*PADDING, PADDING),
     background_color = COLOR_GREY,
     line_color = COLOR_BLACK,
     line_width = LINE_WIDTH,
 )
 class FuelTask(Widget): 
 
-    def __init__(self, window, event_frequency=30):
+    def __init__(self, event_frequency=30):
         super().__init__(FUELTASK, clickable=False)
-        self.window = window
-
         self._wings = [FuelWing(1), FuelWing(2)]
 
         self.add_child(self._wings[0])
@@ -364,14 +362,9 @@ class FuelTask(Widget):
         self._wings[1].add_child(Pump(right2, main2, PUMP_FLOW_SPEED))
         self._wings[1].add_child(Pump(right2, left2, PUMP_FLOW_SPEED))
 
-
-        for child in self.children.values():
-            for c in child.children.values():
-                print(c.address)
-
         # used to control the speed of fuel flow
         self._event_frequency = event_frequency
-
+    
     @property_event
     def event_frequency(self):
         return self._event_frequency
@@ -394,34 +387,36 @@ class FuelTask(Widget):
     def padding(self):
         return self.size * self._padding
 
+    
     @padding.setter
+    @castPoint
     def padding(self, value):
-        self._padding = value 
+        assert isinstance(value, Point)
+        self._padding = value
 
-    def _draw_wing_connecting_lines(self, wing):
+    def _draw_wing_connecting_lines(self, window, wing):
         main, left, right = wing.fuel_tanks
         tl = Point(left.canvas_position[0] + left.size[0]/2, main.canvas_position[1] + main.size[1] * 3/4)
         br = right.canvas_position + right.size / 2
         size = br - tl
-        draw_rectangle(self.window, position = tl, size = size, line_width = self.line_width, color = self.line_color)
+        draw_rectangle(window, position = tl, size = size, line_width = self.line_width, color = self.line_color)
         return main
 
-    def update(self):
+    def draw(self, window):
         # draw widget background
-        draw_rectangle(self.window, position = self.position, size = self.size, color=self.background_color, fill=True)
+        draw_rectangle(window, position = self.position, size = self.size, color=self.background_color, fill=True)
         
         # TODO this should probably be done in Wing?
         # draw connecting lines
-        main1 = self._draw_wing_connecting_lines(self._wings[0])
-        main2 = self._draw_wing_connecting_lines(self._wings[1])
+        main1 = self._draw_wing_connecting_lines(window, self._wings[0])
+        main2 = self._draw_wing_connecting_lines(window, self._wings[1])
         s1, e1  = main1.get_connecting_line(main2)
         s2, e2  = main2.get_connecting_line(main1)
-        draw_line(self.window, start_position = s1, end_position = e1, width = self.line_width, color=self.line_color)
-        draw_line(self.window, start_position = s2, end_position = e2, width = self.line_width, color=self.line_color)
+        draw_line(window, start_position = s1, end_position = e1, width = self.line_width, color=self.line_color)
+        draw_line(window, start_position = s2, end_position = e2, width = self.line_width, color=self.line_color)
 
         for widget in self.children.values():
-            widget.update()
-            widget.draw(self.window)
+            widget.draw(window)
             
 
 

@@ -2,11 +2,28 @@
 from collections import deque
 from typing import Any
 from ..event2 import SinkBase, SourceBase, Event, DELIMITER
-from .commands import MOUSECLICK, MOUSEUP, PYGAME_INPUT_MOUSEDOWN, PYGAME_INPUT_MOUSEUP, COSMETIC, SET_PROPERTY, GET_PROPERTY, SET_RESPONSE, GET_RESPONSE, CHANGED
+from .commands import SET_PROPERTY, GET_PROPERTY, SET_RESPONSE, GET_RESPONSE, CHANGED, UI_INPUT_MOUSEDOWN, UI_INPUT_MOUSEUP
 from .constants import * # colours
 
-from .utils import Point
+from .utils.math import Point
   
+def castPoint(func):
+    # print("cast point", func)
+    def asPoint(self, value) :
+        if isinstance(value, (int, float)):
+            func(self, Point(value, value));
+        elif isinstance(value, (tuple, list)):
+            assert len(value) == 2
+            func(self, Point(value[0], value[1]))
+        elif isinstance(value, Point):
+            func(self, value)
+        else:
+            raise ValueError(f"Invalid value for property padding: {value} in {self}")
+    return asPoint
+
+CASTING_OPTIONS = {Point : castPoint}
+
+
 def cosmetic_options(**options):
     def decorator(cls):
         original_init = cls.__init__
@@ -22,10 +39,18 @@ def cosmetic_options(**options):
                 setattr(self, backing, value)
             return original_init(self, *args, **kwargs)
         # set properties for the class
-        for option, _ in options.items():
+        for option, ivalue in options.items():
+            option_type = type(ivalue)
+
             backing = "_" + option
             if not hasattr(cls, option): # its already been set, leave this up to the class :)
-                pe = property_event(lambda self, backing=backing: getattr(self, backing), lambda self, v, backing=backing: setattr(self, backing, v))
+                getter = lambda self, backing=backing: getattr(self, backing)
+                setter = lambda self, value, backing=backing: setattr(self, backing, value)
+                # ensure that set values are cast to the correct type
+                # print(option_type, option_type in CASTING_OPTIONS)
+                if option_type in CASTING_OPTIONS:
+                    setter = CASTING_OPTIONS[option_type](setter)
+                pe = property_event(getter, setter)
                 pe.fset.__name__, pe.fget.__name__, = option, option
                 setattr(cls, option, pe)
         cls.__init__ = _cosmetic_init_
@@ -73,15 +98,14 @@ class Widget(SourceBase, SinkBase):
     @settable_properties()
     def __init__(self, name, clickable=False):
         super().__init__()
-        assert not name in ["INPUT", "WINDOW"] # these are reserved names in the event system!
         self._parent = None # set by adding this as a child
         self.name = name
         self.children = dict() 
         self.clickable = clickable
         self.subscriptions = []
         if clickable:
-            self.subscriptions.append(PYGAME_INPUT_MOUSEDOWN)
-            self.subscriptions.append(PYGAME_INPUT_MOUSEUP)
+            self.subscriptions.append(UI_INPUT_MOUSEDOWN)
+            self.subscriptions.append(UI_INPUT_MOUSEUP)
         
         self._prepare_click = False
         self._source_buffer = deque() 
@@ -108,9 +132,11 @@ class Widget(SourceBase, SinkBase):
            
     @property
     def address(self): # event system address for this widget
-        parent = self.parent.address if self.parent is not None else "UI" # TODO perhaps instead have a single main parent called "UI" and None -> ""
-        return f"{parent}::{self.name}"
-
+        if self.parent is not None:
+            return f"{self.parent.address}::{self.name}"            
+        else:
+            return self.name
+           
     @property
     def parent(self):
         return self._parent
@@ -129,17 +155,10 @@ class Widget(SourceBase, SinkBase):
     def get_events(self):
         while len(self._source_buffer) > 0:
             yield self._source_buffer.popleft()
-
-    def update(self):
-        raise NotImplementedError()
     
     def draw(self, window):
         for widget in self.children.values():
             widget.draw(window)
-
-    def update(self):
-        for widget in self.children.values():
-            widget.update()
 
     def sink(self, event):
         event_type = event.type.split(DELIMITER)
@@ -155,10 +174,10 @@ class Widget(SourceBase, SinkBase):
                 self.on_get_property(event) 
 
         elif self.clickable:
-            if event.type == PYGAME_INPUT_MOUSEDOWN and self.in_bounds((event.data['x'], event.data['y'])):
+            if event.type == UI_INPUT_MOUSEDOWN and self.in_bounds((event.data['x'], event.data['y'])):
                 self._prepare_click = True
                 return self.on_mouse_down(event) 
-            elif event.type == PYGAME_INPUT_MOUSEUP and self.in_bounds((event.data['x'], event.data['y'])):
+            elif event.type == UI_INPUT_MOUSEUP and self.in_bounds((event.data['x'], event.data['y'])):
                 if self._prepare_click:  # there was a click on this widget
                     self._prepare_click = False
                     self.on_mouse_click(event)

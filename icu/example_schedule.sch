@@ -1,16 +1,28 @@
 
 
+
+# Initial window setup
+
+# Set the size of the window on this device
+#"ICU::WINDOW::SET_PROPERTY", { "response" : False, "set" : { "size" : (780 + 480/2, 480 + 640/2) } }, [2]
+#"ICU::WINDOW::SET_PROPERTY", { "response" : False, "set" : { "size" : (200,200) } }, [2]
+#"ICU::WINDOW::SET_PROPERTY", { "response" : False, "set" : { "position" : (0,0) } }, [2]
+
+
+
+# Set the size and position of each task
+"ICU::SYSTEMTASK::SET_PROPERTY", { "set" : { "size" : (480/2,640/2) }}, [0]
+"ICU::TRACKINGTASK::SET_PROPERTY", { "set" : { "size" : (640/2,640/2) }}, [0]
+"ICU::FUELTASK::SET_PROPERTY", { "set" : { "size" : (780,480), "position" : (0,640/2)}}, [0]
+
 # example of setting initial properties (multi-line requires a `\`)
 "ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "set" : {  \
                                                 "scale" : (1,1), \
                                                 "position" : (100,100) } \ 
                                             }, [0]
 
-
-
 # Schedule for the tracking task that will make the target move around
-# "ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "response" : False, "set" : { "+position" : ("!uniform(-5,5)", "!uniform(-5,5)") }}, [[0.1]]
-
+"ICU::TRACKINGTASK::TARGET::SET_PROPERTY", { "response" : False, "set" : { "+position" : ("!uniform(-5,5)", "!uniform(-5,5)") }}, [[0.1]]
 
 # Schedule for the fuel task that will cause failure in the pumps, fails for 2-4 seconds, then waits for 
 "ICU::FUELTASK::PUMPAD::SET_PROPERTY", { "response" : False, "set" : { "+fail" : 1 }}, [[6, "!uniform(2,4)"]]
@@ -25,25 +37,13 @@
 
 # Schedule for the fuel task that will refuel and deplete tanks
 
-# deplete
+# deplete fuel over time
 "ICU::FUELTASK::FUELTANKA::SET_PROPERTY", { "response" : False, "set" : { "-fuel_level" : 5 }}, [[0.5], 10, [0.1]]
 "ICU::FUELTASK::FUELTANKD::SET_PROPERTY", { "response" : False, "set" : { "-fuel_level" : 5 }}, [[0.1]]
 
-# refuel
-# [[*([0.1]*10), 2]] results in a list [0.1,0.1,...,0.1, 2] (ten 0.1s), TODO a better way? e.g. [[0.1],10,[2],1]
-
+# add fuel over time
 "ICU::FUELTASK::FUELTANKC::SET_PROPERTY", { "response" : False, "set" : { "+fuel_level" : 5 }}, [[*([0.1]*10), 2]] 
 "ICU::FUELTASK::FUELTANKF::SET_PROPERTY", { "response" : False, "set" : { "+fuel_level" : 5 }}, [[0.1]]
-
-# reminder addresses of fuel widgets
-# ICU::FUELTASK::FUELTANKA
-# ICU::FUELTASK::FUELTANKB
-# ICU::FUELTASK::FUELTANKC
-# ICU::FUELTASK::FUELTANKD
-# ICU::FUELTASK::FUELTANKE
-# ICU::FUELTASK::FUELTANKF
-
-
 
 # Schedule for the WARNINGLIGHT1 
 "ICU::SYSTEMTASK::WARNINGLIGHT1::SET_PROPERTY", { "response" : False, "set" : {"+state" : 1 }}, [[1]]

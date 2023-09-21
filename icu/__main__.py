@@ -9,7 +9,6 @@ from .ui import start
 from .event2 import load_schedule, EventSystem, SourceLocal, SinkLocal, SourceRemote, SinkRemote
 from .event2.utils import ConditionalTimer
 
-from .config import DEFAULT_CONFIGURATION
 from .logging import EventLogger
 
 import asyncio
@@ -27,7 +26,7 @@ def start_ui(event_system):
     ui_remote_sink = SinkRemote()
     ui_remote_sink.subscribe("ICU::*")
     event_system.add_sink(ui_remote_sink)
-    ui_process = start(ui_remote_source, ui_remote_sink, DEFAULT_CONFIGURATION) # TODO we dont want to provide the full default configuration!?
+    ui_process = start(ui_remote_source, ui_remote_sink) # TODO we dont want to provide the full default configuration!?
     # wait for the ui_process to finish setup before starting the event system
     return ui_process
 
@@ -53,8 +52,6 @@ def start_local_source(event_system):
     event_system.add_source(icu_event_source)
     return icu_event_source
 
-
-
 async def main(cmdargs):
 
     event_system = EventSystem()
@@ -77,11 +74,8 @@ if __name__ == "__main__":
     parser.add_argument("--logpath", help="Location for the event log file. This may be overriden by the --logfile option.", default=DEFAULT_LOGPATH)
     parser.add_argument("--log", help="Path to the event log file. If specified this will override the --logpath option.", default=None)
     parser.add_argument("--config", help="Path to the config file.", default=DEFAULT_CONFIG)
-    
     args = parser.parse_args()
-
-    print(args)
-
+    #print(args)
     asyncio.run(main(args))
 
 

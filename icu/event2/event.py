@@ -201,8 +201,8 @@ class EventSystem:
             try:
                 for event in source.get_events():
                     self._events.add(event.type, event)
-            except TypeError:
-                print(source) # TODO
+            except TypeError as e:
+                print(source, e) # TODO
                 raise EventSystemError("")
 
     def publish(self):
