@@ -9,7 +9,7 @@ import re
 from ast import parse, Expression, Constant, Tuple, List, Set, Call, Name, Dict, BinOp, UnaryOp, UAdd, USub, Add, Sub
 
 from ..event2 import Event
-from ..exception import ConfigurationError
+from .exception import ConfigurationError
 
 from .distribution import get_distribution_cls
 
@@ -28,11 +28,9 @@ def read_configpy_file(file_path):
 
 def load_config_file(file):
     file = pathlib.Path(file).expanduser().resolve().absolute()
-
     with open(str(file, 'r')) as yfile:
         data = yaml.safe_load(yfile)
 
-        
 def literal_eval_with_ops(node_or_string):
     """
     Safely evaluate an expression node or a string containing a Python

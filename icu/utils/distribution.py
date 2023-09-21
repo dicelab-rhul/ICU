@@ -8,7 +8,7 @@ __status__ = "Development"
 import ast
 
 import random
-from ..exception  import ConfigurationError
+from .exception  import ConfigurationError
 
 def get_distribution_cls(name):
     names = {k.__name__.lower():k for k in Distribution.__subclasses__()} # get all of the distribution sub-classes that have been defined

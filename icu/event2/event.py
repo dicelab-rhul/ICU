@@ -11,7 +11,7 @@ from typing import Dict, Set
 import uuid
 
 from .dict.eventdict import EventDict
-from ..exception import EventSystemError
+from ..utils.exception import EventSystemError
 
 @dataclass(frozen=True)
 class Event:

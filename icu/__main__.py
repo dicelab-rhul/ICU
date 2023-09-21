@@ -1,13 +1,7 @@
-
-import time
-import math
 import argparse
-from datetime import datetime
-import random
 
 from .ui import start
 from .event2 import load_schedule, EventSystem, SourceLocal, SinkLocal, SourceRemote, SinkRemote
-from .event2.utils import ConditionalTimer
 
 from .logging import EventLogger
 

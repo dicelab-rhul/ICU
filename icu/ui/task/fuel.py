@@ -7,7 +7,7 @@ from ..commands import INPUT_MOUSEDOWN, INPUT_MOUSEUP, INPUT_MOUSECLICK
 from ..draw import draw_rectangle, draw_line, draw_arrow
 from ..constants import *
 from ..widget import Widget, castPoint, property_event, cosmetic_options, gettable_properties, settable_properties
-from ..utils import Point
+from ..utils.math import Point
 
 from enum import Enum
 import time

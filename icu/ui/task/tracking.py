@@ -3,7 +3,7 @@ from ..widget import Widget, cosmetic_options, property_event, gettable_properti
 from ..constants import *
 from ..draw import draw_rectangle, draw_line, draw_dashed_line, draw_circle
 from ..commands import UI_INPUT_KEYDOWN, UI_INPUT_KEYUP
-from ..utils import Point
+from ..utils.math import Point
 
 import pygame
 import math

@@ -7,9 +7,9 @@ import re
 from typing import Union
 from dataclasses import dataclass
 
-from ..exception import ConfigurationError
-from ..config.distribution import get_distribution_cls
-from ..config.utils import literal_eval_with_ops
+from ..utils.exception import ConfigurationError
+from ..utils.distribution import get_distribution_cls
+from ..utils.config import literal_eval_with_ops
 
 
 __all__ = ("load_schedule",)
@@ -120,30 +120,7 @@ class Schedule:
             schedules = [Schedule(Collection(schedule[i]), _get_function(schedule[i+1]), event_type, data) for i in range(0, len(schedule), 2)]            
             return RepeatedSchedule(schedules)
 
-    # TODO remove old parser
-    # def parse_schedule2(schedule, event_type : Const, data : Map):
-    #     if len(schedule) == 0:
-    #         raise ConfigurationError(f"Invalid schedule {schedule} cannot be empty.")
-    #     elif len(schedule) == 1: 
-    #         if isinstance(schedule[0], (int, float, str)): # schedule once
-    #             return Schedule(Collection([schedule[0]]), Const(1), event_type, data) 
-    #         elif isinstance(schedule[0], (list, tuple)): # repeat forever task
-    #             return Schedule (Collection(schedule[0]), Const(None), event_type, data)
-    #         else:
-    #             raise ConfigurationError(f"Invalid schedule {schedule}")
-    #     elif len(schedule) == 2:
-    #         if isinstance(schedule[0], (int, float, str)): # schedule once
-    #             return Schedule(Collection(schedule), Const(1), event_type, data) 
-    #         elif isinstance(schedule[0], (list, tuple)): # schedule multiple
-    #             sch, repeat = schedule
-    #             return Schedule(Collection(sch), _get_function(repeat), event_type, data)
-    #     else:
-    #         return Schedule(Collection(schedule), Const(1), event_type, data) # schedule once
-    #     # unreachable? 
-    #     raise ConfigurationError(f"Invalid schedule {schedule}, must be of the form [*interval], or [[*intervals], ?repeat]. See documentation for further details.")
-
-
-def load_schedule(file): # TODO each element is contained in a line... what about multi-line? 
+def load_schedule(file):
     file = pathlib.Path(file).expanduser().resolve().absolute()
 
     def get_schedule(line):
