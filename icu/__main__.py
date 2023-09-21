@@ -1,3 +1,8 @@
+""" 
+Entry point for ICU. Run with `python -m icu` after installation. 
+TODO see documentation for installation instructions. 
+"""
+
 import argparse
 
 from .ui import start
@@ -34,7 +39,10 @@ async def run(event_system):
     event_system.close()
     ui_process.join()
 
-def start_logger(event_system,logpath, logfile):
+# TODO there is also a logger in icu.logging. but perhaps this is better. 
+# This logger should be made global to expose logging methods like info, 
+# warning and error in the icu.logging module.
+def start_logger(event_system, logpath, logfile):
     logger = EventLogger(path=logpath, file=logfile)
     logger.subscribe("*")
     event_system.add_sink(logger)
@@ -52,6 +60,7 @@ async def main(cmdargs):
     logger = start_logger(event_system, cmdargs.logpath, cmdargs.log)
     source = start_local_source(event_system)
 
+    # TODO remove - this is just for debugging purposes
     printer = SinkLocal(print)
     printer.subscribe("UI::*")
     #event_system.add_sink(printer)
@@ -69,16 +78,4 @@ if __name__ == "__main__":
     parser.add_argument("--log", help="Path to the event log file. If specified this will override the --logpath option.", default=None)
     parser.add_argument("--config", help="Path to the config file.", default=DEFAULT_CONFIG)
     args = parser.parse_args()
-    #print(args)
     asyncio.run(main(args))
-
-
-
-# @scheduler.after(2)
-# async def delayed_task():
-#     source.source("DELAYED", data=dict(a=1))
-#  @scheduler.every(1)
-#     async def periodic_task():
-#         source.source("ICU::SYSTEMTASK::WARNINGLIGHT2::SET_PROPERTY", data=dict(state=random.randint(0,1)))
-# asyncio.create_task(delayed_task())
-# asyncio.create_task(periodic_task())

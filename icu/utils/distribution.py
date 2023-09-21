@@ -1,11 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+""" Utility module that defines different kinds of distributions that may be used in schedule files. 
+
+For example:
+```
+    "!uniform(-5,5)"
+```
+The `!` is required to let the schedule parse know that this is not a `str` type. 
+See scheduling documentation for further details. 
 """
-"""
-__author__ = "Benedict Wilkins"
-__email__ = "benrjw@gmail.com"
-__status__ = "Development"
-import ast
 
 import random
 from .exception  import ConfigurationError

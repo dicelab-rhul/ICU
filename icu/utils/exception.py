@@ -1,3 +1,5 @@
+""" This module defines `Exception` subclasses. """
+
 class EventSystemError(Exception):
     pass
 

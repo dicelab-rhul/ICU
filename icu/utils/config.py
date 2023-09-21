@@ -1,17 +1,16 @@
+""" This module can read basic configuration files that contain collections of literal python 
+assigments such as: 
+    ```
+    DEFAULT_WINDOW_SIZE = (100,100)
+    DEFAULT_WINDOW_POSITION = (0,0)
+    ```
+    
+    It also defines some useful parsing methods for schedule parsing.
+"""
+
 
 import ast
-from dataclasses import dataclass
-import pathlib
-from typing import Union
-import yaml
-import re
-
 from ast import parse, Expression, Constant, Tuple, List, Set, Call, Name, Dict, BinOp, UnaryOp, UAdd, USub, Add, Sub
-
-from ..event2 import Event
-from .exception import ConfigurationError
-
-from .distribution import get_distribution_cls
 
 def read_configpy_file(file_path):
     config_dict = {}
@@ -25,11 +24,6 @@ def read_configpy_file(file_path):
                         value = ast.literal_eval(node.value)
                         config_dict[key] = value
     return config_dict
-
-# def load_config_file(file):
-#     file = pathlib.Path(file).expanduser().resolve().absolute()
-#     with open(str(file), 'r') as yfile:
-#         data = yaml.safe_load(yfile)
 
 def literal_eval_with_ops(node_or_string):
     """

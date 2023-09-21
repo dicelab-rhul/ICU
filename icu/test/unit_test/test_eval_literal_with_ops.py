@@ -1,3 +1,7 @@
+""" Unit tests for the `icu.utils.config.literal_eval_with_ops` this function is 
+instrumental in parsing event schedules.
+"""
+
 import unittest
 
 from icu.utils.config import literal_eval_with_ops

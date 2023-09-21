@@ -1,0 +1,1 @@
+""" This module defines some useful utilities. """

@@ -242,20 +242,8 @@ class SourceRemote(SourceBase):
         while not self._buffer.empty():
             yield self._buffer.get()
 
-
-class EventScheduler:
-
-    def __init__(self, source):
-        self.source = source
-
-    def after(self, interval):  # calls source once after interval time has passed
-        pass
-
-    def every(self, frequency):  # calls source based on frequency
-        pass
-
-
 class EventSystem:
+    """ TODO docstrings for this class, its an important one! """
 
     def __init__(self):
         self.sinks: Set[SinkBase] = set()

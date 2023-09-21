@@ -1,27 +1,29 @@
-import time
+""" This module loads and processes schedule files (see `example_schedule.sch`). """
+
 import asyncio
 import pathlib
 import ast
 import re 
 
-from typing import Union
+from typing import Union, Optional
 from dataclasses import dataclass
 
 from ..utils.exception import ConfigurationError
 from ..utils.distribution import get_distribution_cls
 from ..utils.config import literal_eval_with_ops
 
-
 __all__ = ("load_schedule",)
 
 @dataclass()
 class Const:
-    value : Union[float, int, str]
+    """ Data class representing constant values in a schedule (built-in primitives int, float and str, None)"""
+    value : Optional[Union[float, int, str]]
     def __call__(self):
         return self.value
     
 @dataclass()
 class Collection:
+    """ Data class representing collection types in a schedule (built-in list, tuple)"""
     value : Union[list, tuple]
     def __init__(self, value : Union[list, tuple]):
         self.value = [_get_function(x) for x in value]
@@ -40,13 +42,14 @@ class Collection:
     
 @dataclass()
 class Map:
+    """ Data class representing dictionary types in a schedule (built-in dict)"""
     value : dict
     def __init__(self, value : dict):
         self.value = {k:_get_function(v) for k,v in value.items()}
     def __call__(self):
         return {k:v() for k,v in self.value.items()}
     
-# used to construct the above class and resolve any functions
+# used internally to construct the above classes and resolve any functions
 def _get_function(x):
     if isinstance(x, str) and x.startswith("!"):
         name, args = re.findall("!(\w+)(\(.*\))", x)[0]
@@ -65,6 +68,7 @@ def _get_function(x):
         raise ConfigurationError(f"Invalid data type: {type(x)} encountered while parsing schedule.")
 
 class RepeatedSchedule:
+    """ A type of schedule that will repeat one or more schedules."""
 
     def __init__(self, schedules):
         super().__init__()
@@ -121,6 +125,7 @@ class Schedule:
             return RepeatedSchedule(schedules)
 
 def load_schedule(file):
+    """ Load a schedule from a file. """
     file = pathlib.Path(file).expanduser().resolve().absolute()
 
     def get_schedule(line):
@@ -148,8 +153,6 @@ def load_schedule(file):
                 result.append(current_line)
                 current_line = ''
             
-        #for line in result:
-        #    print(line)
         return [get_schedule(line) for line in result]
 
 
