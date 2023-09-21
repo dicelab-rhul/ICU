@@ -38,6 +38,9 @@ class Window(Widget):
         super().__init__(name = "WINDOW")
         self._window_title = WINDOW_TITLE
         self._window, self._flags = new_pygame_window(self.position.get(), self.size.get(), title=self._window_title)
+        # pygame doesnt trigger a resize event when the window is created so
+        # trigger one manually to inform other widgets of the initial window size
+        self.size = self._size     
         self.subscriptions.append(ICU_WINDOW_SETPROPERTY)
         self.subscriptions.append(ICU_WINDOW_GETPROPERTY)
 

@@ -1,6 +1,6 @@
 import unittest
 
-from icu.config.utils import literal_eval_with_ops
+from icu.utils.config import literal_eval_with_ops
 
 class TestLiteralEvalWithOps(unittest.TestCase):
 

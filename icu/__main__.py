@@ -12,7 +12,7 @@ DEFAULT_CONFIG = "./config.yaml"
 DEFAULT_WAIT = 0.01 # simulation speed...
 
 def start_ui(event_system):
-     # this is a remote source that will receive UI events from the UI 
+    # this is a remote source that will receive UI events from the UI 
     ui_remote_source = SourceRemote()
     event_system.add_source(ui_remote_source)
     # this is a remote sink that will supply command events to the UI

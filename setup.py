@@ -21,10 +21,11 @@ setuptools.setup(name='icu',
       install_requires=[
           "pygame",   # for ui
           "pywinctl", # for cross-platform window control
+          "screeninfo", # for getting monitor size/resolution
       ],
-      python_requires='>=3.6',
+      python_requires='>=3.9',
       extras_require={
-        "tobii" : ["psychopy>=2021.2.0", "tobii-research==1.8.0"] # requires python 3.6!
+        "tobii" : ["tobii-research==1.11.0"] # requires python 3.6!
       },
 
       classifiers=[

@@ -3,33 +3,29 @@ from collections import deque
 import math
 
 
+
+
 class NWMAFilter: #Non-weighted moving average
 
     def __init__(self, n):
         super(NWMAFilter, self).__init__()
-        self.N = 2 * n + 1
-        self.C = 1. / self.N
+        self.N = n
         self.data_x = deque(maxlen=self.N)
         self.data_y = deque(maxlen=self.N)
-        self.data_t = deque(maxlen=self.N)
-      
-
-    def __call__(self, t, x, y):
+       
+    def __call__(self, x, y):
         self.data_x.append(x)
         self.data_y.append(y)
-        self.data_t.append(t)
+        x = sum(self.data_x) / len(self.data_x)
+        y = sum(self.data_y) / len(self.data_y)
+        return x, y
+    
+    def __str__(self) -> str:
+        return f"{NWMAFilter}(N = {self.N})"
 
-        #print(self.data_x)
-        #print(self.data_y)
-
-        if len(self.data_x) == self.data_x.maxlen:
-            #the buffer is full, the window is now full, compute the average
-            x = self.C * sum(self.data_x)
-            y = self.C * sum(self.data_y)
-            t = self.data_t[self.N//2]
-         
-            return dict(x=x, y=y, timestamp=t)
-
+    def __repr__(self) -> str:
+        return str(self)
+    
 class IVTFilter:
 
     def __init__(self, threshold):

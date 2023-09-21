@@ -1,4 +1,5 @@
 
+from .event_types import ICU_LOG
 from ..event2 import SinkLocal
 
 import pathlib
@@ -19,6 +20,8 @@ class EventLogger(SinkLocal):
         if file.exists():
             raise FileExistsError(f"Log file {file} already exists.")
         self._file = open(str(file), 'w')
+
+        self.subscribe(ICU_LOG + "::*")
 
     def __call__(self, event):
         self._file.write(str(event))

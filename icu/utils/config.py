@@ -26,10 +26,10 @@ def read_configpy_file(file_path):
                         config_dict[key] = value
     return config_dict
 
-def load_config_file(file):
-    file = pathlib.Path(file).expanduser().resolve().absolute()
-    with open(str(file, 'r')) as yfile:
-        data = yaml.safe_load(yfile)
+# def load_config_file(file):
+#     file = pathlib.Path(file).expanduser().resolve().absolute()
+#     with open(str(file), 'r') as yfile:
+#         data = yaml.safe_load(yfile)
 
 def literal_eval_with_ops(node_or_string):
     """
@@ -46,21 +46,6 @@ def literal_eval_with_ops(node_or_string):
         if lno := getattr(node, 'lineno', None):
             msg += f' on line {lno}'
         raise ValueError(msg + f': {node!r}')
-        
-    def _convert_num(node):
-        if isinstance(node, Constant) and type(node.value) in (int, float, complex):
-            return node.value
-        _raise_malformed_node(node)
-        
-    def _convert_signed_num(node):
-        if isinstance(node, UnaryOp) and isinstance(node.op, (UAdd, USub)):
-            operand = _convert(node.operand)
-            if isinstance(node.op, UAdd):
-                return + operand
-            else:
-                return - operand
-        else:
-            return _convert(node)
         
     def _convert(node):
         if isinstance(node, Constant):
