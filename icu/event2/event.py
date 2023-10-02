@@ -13,9 +13,9 @@ from ..utils.exception import EventSystemError
 
 @dataclass(frozen=True)
 class Event:
-    """ Class for events. """
-    id: str = field(
-        init=False, default_factory=lambda: f'{uuid.uuid4().int:>039d}')
+    """Class for events."""
+
+    id: str = field(init=False, default_factory=lambda: f"{uuid.uuid4().int:>039d}")
     timestamp: float = field(init=False, default_factory=time.time)
     type: str
     data: dict = field(default_factory=dict)
@@ -29,24 +29,26 @@ class Event:
         return hash(self.id)
 
     def __str__(self):
-        formatted_timestamp = f'{self.timestamp:.6f}'
-        return (f"Event(id={self.id}, timestamp={formatted_timestamp}, "
-                f"type='{self.type}', data={self.data})")
+        formatted_timestamp = f"{self.timestamp:.6f}"
+        return (
+            f"Event(id={self.id}, timestamp={formatted_timestamp}, "
+            f"type='{self.type}', data={self.data})"
+        )
 
 
 class SinkBase:
-    """ Base class for the `Sink` pattern. """
+    """Base class for the `Sink` pattern."""
 
     def __init__(self):
         super().__init__()
         self.id = str(uuid.uuid4().int)
 
     def close(self):
-        """ Closes this sink. """
+        """Closes this sink."""
         raise NotImplementedError()
 
     def sink(self, event: Event):
-        """ Sinks the given `event`. Any subclass should implement specific functionality 
+        """Sinks the given `event`. Any subclass should implement specific functionality
         to process the `event`.
 
         Args:
@@ -55,11 +57,11 @@ class SinkBase:
         raise NotImplementedError()
 
     def get_subscriptions(self):
-        """Getter for the event types that this `Sink` subscribes to. """
+        """Getter for the event types that this `Sink` subscribes to."""
         raise NotImplementedError()
 
     def subscribe(self, subscription):
-        """ Subscribe this `Sink` to receive certain event types. 
+        """Subscribe this `Sink` to receive certain event types.
 
         Args:
             subscription (str): event type to subscribe to.
@@ -67,13 +69,12 @@ class SinkBase:
         raise NotImplementedError()
 
     def unsubscribe(self, subscription):
-        """ Unsubscribe this `Sink` to no longer receive certain event types. 
+        """Unsubscribe this `Sink` to no longer receive certain event types.
 
         Args:
             subscription (str): event type to unsubscribe.
         """
         raise NotImplementedError()
-
 
     def __hash__(self):
         return hash(self.id)
@@ -85,14 +86,14 @@ class SinkBase:
 
 
 class SourceBase:
-    """ Base class for the `Source` pattern. """
+    """Base class for the `Source` pattern."""
 
     def __init__(self):
         super().__init__()
         self.id = str(uuid.uuid4().int)
 
     def source(self, event_type: str, data: Dict):
-        """ Produces (or buffers) a new event.
+        """Produces (or buffers) a new event.
 
         Args:
             event_type (str): type of the event.
@@ -101,12 +102,11 @@ class SourceBase:
         raise NotImplementedError()
 
     def close(self):
-        """ Closes this `Source`.
-        """
+        """Closes this `Source`."""
         raise NotImplementedError()
 
     def get_events(self):
-        """Getter for the events that this `Source` currently buffers (if any). 
+        """Getter for the events that this `Source` currently buffers (if any).
         This is called by the event system to obtain events that are to be sent around.
         """
         raise NotImplementedError()
@@ -121,10 +121,10 @@ class SourceBase:
 
 
 class SinkLocal(SinkBase):
-    """ A simple implementation of a `Sink` with am event callback."""
+    """A simple implementation of a `Sink` with am event callback."""
 
-    def __init__(self, callback : Callable):
-        """ Constructor for `SinkLocal`
+    def __init__(self, callback: Callable):
+        """Constructor for `SinkLocal`
 
         Args:
             callback (Callable): called when an event is received by this `Sink`.
@@ -146,14 +146,15 @@ class SinkLocal(SinkBase):
         return self._callback(event)
 
     def close(self):
-        """ This has no effect on a `LocalSink`. """
+        """This has no effect on a `LocalSink`."""
+
 
 class SinkRemote(SinkBase, SourceBase):
-    """ A implementation of a `Sink` that works with Pythons `multiprocess` package 
+    """A implementation of a `Sink` that works with Pythons `multiprocess` package
     acting as a bridge between two Python processes and their event systems.
-    A `SinkRemote` should be created in one process and treated as a `Sink`, it 
+    A `SinkRemote` should be created in one process and treated as a `Sink`, it
     should then be sent to another process and treated as a `Source`.
-    
+
     ```
         TODO code example.
     ```
@@ -166,7 +167,7 @@ class SinkRemote(SinkBase, SourceBase):
         self._buffer = Queue()
 
     def close(self):
-        list(self.get_events())         # clear the queue
+        list(self.get_events())  # clear the queue
         self._buffer.close()
         list(self.get_subscriptions())  # clear subscriptions
         self._subscription_queue.close()
@@ -199,20 +200,23 @@ class SinkRemote(SinkBase, SourceBase):
             yield event
 
     def source(self, event_type: str, data: Dict):
-        raise EventSystemError("Invalid use of `RemoteSink`: `source` should never be called.")
+        raise EventSystemError(
+            "Invalid use of `RemoteSink`: `source` should never be called."
+        )
+
 
 class SourceLocal(SourceBase):
-    """ A simple implementation of a `Source` which can be used locally to buffer 
+    """A simple implementation of a `Source` which can be used locally to buffer
     and provide events to an `EventSystem`.
     """
 
     def __init__(self):
-        """ Constructor. """
+        """Constructor."""
         super().__init__()
         self._buffer = deque()  # simplest kind of buffer...
 
     def close(self):
-        """ This has no effect on a `LocalSource`. """  
+        """This has no effect on a `LocalSource`."""
 
     def source(self, event_type, data):
         self._buffer.append(Event(event_type, data))
@@ -223,27 +227,31 @@ class SourceLocal(SourceBase):
 
 
 class SourceRemote(SourceBase):
-    """ TODO docstring - is this class even used? """
+    """TODO docstring - is this class even used?"""
+
     def __init__(self):
         super().__init__()
         self._buffer = Queue()  # simplest kind of buffer...
 
     def close(self):
-        list(self.get_events())         # clear the queue
+        list(self.get_events())  # clear the queue
         self._buffer.close()
 
     def source(self, event_type, data):
         self._buffer.put(Event(event_type, data))
 
-    def put(self, event):  # this is cheating a bit, but it is useful for forwarding events
+    def put(
+        self, event
+    ):  # this is cheating a bit, but it is useful for forwarding events
         self._buffer.put(event)
 
     def get_events(self):  # get any buffered events
         while not self._buffer.empty():
             yield self._buffer.get()
 
+
 class EventSystem:
-    """ TODO docstrings for this class, its an important one! """
+    """TODO docstrings for this class, its an important one!"""
 
     def __init__(self):
         self.sinks: Set[SinkBase] = set()
