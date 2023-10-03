@@ -20,7 +20,6 @@ from .logging import EventLogger
 import asyncio
 
 DEFAULT_LOGPATH = "./logs"
-DEFAULT_CONFIG = "./config.yaml"
 DEFAULT_WAIT = 0.01  # simulation speed...
 
 
@@ -51,12 +50,8 @@ async def run(event_system):
     ui_process.join()
 
 
-# TODO there is also a logger in icu.logging. but perhaps this is better.
-# This logger should be made global to expose logging methods like info,
-# warning and error in the icu.logging module.
 def start_logger(event_system, logpath, logfile):
     logger = EventLogger(path=logpath, file=logfile)
-    logger.subscribe("*")
     event_system.add_sink(logger)
     return logger
 
@@ -75,11 +70,11 @@ async def main(cmdargs):
     source = start_local_source(event_system)
 
     # TODO remove - this is just for debugging purposes
-    printer = SinkLocal(print)
-    printer.subscribe("UI::*")
+    # printer = SinkLocal(print)
+    # printer.subscribe("UI::*")
     # event_system.add_sink(printer)
 
-    schedule = load_schedule("./icu/example_schedule.sch")
+    schedule = load_schedule(cmdargs.config)
     for sch in schedule:
         asyncio.create_task(sch(source))
 
@@ -100,7 +95,7 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument(
-        "--config", help="Path to the config file.", default=DEFAULT_CONFIG
+        "--config", help="Path to the config file.", default="./example_schedule.sch"
     )
     args = parser.parse_args()
     asyncio.run(main(args))

@@ -3,7 +3,7 @@ import time
 
 from icu.event2.event import SourceLocal
 
-from icu.ui.utils.math import Point
+from icu.utils.math import Point
 from icu.ui.widget import Widget
 from icu.ui.window import Window
 

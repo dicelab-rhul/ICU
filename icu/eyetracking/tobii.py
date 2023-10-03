@@ -4,7 +4,7 @@
 
 import logging
 from .eyetracker import Eyetracker
-from ..ui.utils.math import Point
+from ..utils.math import Point
 
 try:
     from tobii_research import EyeTracker as _TobiiEyetracker, EYETRACKER_GAZE_DATA

@@ -2,9 +2,9 @@
     Contains the base class for eye trackers. This class should be extended to gather events from a physical eyetracker. See [icu.eyetracking.tobii] for a working example.
 """
 from typing import List
-from screeninfo import get_monitors
 
 from ..utils.exception import EventTypeError
+from ..utils.ui import WindowInfo
 
 from ..event2.event import SinkBase, SourceLocal
 from ..ui.commands import (
@@ -13,7 +13,7 @@ from ..ui.commands import (
     UI_WINDOW_WINDOWRESIZED,
 )
 from ..ui.draw import draw_circle
-from ..ui.utils.math import Point
+from ..utils.math import Point
 
 from .. import logging
 
@@ -24,14 +24,7 @@ class Eyetracker(SourceLocal, SinkBase):
     def __init__(self):
         SinkBase.__init__(self)
         SourceLocal.__init__(self)
-
-        monitor = get_monitors()
-        assert len(monitor) == 1
-        monitor = monitor[0]
-        self._screen_size = Point(monitor.width, monitor.height)
-        logging.info(
-            f"Eyetracker %s obtained screen size: %s", self.id, self._screen_size.get()
-        )
+        self._screen_size = Point(WindowInfo.screen_size)
         # these should be set before processing eye events?
         self._window_position = None
         # size of the current icu window.

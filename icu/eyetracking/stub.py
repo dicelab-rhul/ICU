@@ -3,7 +3,7 @@
 import asyncio
 import pynput
 
-from ..ui.utils.math import Point
+from ..utils.math import Point
 from .eyetracker import Eyetracker
 
 
