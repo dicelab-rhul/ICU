@@ -3,9 +3,6 @@
 """
 import sys
 import os
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
 
 sys.stdout = open(os.devnull, "w")  # pylint: disable=W1514
 # first time import to prevent welcome message display... yes I realise this is unused pylint...
@@ -13,3 +10,7 @@ import pygame  # pylint: disable=C0413
 
 sys.stdout.close()
 sys.stdout = sys.__stdout__
+
+from . import logging
+from . import eyetracking
+from . import event2

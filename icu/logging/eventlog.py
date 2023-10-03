@@ -1,32 +1,45 @@
-
-from .event_types import ICU_LOG
-from ..event2 import SinkLocal
+from ..event2 import SinkLocal, Event
 
 import pathlib
 from datetime import datetime
 
-class EventLogger(SinkLocal):
+ICU_LOG = "ICU::LOG"
 
+
+import logging as _logging  # this is the python logging package...
+
+
+class EventFormatter(_logging.Formatter):
+    def format(self, record):
+        # Basic data always includes the message
+        data = {"message": record.getMessage()}
+        # For error and exception, include exception info and stack trace
+        if record.exc_info:
+            data["exception"] = self.formatException(record.exc_info)
+        if record.stack_info:
+            data["stack_info"] = self.formatStack(record.stack_info)
+
+        event = Event(type=f"ICU::LOG::{record.levelname}", data=data)
+        return str(event)
+
+
+class EventLogger(SinkLocal):
     def __init__(self, path, file=None):
         super().__init__(self.__call__)
         if file is None:
-            path = pathlib.Path(path).expanduser().resolve().absolute()
-            path.mkdir(exist_ok=True, parents=True)
             dt = datetime.now().strftime("%Y%m%d%H%M%S")
             file = pathlib.Path(path, f"event-log-{dt}.log")
         else:
-            file = pathlib.Path(file).expanduser().resolve().absolute()
-            file.parent.mkdir(exist_ok=True, parents=True)
-        if file.exists():
-            raise FileExistsError(f"Log file {file} already exists.")
-        self._file = open(str(file), 'w')
+            file = pathlib.Path(path, file)
 
-        self.subscribe(ICU_LOG + "::*")
+        self.handler = _logging.FileHandler(file)
+        self.handler.setFormatter(EventFormatter())
+
+        self.logger = _logging.getLogger()
+        self.logger.setLevel(_logging.DEBUG)
+        self.logger.addHandler(self.handler)
+        self.subscribe("*")  # subscribe to everything...!
 
     def __call__(self, event):
-        self._file.write(str(event))
-        self._file.write("\n")
-
-    def close(self):
-        self._file.close()
-        super().close()
+        self.handler.stream.write(f"{event}\n")
+        self.handler.flush()

@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from multiprocessing import Queue
 from typing import Dict, Set, Callable
 import time
-import uuid
+import shortuuid
 
 from .dict.eventdict import EventDict
 from ..utils.exception import EventSystemError
@@ -15,7 +15,7 @@ from ..utils.exception import EventSystemError
 class Event:
     """Class for events."""
 
-    id: str = field(init=False, default_factory=lambda: f"{uuid.uuid4().int:>039d}")
+    id: str = field(init=False, default_factory=shortuuid.uuid)
     timestamp: float = field(init=False, default_factory=time.time)
     type: str
     data: dict = field(default_factory=dict)
@@ -41,7 +41,7 @@ class SinkBase:
 
     def __init__(self):
         super().__init__()
-        self.id = str(uuid.uuid4().int)
+        self.id = str(shortuuid.uuid())
 
     def close(self):
         """Closes this sink."""
@@ -90,7 +90,7 @@ class SourceBase:
 
     def __init__(self):
         super().__init__()
-        self.id = str(uuid.uuid4().int)
+        self.id = str(shortuuid.uuid())
 
     def source(self, event_type: str, data: Dict):
         """Produces (or buffers) a new event.
