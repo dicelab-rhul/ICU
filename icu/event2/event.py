@@ -7,7 +7,7 @@ from typing import Dict, Set, Callable
 import time
 import shortuuid
 
-from .dict.eventdict import EventDict
+from ..utils.eventdict import EventDict
 from ..utils.exception import EventSystemError
 
 
@@ -266,8 +266,8 @@ class EventSystem:
                 for event in source.get_events():
                     self._events.add(event.type, event)
             except TypeError as e:
-                print(source, e)  # TODO
-                raise EventSystemError("")
+                # TODO a proper error message
+                raise EventSystemError() from e
 
     def publish(self):
         # print(os.getpid(), len(self._events))
