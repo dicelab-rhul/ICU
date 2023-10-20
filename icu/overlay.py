@@ -9,9 +9,10 @@ from .event import Event, EventCallback
 from .component import Component, PolyComponent, BaseComponent
 from .highlight import all_highlighted
 
+
 class Overlay(EventCallback, Component, PolyComponent):
     """
-        A GUI widget that is placed above other widgets. Accepts 'move' and 'place' events to move the widget.
+    A GUI widget that is placed above other widgets. Accepts 'move' and 'place' events to move the widget.
     """
 
     def __init__(self, canvas, component):
@@ -19,36 +20,35 @@ class Overlay(EventCallback, Component, PolyComponent):
         name = "{0}:{1}".format(Overlay.__name__, str(0))
 
         EventCallback.register(self, name)
-        Component.register(self, name) 
-
+        Component.register(self, name)
 
     def sink(self, event):
-        if event.data.label == 'place':
-            self.x = event.data.x 
-            self.y = event.data.y 
-        elif event.data.label == 'move':
+        print(event)
+        if event.data.label == "place":
+            self.x = event.data.x
+            self.y = event.data.y
+        elif event.data.label == "move":
             self.x += event.data.dx
             self.y += event.data.dy
-        elif event.data.label == 'rotate':
+        elif event.data.label == "rotate":
             self.rotate(event.data.angle)
-        elif event.data.label == 'saccade':
-            self.x = event.data.x - self.width/2
-            self.y = event.data.y - self.height/2
+        elif event.data.label == "saccade":
+            self.x = event.data.x - self.width / 2
+            self.y = event.data.y - self.height / 2
             self.hide()
-        elif event.data.label == 'gaze':
-            self.x = event.data.x - self.width/2
-            self.y = event.data.y - self.height/2
-            if len(all_highlighted()) > 0: # TODO ??? hmmm what about for debugging purposes...? 
+        elif event.data.label == "gaze":
+            self.x = event.data.x - self.width / 2
+            self.y = event.data.y - self.height / 2
+            if (
+                len(all_highlighted()) > 0
+            ):  # TODO ??? hmmm what about for debugging purposes...?
                 self.show()
-        elif event.data.label == 'show':
+        elif event.data.label == "show":
             self.show()
-        elif event.data.label == 'hide':
+        elif event.data.label == "hide":
             self.hide()
-            
-        #self.source('Global', label='highlight', value=self.is_on) # emit a global event (for external systems)
+
+        # self.source('Global', label='highlight', value=self.is_on) # emit a global event (for external systems)
 
     def resize(self, *args, **kwargs):
-        pass # dont resize the overlay...
-
-
-
+        pass  # dont resize the overlay...

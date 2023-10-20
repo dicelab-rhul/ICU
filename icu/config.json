@@ -1,55 +1,83 @@
 {
-
-    "WarningLight:0" : {"schedule":1000},
-    "WarningLight:1" : {"schedule":[1000]},
-
-    "Scale:0" : {"schedule":[[1000]]},
-    "Scale:1" : {"schedule":[[1000, "uniform(0,1000)"]]},
-    "Scale:2" : {"size":11, "position":10},
-    "Scale:3" : {"size":11, "position":0},
-
-    "Target:0" : { "step" : 1 , "invert" : false},
-
-    "FuelTank:A" : {"fuel":10},
-    "FuelTank:B" : {},
-    "FuelTank:C" : {},
-    "FuelTank:D" : {},
-    "FuelTank:E" : {},
-    "FuelTank:F" : {},
-
-    "overlay": {
-        "enable":true,
-        "transparent":true,
-        "highlight_colour":"red",
-        "highlight_thickness":4,
-        "outline":true,
-        "arrow":true
+    "WarningLight:0": {
+        "schedule": 1000
     },
-
-    "input" : {
-        "mouse" : true,
-        "keyboard" : true,
-        "joystick" : false,
-        "eyetracker" : {
-            "enabled" : true,
-            "stub" : true
+    "WarningLight:1": {
+        "schedule": [
+            1000
+        ]
+    },
+    "Scale:0": {
+        "schedule": [
+            [
+                1000
+            ]
+        ]
+    },
+    "Scale:1": {
+        "schedule": [
+            [
+                1000,
+                "uniform(0,1000)"
+            ]
+        ]
+    },
+    "Scale:2": {
+        "size": 11,
+        "position": 10
+    },
+    "Scale:3": {
+        "size": 11,
+        "position": 0
+    },
+    "Target:0": {
+        "step": 1,
+        "invert": false
+    },
+    "FuelTank:A": {
+        "fuel": 10
+    },
+    "FuelTank:B": {},
+    "FuelTank:C": {},
+    "FuelTank:D": {},
+    "FuelTank:E": {},
+    "FuelTank:F": {},
+    "overlay": {
+        "enable": true,
+        "transparent": true,
+        "highlight_colour": "red",
+        "highlight_thickness": 4,
+        "outline": true,
+        "arrow": true
+    },
+    "input": {
+        "mouse": true,
+        "keyboard": true,
+        "joystick": false,
+        "eyetracker": {
+            "enabled": true,
+            "stub": false
         }
     },
-
-    "task" : {
-        "system" : true,
-        "track" : true,
-        "fuel" : true
+    "task": {
+        "system": true,
+        "track": true,
+        "fuel": true
     },
-
-    "shutdown":-1,
-    "background_colour":"blue",
+    "shutdown": -1,
+    "background_colour": "blue",
     "screen_full": false,
     "screen_height": 1000,
     "screen_width": 1000,
     "screen_x": 500,
     "screen_y": 0,
-    "screen_resizable":true,
-    "screen_min_size":[400,400],
-    "screen_max_size":[2000,2000]
+    "screen_resizable": true,
+    "screen_min_size": [
+        400,
+        400
+    ],
+    "screen_max_size": [
+        2000,
+        2000
+    ]
 }
